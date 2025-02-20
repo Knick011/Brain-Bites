@@ -1,0 +1,41 @@
+{
+  "files": {
+    "main.css": "/Brain-Bites/static/css/main.9660b045.css",
+    "main.js": "/Brain-Bites/static/js/main.cab1c1c9.js",
+    "reactPlayerYouTube.js": "/Brain-Bites/static/js/reactPlayerYouTube.b7b2720b.chunk.js",
+    "reactPlayerSoundCloud.js": "/Brain-Bites/static/js/reactPlayerSoundCloud.6576beba.chunk.js",
+    "reactPlayerVimeo.js": "/Brain-Bites/static/js/reactPlayerVimeo.80e60a3d.chunk.js",
+    "reactPlayerMux.js": "/Brain-Bites/static/js/reactPlayerMux.4223fc58.chunk.js",
+    "reactPlayerFacebook.js": "/Brain-Bites/static/js/reactPlayerFacebook.121da952.chunk.js",
+    "reactPlayerStreamable.js": "/Brain-Bites/static/js/reactPlayerStreamable.dd24985b.chunk.js",
+    "reactPlayerWistia.js": "/Brain-Bites/static/js/reactPlayerWistia.61bd6df6.chunk.js",
+    "reactPlayerTwitch.js": "/Brain-Bites/static/js/reactPlayerTwitch.9aabea5d.chunk.js",
+    "reactPlayerDailyMotion.js": "/Brain-Bites/static/js/reactPlayerDailyMotion.b764dad8.chunk.js",
+    "reactPlayerMixcloud.js": "/Brain-Bites/static/js/reactPlayerMixcloud.b0e39195.chunk.js",
+    "reactPlayerVidyard.js": "/Brain-Bites/static/js/reactPlayerVidyard.6f830b50.chunk.js",
+    "reactPlayerKaltura.js": "/Brain-Bites/static/js/reactPlayerKaltura.e59f4175.chunk.js",
+    "reactPlayerFilePlayer.js": "/Brain-Bites/static/js/reactPlayerFilePlayer.d67b9916.chunk.js",
+    "reactPlayerPreview.js": "/Brain-Bites/static/js/reactPlayerPreview.09fe3f78.chunk.js",
+    "index.html": "/Brain-Bites/index.html",
+    "main.9660b045.css.map": "/Brain-Bites/static/css/main.9660b045.css.map",
+    "main.cab1c1c9.js.map": "/Brain-Bites/static/js/main.cab1c1c9.js.map",
+    "reactPlayerYouTube.b7b2720b.chunk.js.map": "/Brain-Bites/static/js/reactPlayerYouTube.b7b2720b.chunk.js.map",
+    "reactPlayerSoundCloud.6576beba.chunk.js.map": "/Brain-Bites/static/js/reactPlayerSoundCloud.6576beba.chunk.js.map",
+    "reactPlayerVimeo.80e60a3d.chunk.js.map": "/Brain-Bites/static/js/reactPlayerVimeo.80e60a3d.chunk.js.map",
+    "reactPlayerMux.4223fc58.chunk.js.map": "/Brain-Bites/static/js/reactPlayerMux.4223fc58.chunk.js.map",
+    "reactPlayerFacebook.121da952.chunk.js.map": "/Brain-Bites/static/js/reactPlayerFacebook.121da952.chunk.js.map",
+    "reactPlayerStreamable.dd24985b.chunk.js.map": "/Brain-Bites/static/js/reactPlayerStreamable.dd24985b.chunk.js.map",
+    "reactPlayerWistia.61bd6df6.chunk.js.map": "/Brain-Bites/static/js/reactPlayerWistia.61bd6df6.chunk.js.map",
+    "reactPlayerTwitch.9aabea5d.chunk.js.map": "/Brain-Bites/static/js/reactPlayerTwitch.9aabea5d.chunk.js.map",
+    "reactPlayerDailyMotion.b764dad8.chunk.js.map": "/Brain-Bites/static/js/reactPlayerDailyMotion.b764dad8.chunk.js.map",
+    "reactPlayerMixcloud.b0e39195.chunk.js.map": "/Brain-Bites/static/js/reactPlayerMixcloud.b0e39195.chunk.js.map",
+    "reactPlayerVidyard.6f830b50.chunk.js.map": "/Brain-Bites/static/js/reactPlayerVidyard.6f830b50.chunk.js.map",
+    "reactPlayerKaltura.e59f4175.chunk.js.map": "/Brain-Bites/static/js/reactPlayerKaltura.e59f4175.chunk.js.map",
+    "reactPlayerFilePlayer.d67b9916.chunk.js.map": "/Brain-Bites/static/js/reactPlayerFilePlayer.d67b9916.chunk.js.map",
+    "reactPlayerPreview.09fe3f78.chunk.js.map": "/Brain-Bites/static/js/reactPlayerPreview.09fe3f78.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9660b045.css",
+    "static/js/main.cab1c1c9.js"
+  ]
+}
