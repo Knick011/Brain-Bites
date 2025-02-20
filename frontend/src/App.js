@@ -40,7 +40,7 @@ const App = () => {
     'https://www.youtube.com/shorts/cAYp92LaU7k',
     'https://www.youtube.com/shorts/i6jH7V41dxA',
     'https://www.youtube.com/shorts/mnM9kIszddY',
-    'https://www.youtube.com/shorts/7ZNWQjMap8M',
+    'https://www.youtube.com/shorts/7ZNWQbMap8M',
     'https://www.youtube.com/shorts/y40Qq4lPjBs',
     'https://www.youtube.com/shorts/DzFg9d6fUaI',
     'https://www.youtube.com/shorts/EX6GoPrpvkU',
@@ -52,6 +52,11 @@ const App = () => {
 
   // Handlers
   const handleStart = () => {
+    window.gtag('event', 'game_start', {
+      'event_category': 'Game',
+      'event_label': 'Started Game'
+    });
+    
     SoundEffects.playButtonPress();
     setTimeout(() => {
       SoundEffects.playTransition();
@@ -60,6 +65,11 @@ const App = () => {
   };
 
   const handleMainSelection = (section) => {
+    window.gtag('event', 'section_selected', {
+      'event_category': 'Navigation',
+      'section_name': section
+    });
+
     SoundEffects.playButtonPress();
     setTimeout(() => {
       // Reset states
@@ -84,6 +94,11 @@ const App = () => {
       newUrl = videoUrls[randomIndex];
     } while (newUrl === currentVideoUrl && videoUrls.length > 1);
     
+    window.gtag('event', 'video_shown', {
+      'event_category': 'Video',
+      'video_url': newUrl
+    });
+
     setIsLoading(true);
     setCurrentVideoUrl(newUrl);
     setShowQuestion(false);
@@ -94,6 +109,11 @@ const App = () => {
   };
 
   const handleVideoEnd = () => {
+    window.gtag('event', 'video_completed', {
+      'event_category': 'Video',
+      'video_url': currentVideoUrl
+    });
+
     SoundEffects.playTransition();
     setTimeout(() => {
       fetchQuestion();
@@ -101,6 +121,11 @@ const App = () => {
   };
 
   const handleVideoSkip = () => {
+    window.gtag('event', 'video_skipped', {
+      'event_category': 'Video',
+      'video_url': currentVideoUrl
+    });
+
     handleVideoEnd();
   };
 
@@ -113,10 +138,23 @@ const App = () => {
         
       const response = await axios.get(endpoint);
       setCurrentQuestion(response.data);
+
+      window.gtag('event', 'question_shown', {
+        'event_category': 'Question',
+        'question_category': selectedSection,
+        'question_id': response.data.id
+      });
+
       setShowQuestion(true);
       setTotalQuestions(prev => prev + 1);
     } catch (error) {
       console.error('Error fetching question:', error);
+      
+      window.gtag('event', 'question_fetch_error', {
+        'event_category': 'Error',
+        'error_message': error.message
+      });
+
       setRandomVideo();
     } finally {
       setIsLoading(false);
@@ -126,12 +164,25 @@ const App = () => {
   const handleAnswerSubmit = (isCorrect) => {
     setTimeout(() => {
       if (isCorrect) {
+        window.gtag('event', 'question_answered', {
+          'event_category': 'Question',
+          'question_id': currentQuestion.id,
+          'category': currentQuestion.category,
+          'correct': true,
+          'streak': streak + 1
+        });
+
         SoundEffects.playCorrect();
         setCorrectAnswers(prev => prev + 1);
         const newStreak = streak + 1;
         setStreak(newStreak);
         
         if (newStreak % 5 === 0) {
+          window.gtag('event', 'streak_milestone', {
+            'event_category': 'Achievement',
+            'streak_count': newStreak
+          });
+
           setTimeout(() => {
             SoundEffects.playStreak();
           }, 500);
@@ -146,6 +197,14 @@ const App = () => {
           }, 500);
         }, 1500);
       } else {
+        window.gtag('event', 'question_answered', {
+          'event_category': 'Question',
+          'question_id': currentQuestion.id,
+          'category': currentQuestion.category,
+          'correct': false,
+          'streak_lost': streak
+        });
+
         SoundEffects.playIncorrect();
         setStreak(0);
       }
