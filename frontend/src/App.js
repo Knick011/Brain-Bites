@@ -128,13 +128,13 @@ const App = () => {
 
     handleVideoEnd();
   };
-const BACKEND_URL = 'https://brain-bites-api.onrender.com';
+
   const fetchQuestion = async () => {
     try {
       setIsLoading(true);
       const endpoint = selectedSection === 'funfacts' 
-         ? `${BACKEND_URL}/api/questions/random/funfacts`
-      : `${BACKEND_URL}/api/questions/random/psychology`;
+      ? 'https://brain-bites-api.onrender.com/api/questions/random/funfacts'
+      : 'https://brain-bites-api.onrender.com/api/questions/random/psychology';
         
       const response = await axios.get(endpoint);
       setCurrentQuestion(response.data);
