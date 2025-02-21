@@ -1,11 +1,12 @@
 // App.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
 import LoadingSpinner from './components/VQLN/Layout/LoadingSpinner';
 import MainSelection from './components/VQLN/Selection/MainSelection';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
 import SoundEffects from './utils/SoundEffects';
+import ViralShortsAPI from './utils/ViralShortsAPI';
 import axios from 'axios';
 import './styles/theme.css';
 
@@ -22,33 +23,28 @@ const App = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
+  const [videoUrls, setVideoUrls] = useState([]);
 
-  const videoUrls = [
-    'https://www.youtube.com/shorts/JfbnpYLe3Ms',
-    'https://www.youtube.com/shorts/6S-5Z2dDjDE',
-    'https://www.youtube.com/shorts/1KFyKwAc5wg',
-    'https://www.youtube.com/shorts/5ubcr90MRA8',
-    'https://www.youtube.com/shorts/Z34l5Kw7BWE',
-    'https://www.youtube.com/shorts/pYqBCuTbXr8',
-    'https://www.youtube.com/shorts/Wy3GSS5LAY0',
-    'https://www.youtube.com/shorts/Cute2zWbQik',
-    'https://www.youtube.com/shorts/XiTdR7JbMBU',
-    'https://www.youtube.com/shorts/T4NxRK0Us4A',
-    'https://www.youtube.com/shorts/E9IajO3BYiM',
-    'https://www.youtube.com/shorts/yTWuk06c1YU',
-    'https://www.youtube.com/shorts/982UFH4I3F8',
-    'https://www.youtube.com/shorts/cAYp92LaU7k',
-    'https://www.youtube.com/shorts/i6jH7V41dxA',
-    'https://www.youtube.com/shorts/mnM9kIszddY',
-    'https://www.youtube.com/shorts/7ZNWQbMap8M',
-    'https://www.youtube.com/shorts/y40Qq4lPjBs',
-    'https://www.youtube.com/shorts/DzFg9d6fUaI',
-    'https://www.youtube.com/shorts/EX6GoPrpvkU',
-    'https://www.youtube.com/shorts/9rSQdWWdaz0',
-    'https://www.youtube.com/shorts/fvQ99OpGybw',
-    'https://www.youtube.com/shorts/c75q8uQgBSs',
-    'https://www.youtube.com/shorts/nyI4U7uLPuU',
-  ];
+  // Fetch viral shorts on component mount
+  useEffect(() => {
+    const fetchViralShorts = async () => {
+      setIsLoading(true);
+      try {
+        const shorts = await ViralShortsAPI.getViralShorts(50); // Get top 50 viral shorts
+        if (shorts.length > 0) {
+          setVideoUrls(shorts.map(short => short.url));
+          // Cache first video
+          setCurrentVideoUrl(shorts[0].url);
+        }
+      } catch (error) {
+        console.error('Failed to fetch viral shorts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchViralShorts();
+  }, []); // Run once when component mounts
 
   // Handlers
   const handleStart = () => {
@@ -88,6 +84,8 @@ const App = () => {
   };
 
   const setRandomVideo = () => {
+    if (videoUrls.length === 0) return;
+    
     let newUrl;
     do {
       const randomIndex = Math.floor(Math.random() * videoUrls.length);
@@ -133,8 +131,8 @@ const App = () => {
     try {
       setIsLoading(true);
       const endpoint = selectedSection === 'funfacts' 
-      ? 'https://brain-bites-api.onrender.com/api/questions/random/funfacts'
-      : 'https://brain-bites-api.onrender.com/api/questions/random/psychology';
+        ? 'https://brain-bites-api.onrender.com/api/questions/random/funfacts'
+        : 'https://brain-bites-api.onrender.com/api/questions/random/psychology';
         
       const response = await axios.get(endpoint);
       setCurrentQuestion(response.data);
@@ -215,7 +213,7 @@ const App = () => {
   return (
     <div className="app-container">
       {showWelcome ? (
-        <InitialWelcome onStart={handleStart} />
+        <InitialWelcome onStart={handleStart} isLoading={isLoading} />
       ) : !selectedSection ? (
         <MainSelection onSelect={handleMainSelection} />
       ) : (
