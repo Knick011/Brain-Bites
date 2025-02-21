@@ -1,18 +1,8 @@
 // YouTubeLogin.js
 import React, { useState, useEffect } from 'react';
 import GoogleAuthService from '../utils/GoogleAuthService';
-import { Youtube, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Youtube } from 'lucide-react';
+import AlertDialog from './AlertDialog';
 
 const YouTubeLogin = ({ onLoginStatusChange, onPersonalizedVideos }) => {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -96,40 +86,32 @@ const YouTubeLogin = ({ onLoginStatusChange, onPersonalizedVideos }) => {
         )}
       </div>
 
-      <AlertDialog open={showDisclaimer} onOpenChange={setShowDisclaimer}>
-        <AlertDialogContent className="bg-white">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertCircle className="text-orange-500" />
-              Important Privacy Notice
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-base space-y-2">
-              <p>🔒 <strong>Your Privacy Matters:</strong></p>
-              <p>
-                Brain Bites uses Google's official login system only to show you personalized YouTube Shorts. 
-                We never see your password or store any of your personal data.
+      <AlertDialog
+        isOpen={showDisclaimer}
+        onClose={() => setShowDisclaimer(false)}
+        onConfirm={handleDisclaimerConfirm}
+        title="Important Privacy Notice"
+        description={
+          <div className="space-y-4">
+            <p className="font-bold">🔒 Your Privacy Matters:</p>
+            <p>
+              Brain Bites uses Google's official login system only to show you personalized YouTube Shorts. 
+              We never see your password or store any of your personal data.
+            </p>
+            <p>
+              You'll be logging in directly through Google, and you can remove access 
+              at any time through your Google Account settings.
+            </p>
+            <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+              <p className="font-bold text-orange-800">Beta Version Notice</p>
+              <p className="text-orange-700">
+                This is a beta feature. While we prioritize your privacy and security, 
+                you may want to use a non-primary Google account if you have any concerns.
               </p>
-              <p>
-                You'll be logging in directly through Google, and you can remove access 
-                at any time through your Google Account settings.
-              </p>
-              <Alert className="mt-4 border-orange-200 bg-orange-50">
-                <AlertTitle className="text-orange-800">Beta Version Notice</AlertTitle>
-                <AlertDescription className="text-orange-700">
-                  This is a beta feature. While we prioritize your privacy and security, 
-                  you may want to use a non-primary Google account if you have any concerns.
-                </AlertDescription>
-              </Alert>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDisclaimerConfirm}>
-              Continue with Google
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </div>
+          </div>
+        }
+      />
     </>
   );
 };
