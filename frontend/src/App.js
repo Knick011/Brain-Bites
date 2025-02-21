@@ -83,25 +83,42 @@ const App = () => {
     }, 500);
   };
 
-  const setRandomVideo = () => {
-    if (videoUrls.length === 0) return;
-    
+  // In your setRandomVideo function in App.js
+const setRandomVideo = async () => {
+  setIsLoading(true);
+  try {
+    console.log('Fetching viral shorts...');
+    const shorts = await ViralShortsAPI.getViralShorts();
+    console.log('Retrieved shorts:', shorts.length);
+
+    if (shorts.length === 0) {
+      console.error('No valid shorts found');
+      return;
+    }
+
     let newUrl;
     do {
-      const randomIndex = Math.floor(Math.random() * videoUrls.length);
-      newUrl = videoUrls[randomIndex];
-    } while (newUrl === currentVideoUrl && videoUrls.length > 1);
+      const randomIndex = Math.floor(Math.random() * shorts.length);
+      newUrl = shorts[randomIndex].url;
+    } while (newUrl === currentVideoUrl && shorts.length > 1);
+
+    console.log('Selected video URL:', newUrl);
     
     window.gtag('event', 'video_shown', {
       'event_category': 'Video',
       'video_url': newUrl
     });
 
-    setIsLoading(true);
     setCurrentVideoUrl(newUrl);
     setShowQuestion(false);
-  };
-
+  } catch (error) {
+    console.error('Error setting random video:', error);
+    // Fallback to question if video fails
+    fetchQuestion();
+  } finally {
+    setIsLoading(false);
+  }
+};
   const handleVideoReady = () => {
     setIsLoading(false);
   };
