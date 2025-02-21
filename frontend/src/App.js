@@ -5,8 +5,9 @@ import QuestionCard from './components/VQLN/Question/QuestionCard';
 import LoadingSpinner from './components/VQLN/Layout/LoadingSpinner';
 import MainSelection from './components/VQLN/Selection/MainSelection';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
+import YouTubeLogin from './components/YouTubeLogin';
 import SoundEffects from './utils/SoundEffects';
-import ViralShortsAPI from './utils/ViralShortsAPI';
+import YouTubeShortsService from './utils/YouTubeShortsService';
 import axios from 'axios';
 import './styles/theme.css';
 
@@ -15,7 +16,7 @@ const App = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showQuestion, setShowQuestion] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [videoCount, setVideoCount] = useState(0);
+  const [videoUrls, setVideoUrls] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
@@ -23,28 +24,17 @@ const App = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
-  const [videoUrls, setVideoUrls] = useState([]);
+  const [isPersonalized, setIsPersonalized] = useState(false);
 
-  // Fetch viral shorts on component mount
+  // Load initial viral videos
   useEffect(() => {
-    const fetchViralShorts = async () => {
-      setIsLoading(true);
-      try {
-        const shorts = await ViralShortsAPI.getViralShorts(50); // Get top 50 viral shorts
-        if (shorts.length > 0) {
-          setVideoUrls(shorts.map(short => short.url));
-          // Cache first video
-          setCurrentVideoUrl(shorts[0].url);
-        }
-      } catch (error) {
-        console.error('Failed to fetch viral shorts:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    const loadViralVideos = async () => {
+      const viralShorts = await YouTubeShortsService.getViralShorts();
+      setVideoUrls(viralShorts);
     };
 
-    fetchViralShorts();
-  }, []); // Run once when component mounts
+    loadViralVideos();
+  }, []);
 
   // Handlers
   const handleStart = () => {
@@ -72,7 +62,6 @@ const App = () => {
       setCorrectAnswers(0);
       setTotalQuestions(0);
       setStreak(0);
-      setVideoCount(0);
       setShowQuestion(false);
       setCurrentQuestion(null);
       setCurrentVideoUrl('');
@@ -83,42 +72,41 @@ const App = () => {
     }, 500);
   };
 
-  // In your setRandomVideo function in App.js
-const setRandomVideo = async () => {
-  setIsLoading(true);
-  try {
-    console.log('Fetching viral shorts...');
-    const shorts = await ViralShortsAPI.getViralShorts();
-    console.log('Retrieved shorts:', shorts.length);
+  const handlePersonalizedVideos = async (videos) => {
+    if (videos.length > 0) {
+      setIsPersonalized(true);
+      setVideoUrls(videos);
+    } else {
+      setIsPersonalized(false);
+      const viralShorts = await YouTubeShortsService.getViralShorts();
+      setVideoUrls(viralShorts);
+    }
+  };
 
-    if (shorts.length === 0) {
-      console.error('No valid shorts found');
+  const setRandomVideo = () => {
+    if (videoUrls.length === 0) {
+      console.error('No videos available');
       return;
     }
-
+    
     let newUrl;
     do {
-      const randomIndex = Math.floor(Math.random() * shorts.length);
-      newUrl = shorts[randomIndex].url;
-    } while (newUrl === currentVideoUrl && shorts.length > 1);
-
-    console.log('Selected video URL:', newUrl);
+      const randomIndex = Math.floor(Math.random() * videoUrls.length);
+      const video = videoUrls[randomIndex];
+      newUrl = video.url;
+    } while (newUrl === currentVideoUrl && videoUrls.length > 1);
     
     window.gtag('event', 'video_shown', {
       'event_category': 'Video',
-      'video_url': newUrl
+      'video_url': newUrl,
+      'type': isPersonalized ? 'personalized' : 'viral'
     });
 
+    setIsLoading(true);
     setCurrentVideoUrl(newUrl);
     setShowQuestion(false);
-  } catch (error) {
-    console.error('Error setting random video:', error);
-    // Fallback to question if video fails
-    fetchQuestion();
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
+
   const handleVideoReady = () => {
     setIsLoading(false);
   };
@@ -223,14 +211,23 @@ const setRandomVideo = async () => {
         SoundEffects.playIncorrect();
         setStreak(0);
       }
-    }, 1000); // Delay after answer selection
+    }, 1000);
   };
 
   // Render
   return (
     <div className="app-container">
+      <YouTubeLogin 
+        onLoginStatusChange={(isLoggedIn) => {
+          if (!isLoggedIn) {
+            setIsPersonalized(false);
+          }
+        }}
+        onPersonalizedVideos={handlePersonalizedVideos}
+      />
+      
       {showWelcome ? (
-        <InitialWelcome onStart={handleStart} isLoading={isLoading} />
+        <InitialWelcome onStart={handleStart} />
       ) : !selectedSection ? (
         <MainSelection onSelect={handleMainSelection} />
       ) : (
