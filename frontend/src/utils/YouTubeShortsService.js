@@ -8,10 +8,13 @@ class YouTubeShortsService {
 
   async getViralShorts(maxResults = 50) {
     try {
+      // Only get shorts from US and Canada
       const [usShorts, caShorts] = await Promise.all([
         this.getRegionalShorts('US', maxResults),
         this.getRegionalShorts('CA', maxResults)
       ]);
+
+      console.log('Fetched shorts - US:', usShorts.length, 'CA:', caShorts.length);
 
       const allShorts = [...usShorts, ...caShorts]
         .filter(video => {
@@ -20,6 +23,7 @@ class YouTubeShortsService {
         })
         .sort((a, b) => parseInt(b.viewCount) - parseInt(a.viewCount));
 
+      console.log('Combined and filtered shorts:', allShorts.length);
       return allShorts;
     } catch (error) {
       console.error('Error fetching viral shorts:', error);
@@ -38,7 +42,6 @@ class YouTubeShortsService {
         `&videoDuration=short` +
         `&order=viewCount` +
         `&regionCode=${regionCode}` +
-        `&publishedAfter=${this.oneYearAgo.toISOString()}` +
         `&key=${this.apiKey}`
       );
 
@@ -47,7 +50,9 @@ class YouTubeShortsService {
       }
 
       const data = await response.json();
+      console.log(`${regionCode} API response received:`, data.items?.length || 0, 'items');
       
+      // Get video details including view counts
       const videoIds = data.items.map(item => item.id.videoId).join(',');
       const statsResponse = await fetch(
         `https://www.googleapis.com/youtube/v3/videos?` +
