@@ -2,8 +2,8 @@
 class ViralShortsAPI {
   constructor() {
     this.apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
-    this.maxDuration = 60; // Maximum duration in seconds
-    this.minLikes = 25000; // Minimum likes threshold
+    this.maxDuration = 120; // Maximum duration in seconds
+    this.minLikes = 1000; // Minimum likes threshold
   }
 
   async getViralShorts(maxResults = 50) {
