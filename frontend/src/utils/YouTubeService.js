@@ -6,28 +6,32 @@ class YouTubeShortsService {
 
   async getViralShorts() {
     try {
-      // First get trending videos
-      const response = await fetch(
-        `https://youtube.googleapis.com/youtube/v3/videos?` +
-        `part=snippet` +
-        `&chart=mostPopular` +
-        `&maxResults=50` +
-        `&videoCategoryId=35` + // For short-form content
-        `&regionCode=US` +
-        `&key=${this.apiKey}`
+      // Get popular shorts from US and Canada
+      const regions = ['US', 'CA'];
+      const requests = regions.map(region =>
+        fetch(
+          `https://youtube.googleapis.com/youtube/v3/search?` +
+          `part=snippet` +
+          `&maxResults=25` +
+          `&q=%23shorts` +
+          `&type=video` +
+          `&videoDuration=short` +
+          `&order=viewCount` + // Sort by view count
+          `&regionCode=${region}` +
+          `&key=${this.apiKey}`
+        ).then(r => r.json())
       );
 
-      if (!response.ok) {
-        console.error('Error response:', await response.json());
-        throw new Error('Failed to fetch trending videos');
-      }
+      const responses = await Promise.all(requests);
+      const videos = responses
+        .flatMap(data => data.items || [])
+        .map(item => ({
+          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
+          title: item.snippet.title,
+          channelTitle: item.snippet.channelTitle
+        }));
 
-      const data = await response.json();
-      return data.items.map(item => ({
-        url: `https://www.youtube.com/shorts/${item.id}`,
-        title: item.snippet.title,
-        channelTitle: item.snippet.channelTitle
-      }));
+      return this.shuffleArray(videos);
     } catch (error) {
       console.error('Error fetching viral shorts:', error);
       return [];
@@ -36,39 +40,49 @@ class YouTubeShortsService {
 
   async getPersonalizedShorts(accessToken) {
     try {
-      // Get user's watch history and trending shorts
-      const [historyResponse, trendingResponse] = await Promise.all([
+      // Get user's subscribed channels
+      const subResponse = await fetch(
+        'https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=20',
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json'
+          }
+        }
+      );
+
+      if (!subResponse.ok) throw new Error('Failed to fetch subscriptions');
+      const subData = await subResponse.json();
+      
+      // Get videos from each channel
+      const channelIds = subData.items.map(item => item.snippet.resourceId.channelId);
+      const videoPromises = channelIds.map(channelId =>
         fetch(
           `https://youtube.googleapis.com/youtube/v3/search?` +
           `part=snippet` +
-          `&maxResults=25` +
+          `&channelId=${channelId}` +
+          `&maxResults=5` +
           `&q=%23shorts` +
           `&type=video` +
           `&videoDuration=short` +
-          `&order=rating` + // Get highly rated shorts
-          `&key=${this.apiKey}`,
-          {
-            headers: accessToken ? {
-              'Authorization': `Bearer ${accessToken}`
-            } : {}
-          }
-        ),
-        this.getViralShorts()
-      ]);
+          `&order=viewCount` + // Get most viewed shorts from each channel
+          `&key=${this.apiKey}`
+        ).then(r => r.json())
+      );
 
-      const historyData = await historyResponse.json();
-      
-      // Combine personalized and trending videos
-      const allVideos = [
-        ...(historyData.items || []).map(item => ({
+      const videoResponses = await Promise.all(videoPromises);
+      const personalizedVideos = videoResponses
+        .flatMap(response => response.items || [])
+        .map(item => ({
           url: `https://www.youtube.com/shorts/${item.id.videoId}`,
           title: item.snippet.title,
           channelTitle: item.snippet.channelTitle
-        })),
-        ...trendingResponse
-      ];
+        }));
 
-      // Shuffle the array
+      // Mix with some viral videos
+      const viralVideos = await this.getViralShorts();
+      const allVideos = [...personalizedVideos, ...viralVideos.slice(0, 10)];
+
       return this.shuffleArray(allVideos);
     } catch (error) {
       console.error('Error fetching personalized shorts:', error);
