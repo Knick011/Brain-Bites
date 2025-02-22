@@ -6,10 +6,10 @@ import MainSelection from './components/VQLN/Selection/MainSelection';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
 import YouTubeLogin from './components/VQLN/YouTubeLogin';
 import SoundEffects from './utils/SoundEffects';
-import YouTubeService from './utils/YouTubeService';
 import axios from 'axios';
 import './styles/theme.css';
 
+const YOUTUBE_API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
 const WARMUP_INTERVAL = 14 * 60 * 1000; // 14 minutes in milliseconds
 
 const App = () => {
@@ -24,37 +24,48 @@ const App = () => {
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [videos, setVideos] = useState([]);
-  const [accessToken, setAccessToken] = useState(null);
 
-  // Initialize video content
-  useEffect(() => {
-    loadInitialVideos();
-  }, []);
-
-  const loadInitialVideos = async () => {
+  // Fetch popular videos for non-logged-in users
+  const fetchPopularShorts = async () => {
     try {
-      setIsLoading(true);
-      const shorts = isSignedIn && accessToken
-        ? await YouTubeService.getPersonalizedShorts(accessToken)
-        : await YouTubeService.getTrendingShorts();
+      const response = await fetch(
+        `https://youtube.googleapis.com/youtube/v3/search?` +
+        `part=snippet` +
+        `&maxResults=50` +
+        `&q=%23shorts` +
+        `&type=video` +
+        `&videoDuration=short` +
+        `&order=viewCount` +
+        `&regionCode=US` +
+        `&key=${YOUTUBE_API_KEY}`
+      );
 
-      const videoUrls = shorts.map(short => short.url);
+      if (!response.ok) throw new Error('YouTube API request failed');
+
+      const data = await response.json();
+      const videoUrls = data.items.map(item => 
+        `https://www.youtube.com/shorts/${item.id.videoId}`
+      );
       setVideos(videoUrls);
       if (videoUrls.length > 0) {
         setCurrentVideoUrl(videoUrls[0]);
       }
     } catch (error) {
-      console.error('Error loading initial videos:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error fetching popular shorts:', error);
     }
   };
+
+  // Initialize with popular videos
+  useEffect(() => {
+    fetchPopularShorts();
+  }, []);
 
   // API Warmup Effect
   useEffect(() => {
     const warmupAPI = async () => {
       try {
         console.log('Warming up API...');
+        // Make parallel requests to both endpoints
         await Promise.all([
           axios.get('https://brain-bites-api.onrender.com/api/questions/random/funfacts'),
           axios.get('https://brain-bites-api.onrender.com/api/questions/random/psychology')
@@ -64,33 +75,23 @@ const App = () => {
         console.error('API warmup failed:', error);
       }
     };
+    // Initial warmup
     warmupAPI();
+    // Set up interval for periodic warmup
     const intervalId = setInterval(warmupAPI, WARMUP_INTERVAL);
+    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
 
   // Handle login status change and personalized videos
-  const handleLoginStatusChange = async (isLoggedIn, token) => {
+  const handleLoginStatusChange = async (isLoggedIn, personalizedVideos) => {
     setIsSignedIn(isLoggedIn);
-    setAccessToken(token);
-    
-    if (isLoggedIn && token) {
-      try {
-        setIsLoading(true);
-        const personalizedShorts = await YouTubeService.getPersonalizedShorts(token);
-        const videoUrls = personalizedShorts.map(short => short.url);
-        setVideos(videoUrls);
-        if (videoUrls.length > 0) {
-          setCurrentVideoUrl(videoUrls[0]);
-        }
-      } catch (error) {
-        console.error('Error fetching personalized shorts:', error);
-        await loadInitialVideos(); // Fallback to trending
-      } finally {
-        setIsLoading(false);
-      }
+    if (isLoggedIn && personalizedVideos.length > 0) {
+      const videoUrls = personalizedVideos.map(video => video.url);
+      setVideos(videoUrls);
+      setCurrentVideoUrl(videoUrls[0]);
     } else {
-      await loadInitialVideos();
+      fetchPopularShorts();
     }
   };
 
