@@ -6,101 +6,51 @@ class YouTubeShortsService {
 
   async getViralShorts({ maxResults = 50, regions = ['US', 'CA'] }) {
     try {
-      // Get videos from all specified regions
-      const regionalVideosPromises = regions.map(region => 
-        this.getRegionShorts(region, Math.ceil(maxResults / regions.length))
-      );
-
-      const regionalVideos = await Promise.all(regionalVideosPromises);
+      const allVideos = [];
       
-      // Combine and sort by viewCount
-      const allVideos = regionalVideos
-        .flat()
-        .sort((a, b) => parseInt(b.viewCount) - parseInt(a.viewCount));
+      for (const region of regions) {
+        const response = await fetch(
+          `https://youtube.googleapis.com/youtube/v3/search?` +
+          `part=snippet` +
+          `&maxResults=${maxResults}` +
+          `&q=%23shorts` +
+          `&type=video` +
+          `&videoDuration=short` +
+          `&order=viewCount` +
+          `&regionCode=${region}` +
+          `&key=${this.apiKey}`
+        );
 
-      return allVideos.map(video => ({
-        ...video,
-        isPersonalized: false
-      }));
+        if (!response.ok) {
+          throw new Error(`YouTube API request failed for region ${region}`);
+        }
+
+        const data = await response.json();
+        const videos = data.items.map(item => ({
+          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
+          title: item.snippet.title,
+          channelTitle: item.snippet.channelTitle,
+          isPersonalized: false
+        }));
+        
+        allVideos.push(...videos);
+      }
+
+      // Shuffle the videos
+      return this.shuffleArray(allVideos);
     } catch (error) {
       console.error('Error fetching viral shorts:', error);
       return [];
     }
   }
 
-  async getRegionShorts(regionCode, maxResults) {
-    try {
-      const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?` +
-        `part=snippet` +
-        `&maxResults=${maxResults * 2}` + // Request more to account for filtering
-        `&q=%23shorts` +
-        `&type=video` +
-        `&videoDuration=short` +
-        `&order=viewCount` +
-        `&regionCode=${regionCode}` +
-        `&key=${this.apiKey}`
-      );
-
-      if (!response.ok) {
-        throw new Error(`YouTube API request failed for region ${regionCode}`);
-      }
-
-      const data = await response.json();
-      
-      // Get detailed stats for the videos
-      const videos = await this.getVideoDetails(
-        data.items.map(item => ({
-          videoId: item.id.videoId,
-          title: item.snippet.title,
-          channelTitle: item.snippet.channelTitle
-        }))
-      );
-
-      return videos;
-    } catch (error) {
-      console.error(`Error fetching ${regionCode} Shorts:`, error);
-      return [];
+  shuffleArray(array) {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
-  }
-
-  async getVideoDetails(videos) {
-    if (!videos.length) return [];
-
-    try {
-      const videoIds = videos.map(v => v.videoId).join(',');
-      
-      const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?` +
-        `part=statistics,contentDetails` +
-        `&id=${videoIds}` +
-        `&key=${this.apiKey}`
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch video details');
-      }
-
-      const data = await response.json();
-
-      return videos.map(video => {
-        const details = data.items.find(item => item.id === video.videoId);
-        return {
-          ...video,
-          url: `https://www.youtube.com/shorts/${video.videoId}`,
-          viewCount: details?.statistics?.viewCount || '0',
-          likeCount: details?.statistics?.likeCount || '0'
-        };
-      });
-    } catch (error) {
-      console.error('Error fetching video details:', error);
-      return videos.map(video => ({
-        ...video,
-        url: `https://www.youtube.com/shorts/${video.videoId}`,
-        viewCount: '0',
-        likeCount: '0'
-      }));
-    }
+    return newArray;
   }
 }
 
