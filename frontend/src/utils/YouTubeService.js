@@ -2,46 +2,68 @@
 class YouTubeService {
   constructor() {
     this.apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
-    this.ALLOWED_REGIONS = ['US', 'CA'];
+    this.VIEW_THRESHOLD = 500000;  // Minimum views required
+    this.LIKE_THRESHOLD = 10000;   // Minimum likes required
   }
 
   async getViralShorts() {
     try {
-      // Get popular shorts from US and Canada using search endpoint
-      const requests = this.ALLOWED_REGIONS.map(region =>
-        fetch(
-          `https://youtube.googleapis.com/youtube/v3/search?` +
-          `part=snippet` +
-          `&maxResults=25` +
-          `&q=%23shorts` +
-          `&type=video` +
-          `&videoDuration=short` + // Only short duration videos
-          `&order=viewCount` + // Sort by views
-          `&regionCode=${region}` +
-          `&key=${this.apiKey}`
-        ).then(r => r.json())
+      const response = await fetch(
+        `https://youtube.googleapis.com/youtube/v3/search?` +
+        `part=snippet` +
+        `&maxResults=50` +
+        `&q=%23shorts` +
+        `&type=video` +
+        `&videoDuration=short` +
+        `&order=viewCount` +
+        `&relevanceLanguage=en` +
+        `&key=${this.apiKey}`
       );
 
-      const responses = await Promise.all(requests);
-      const videos = responses
-        .flatMap(data => data.items || [])
-        .filter(item => {
-          // Additional verification for shorts
-          const description = item.snippet.description.toLowerCase();
-          const title = item.snippet.title.toLowerCase();
-          return (
-            (description.includes('#shorts') || title.includes('#shorts')) &&
-            item.id && item.id.videoId // Ensure we have a valid video ID
-          );
-        })
-        .map(item => ({
-          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
-          title: item.snippet.title,
-          channelTitle: item.snippet.channelTitle,
-          region: item.snippet.regionCode
-        }));
+      if (!response.ok) throw new Error('YouTube API request failed');
+      
+      const searchData = await response.json();
+      const videoIds = searchData.items
+        .filter(item => item.id && item.id.videoId)
+        .map(item => item.id.videoId);
 
-      return this.shuffleArray(videos);
+      // Get detailed video statistics
+      if (videoIds.length > 0) {
+        const statsResponse = await fetch(
+          `https://youtube.googleapis.com/youtube/v3/videos?` +
+          `part=statistics,snippet,contentDetails` +
+          `&id=${videoIds.join(',')}` +
+          `&key=${this.apiKey}`
+        );
+
+        if (!statsResponse.ok) throw new Error('Failed to fetch video stats');
+
+        const statsData = await statsResponse.json();
+        const validVideos = statsData.items
+          .filter(video => {
+            const viewCount = parseInt(video.statistics.viewCount) || 0;
+            const likeCount = parseInt(video.statistics.likeCount) || 0;
+            const isShorts = video.snippet.description.toLowerCase().includes('#shorts') ||
+                           video.snippet.title.toLowerCase().includes('#shorts');
+            const isEnglish = video.snippet.defaultLanguage === 'en' ||
+                            video.snippet.defaultAudioLanguage === 'en';
+            
+            return viewCount >= this.VIEW_THRESHOLD &&
+                   likeCount >= this.LIKE_THRESHOLD &&
+                   isShorts &&
+                   isEnglish;
+          })
+          .map(video => ({
+            url: `https://www.youtube.com/shorts/${video.id}`,
+            title: video.snippet.title,
+            channelTitle: video.snippet.channelTitle,
+            viewCount: parseInt(video.statistics.viewCount),
+            likeCount: parseInt(video.statistics.likeCount)
+          }));
+
+        return this.shuffleArray(validVideos);
+      }
+      return [];
     } catch (error) {
       console.error('Error fetching viral shorts:', error);
       return [];
@@ -64,10 +86,12 @@ class YouTubeService {
       if (!subResponse.ok) throw new Error('Failed to fetch subscriptions');
       const subData = await subResponse.json();
       
-      // Get shorts from each channel
+      // Get videos from each channel with stats
       const channelIds = subData.items.map(item => item.snippet.resourceId.channelId);
-      const videoPromises = channelIds.map(channelId =>
-        fetch(
+      const personalizedVideos = [];
+
+      for (const channelId of channelIds) {
+        const searchResponse = await fetch(
           `https://youtube.googleapis.com/youtube/v3/search?` +
           `part=snippet` +
           `&channelId=${channelId}` +
@@ -75,36 +99,61 @@ class YouTubeService {
           `&q=%23shorts` +
           `&type=video` +
           `&videoDuration=short` +
+          `&relevanceLanguage=en` +
           `&key=${this.apiKey}`
-        ).then(r => r.json())
-      );
+        );
 
-      const videoResponses = await Promise.all(videoPromises);
-      const personalizedVideos = videoResponses
-        .flatMap(response => response.items || [])
-        .filter(item => {
-          // Verify these are actually shorts
-          const description = item.snippet.description.toLowerCase();
-          const title = item.snippet.title.toLowerCase();
-          return (
-            (description.includes('#shorts') || title.includes('#shorts')) &&
-            item.id && item.id.videoId
+        if (!searchResponse.ok) continue;
+
+        const searchData = await searchResponse.json();
+        const videoIds = searchData.items
+          .filter(item => item.id && item.id.videoId)
+          .map(item => item.id.videoId);
+
+        if (videoIds.length > 0) {
+          const statsResponse = await fetch(
+            `https://youtube.googleapis.com/youtube/v3/videos?` +
+            `part=statistics,snippet,contentDetails` +
+            `&id=${videoIds.join(',')}` +
+            `&key=${this.apiKey}`
           );
-        })
-        .map(item => ({
-          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
-          title: item.snippet.title,
-          channelTitle: item.snippet.channelTitle
-        }));
 
-      // Mix with some viral videos
+          if (!statsResponse.ok) continue;
+
+          const statsData = await statsResponse.json();
+          const validVideos = statsData.items
+            .filter(video => {
+              const viewCount = parseInt(video.statistics.viewCount) || 0;
+              const likeCount = parseInt(video.statistics.likeCount) || 0;
+              const isShorts = video.snippet.description.toLowerCase().includes('#shorts') ||
+                             video.snippet.title.toLowerCase().includes('#shorts');
+              const isEnglish = video.snippet.defaultLanguage === 'en' ||
+                              video.snippet.defaultAudioLanguage === 'en';
+              
+              return viewCount >= this.VIEW_THRESHOLD &&
+                     likeCount >= this.LIKE_THRESHOLD &&
+                     isShorts &&
+                     isEnglish;
+            })
+            .map(video => ({
+              url: `https://www.youtube.com/shorts/${video.id}`,
+              title: video.snippet.title,
+              channelTitle: video.snippet.channelTitle,
+              viewCount: parseInt(video.statistics.viewCount),
+              likeCount: parseInt(video.statistics.likeCount)
+            }));
+
+          personalizedVideos.push(...validVideos);
+        }
+      }
+
+      // Mix with viral videos
       const viralVideos = await this.getViralShorts();
       const allVideos = [...personalizedVideos, ...viralVideos.slice(0, 10)];
 
       return this.shuffleArray(allVideos);
     } catch (error) {
       console.error('Error fetching personalized shorts:', error);
-      // Fallback to viral shorts if personalized fails
       return this.getViralShorts();
     }
   }
