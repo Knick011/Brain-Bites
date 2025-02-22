@@ -12,7 +12,6 @@ import axios from 'axios';
 import './styles/theme.css';
 
 const App = () => {
-  // Basic states
   const [showWelcome, setShowWelcome] = useState(true);
   const [showQuestion, setShowQuestion] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(null);
@@ -22,23 +21,19 @@ const App = () => {
   const [streak, setStreak] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
-
-  // Video management states
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [viralVideos, setViralVideos] = useState([]);
   const [personalizedVideos, setPersonalizedVideos] = useState([]);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [videoQueue, setVideoQueue] = useState([]);
 
-  // Initial load of viral videos
   useEffect(() => {
     const fetchViralVideos = async () => {
       try {
         setIsLoading(true);
         const videos = await YouTubeShortsService.getViralShorts({
           maxResults: 50,
-          regions: ['US', 'CA'],
-          maxAge: 365 // days
+          regions: ['US', 'CA']
         });
         setViralVideos(videos);
         setVideoQueue(videos);
@@ -48,11 +43,9 @@ const App = () => {
         setIsLoading(false);
       }
     };
-
     fetchViralVideos();
   }, []);
 
-  // Handle login status change
   const handleLoginStatusChange = async (isLoggedIn) => {
     setIsSignedIn(isLoggedIn);
     if (isLoggedIn) {
@@ -60,8 +53,6 @@ const App = () => {
         setIsLoading(true);
         const personalized = await GoogleAuthService.getPersonalizedShorts();
         setPersonalizedVideos(personalized);
-        
-        // Mix personalized and viral videos (simplified ratio handling)
         const mixed = [...personalized];
         for (let i = 0; i < Math.floor(personalized.length / 5); i++) {
           if (viralVideos[i]) {
@@ -80,7 +71,6 @@ const App = () => {
     }
   };
 
-  // Set next video from queue
   const setNextVideo = () => {
     if (videoQueue.length === 0) {
       console.error('No videos available');
@@ -90,7 +80,6 @@ const App = () => {
     const nextVideo = videoQueue[0];
     const newQueue = videoQueue.slice(1);
     
-    // If queue is getting low, add more videos
     if (newQueue.length < 5) {
       if (isSignedIn && personalizedVideos.length > 0) {
         newQueue.push(...personalizedVideos);
@@ -114,13 +103,11 @@ const App = () => {
     });
   };
 
-  // Handlers
   const handleStart = () => {
     window.gtag('event', 'game_start', {
       'event_category': 'Game',
       'event_label': 'Started Game'
     });
-    
     SoundEffects.playButtonPress();
     setTimeout(() => {
       SoundEffects.playTransition();
@@ -129,16 +116,18 @@ const App = () => {
   };
 
   const handleMainSelection = (section) => {
+    window.gtag('event', 'section_selected', {
+      'event_category': 'Navigation',
+      'section_name': section
+    });
     SoundEffects.playButtonPress();
     setTimeout(() => {
-      // Reset states
       setCorrectAnswers(0);
       setTotalQuestions(0);
       setStreak(0);
       setShowQuestion(false);
       setCurrentQuestion(null);
       setCurrentVideoUrl('');
-      
       setSelectedSection(section);
       SoundEffects.playTransition();
       fetchQuestion();
@@ -150,6 +139,10 @@ const App = () => {
   };
 
   const handleVideoEnd = () => {
+    window.gtag('event', 'video_completed', {
+      'event_category': 'Video',
+      'video_url': currentVideoUrl
+    });
     SoundEffects.playTransition();
     setTimeout(() => {
       fetchQuestion();
@@ -157,6 +150,10 @@ const App = () => {
   };
 
   const handleVideoSkip = () => {
+    window.gtag('event', 'video_skipped', {
+      'event_category': 'Video',
+      'video_url': currentVideoUrl
+    });
     handleVideoEnd();
   };
 
@@ -164,15 +161,26 @@ const App = () => {
     try {
       setIsLoading(true);
       const endpoint = selectedSection === 'funfacts' 
-        ? 'http://localhost:5000/api/questions/random/funfacts'
-        : 'http://localhost:5000/api/questions/random/psychology';
+        ? 'https://brain-bites-api.onrender.com/api/questions/random/funfacts'
+        : 'https://brain-bites-api.onrender.com/api/questions/random/psychology';
         
       const response = await axios.get(endpoint);
       setCurrentQuestion(response.data);
+
+      window.gtag('event', 'question_shown', {
+        'event_category': 'Question',
+        'question_category': selectedSection,
+        'question_id': response.data.id
+      });
+
       setShowQuestion(true);
       setTotalQuestions(prev => prev + 1);
     } catch (error) {
       console.error('Error fetching question:', error);
+      window.gtag('event', 'question_fetch_error', {
+        'event_category': 'Error',
+        'error_message': error.message
+      });
       setNextVideo();
     } finally {
       setIsLoading(false);
@@ -182,12 +190,23 @@ const App = () => {
   const handleAnswerSubmit = (isCorrect) => {
     setTimeout(() => {
       if (isCorrect) {
+        window.gtag('event', 'question_answered', {
+          'event_category': 'Question',
+          'question_id': currentQuestion.id,
+          'category': currentQuestion.category,
+          'correct': true,
+          'streak': streak + 1
+        });
         SoundEffects.playCorrect();
         setCorrectAnswers(prev => prev + 1);
         const newStreak = streak + 1;
         setStreak(newStreak);
         
         if (newStreak % 5 === 0) {
+          window.gtag('event', 'streak_milestone', {
+            'event_category': 'Achievement',
+            'streak_count': newStreak
+          });
           setTimeout(() => {
             SoundEffects.playStreak();
           }, 500);
@@ -202,13 +221,19 @@ const App = () => {
           }, 500);
         }, 1500);
       } else {
+        window.gtag('event', 'question_answered', {
+          'event_category': 'Question',
+          'question_id': currentQuestion.id,
+          'category': currentQuestion.category,
+          'correct': false,
+          'streak_lost': streak
+        });
         SoundEffects.playIncorrect();
         setStreak(0);
       }
     }, 1000);
   };
 
-  // Render
   return (
     <div className="app-container">
       <YouTubeLogin 
