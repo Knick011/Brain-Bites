@@ -10,6 +10,7 @@ import axios from 'axios';
 import './styles/theme.css';
 
 const YOUTUBE_API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
+const WARMUP_INTERVAL = 14 * 60 * 1000; // 14 minutes in milliseconds
 
 const App = () => {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -57,6 +58,29 @@ const App = () => {
   // Initialize with popular videos
   useEffect(() => {
     fetchPopularShorts();
+  }, []);
+
+  // API Warmup Effect
+  useEffect(() => {
+    const warmupAPI = async () => {
+      try {
+        console.log('Warming up API...');
+        // Make parallel requests to both endpoints
+        await Promise.all([
+          axios.get('https://brain-bites-api.onrender.com/api/questions/random/funfacts'),
+          axios.get('https://brain-bites-api.onrender.com/api/questions/random/psychology')
+        ]);
+        console.log('API warmup successful');
+      } catch (error) {
+        console.error('API warmup failed:', error);
+      }
+    };
+    // Initial warmup
+    warmupAPI();
+    // Set up interval for periodic warmup
+    const intervalId = setInterval(warmupAPI, WARMUP_INTERVAL);
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   // Handle login status change and personalized videos
