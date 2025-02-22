@@ -1,42 +1,39 @@
-// YouTubeShortsService.js
+// utils/YouTubeShortsService.js
 class YouTubeShortsService {
   constructor() {
     this.apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
-    this.oneYearAgo = new Date();
-    this.oneYearAgo.setFullYear(this.oneYearAgo.getFullYear() - 1);
   }
 
-  async getViralShorts(maxResults = 50) {
+  async getViralShorts({ maxResults = 50, regions = ['US', 'CA'] }) {
     try {
-      // Only get shorts from US and Canada
-      const [usShorts, caShorts] = await Promise.all([
-        this.getRegionalShorts('US', maxResults),
-        this.getRegionalShorts('CA', maxResults)
-      ]);
+      // Get videos from all specified regions
+      const regionalVideosPromises = regions.map(region => 
+        this.getRegionShorts(region, Math.ceil(maxResults / regions.length))
+      );
 
-      console.log('Fetched shorts - US:', usShorts.length, 'CA:', caShorts.length);
-
-      const allShorts = [...usShorts, ...caShorts]
-        .filter(video => {
-          const publishDate = new Date(video.publishedAt);
-          return publishDate >= this.oneYearAgo;
-        })
+      const regionalVideos = await Promise.all(regionalVideosPromises);
+      
+      // Combine and sort by viewCount
+      const allVideos = regionalVideos
+        .flat()
         .sort((a, b) => parseInt(b.viewCount) - parseInt(a.viewCount));
 
-      console.log('Combined and filtered shorts:', allShorts.length);
-      return allShorts;
+      return allVideos.map(video => ({
+        ...video,
+        isPersonalized: false
+      }));
     } catch (error) {
       console.error('Error fetching viral shorts:', error);
       return [];
     }
   }
 
-  async getRegionalShorts(regionCode, maxResults) {
+  async getRegionShorts(regionCode, maxResults) {
     try {
       const response = await fetch(
         `https://www.googleapis.com/youtube/v3/search?` +
         `part=snippet` +
-        `&maxResults=${maxResults}` +
+        `&maxResults=${maxResults * 2}` + // Request more to account for filtering
         `&q=%23shorts` +
         `&type=video` +
         `&videoDuration=short` +
@@ -50,57 +47,60 @@ class YouTubeShortsService {
       }
 
       const data = await response.json();
-      console.log(`${regionCode} API response received:`, data.items?.length || 0, 'items');
       
-      // Get video details including view counts
-      const videoIds = data.items.map(item => item.id.videoId).join(',');
-      const statsResponse = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?` +
-        `part=statistics,snippet` +
-        `&id=${videoIds}` +
-        `&key=${this.apiKey}`
+      // Get detailed stats for the videos
+      const videos = await this.getVideoDetails(
+        data.items.map(item => ({
+          videoId: item.id.videoId,
+          title: item.snippet.title,
+          channelTitle: item.snippet.channelTitle
+        }))
       );
 
-      const statsData = await statsResponse.json();
-
-      return data.items.map(item => {
-        const stats = statsData.items.find(v => v.id === item.id.videoId);
-        return {
-          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
-          title: item.snippet.title,
-          publishedAt: item.snippet.publishedAt,
-          viewCount: stats?.statistics?.viewCount || '0',
-          region: regionCode,
-          type: 'viral'
-        };
-      });
+      return videos;
     } catch (error) {
-      console.error(`Error fetching ${regionCode} shorts:`, error);
+      console.error(`Error fetching ${regionCode} Shorts:`, error);
       return [];
     }
   }
 
-  async getMixedShorts(personalizedVideos, maxResults = 50) {
-    const personalizedCount = Math.floor(maxResults * (5/6));
-    const viralCount = maxResults - personalizedCount;
+  async getVideoDetails(videos) {
+    if (!videos.length) return [];
 
-    const viralShorts = await this.getViralShorts(viralCount);
+    try {
+      const videoIds = videos.map(v => v.videoId).join(',');
+      
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?` +
+        `part=statistics,contentDetails` +
+        `&id=${videoIds}` +
+        `&key=${this.apiKey}`
+      );
 
-    const mixedShorts = [
-      ...personalizedVideos.slice(0, personalizedCount),
-      ...viralShorts
-    ];
+      if (!response.ok) {
+        throw new Error('Failed to fetch video details');
+      }
 
-    return this.shuffleArray(mixedShorts);
-  }
+      const data = await response.json();
 
-  shuffleArray(array) {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      return videos.map(video => {
+        const details = data.items.find(item => item.id === video.videoId);
+        return {
+          ...video,
+          url: `https://www.youtube.com/shorts/${video.videoId}`,
+          viewCount: details?.statistics?.viewCount || '0',
+          likeCount: details?.statistics?.likeCount || '0'
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching video details:', error);
+      return videos.map(video => ({
+        ...video,
+        url: `https://www.youtube.com/shorts/${video.videoId}`,
+        viewCount: '0',
+        likeCount: '0'
+      }));
     }
-    return newArray;
   }
 }
 

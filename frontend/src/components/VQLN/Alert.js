@@ -1,4 +1,4 @@
-// Alert.js
+// components/VQLN/Alert.js
 import React from 'react';
 
 export const Dialog = ({ open, onClose, children }) => {

@@ -1,6 +1,4 @@
-// GoogleAuthService.js
-import YouTubeShortsService from './YouTubeShortsService';
-
+// utils/GoogleAuthService.js
 class GoogleAuthService {
   constructor() {
     this.googleAuth = null;
@@ -52,6 +50,7 @@ class GoogleAuthService {
     if (!this.isSignedIn()) return [];
 
     try {
+      // Get user's subscribed channels
       const subResponse = await window.gapi.client.youtube.subscriptions.list({
         part: 'snippet',
         mine: true,
@@ -62,6 +61,7 @@ class GoogleAuthService {
         item.snippet.resourceId.channelId
       );
 
+      // Get shorts from each channel
       const shortsPromises = channelIds.map(channelId =>
         window.gapi.client.youtube.search.list({
           part: 'snippet',
@@ -75,19 +75,47 @@ class GoogleAuthService {
       );
 
       const shortsResponses = await Promise.all(shortsPromises);
-      const personalizedVideos = shortsResponses
+      
+      const shorts = shortsResponses
         .flatMap(response => response.result.items || [])
         .map(item => ({
+          videoId: item.id.videoId,
           url: `https://www.youtube.com/shorts/${item.id.videoId}`,
           title: item.snippet.title,
           channelTitle: item.snippet.channelTitle,
-          type: 'personalized'
+          isPersonalized: true
         }));
 
-      return YouTubeShortsService.getMixedShorts(personalizedVideos, maxResults);
+      // Get detailed stats
+      return this.getVideoDetails(shorts);
     } catch (error) {
       console.error('Error fetching personalized shorts:', error);
       return [];
+    }
+  }
+
+  async getVideoDetails(videos) {
+    if (!videos.length) return [];
+
+    try {
+      const videoIds = videos.map(v => v.videoId).join(',');
+      
+      const response = await window.gapi.client.youtube.videos.list({
+        part: 'statistics,contentDetails',
+        id: videoIds
+      });
+
+      return videos.map(video => {
+        const details = response.result.items?.find(item => item.id === video.videoId);
+        return {
+          ...video,
+          viewCount: details?.statistics?.viewCount || '0',
+          likeCount: details?.statistics?.likeCount || '0'
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching video details:', error);
+      return videos;
     }
   }
 }

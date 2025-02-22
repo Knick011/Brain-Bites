@@ -1,6 +1,6 @@
-// YouTubeLogin.js
+// components/VQLN/YouTubeLogin.js
 import React, { useState, useEffect } from 'react';
-import GoogleAuthService from '../utils/GoogleAuthService';
+import GoogleAuthService from '../../utils/GoogleAuthService';
 import { Youtube, AlertCircle } from 'lucide-react';
 import { 
   Dialog, 
