@@ -26,15 +26,16 @@ const App = () => {
   const [videos, setVideos] = useState([]);
 
   // Fetch popular videos for non-logged-in users
-  const fetchPopularShorts = async () => {
+ const fetchPopularShorts = async () => {
     try {
       const response = await fetch(
-        `https://youtube.googleapis.com/youtube/v3/videos?` +
-        `part=snippet,statistics` +
+        `https://youtube.googleapis.com/youtube/v3/search?` +
+        `part=snippet` +
         `&maxResults=50` +
-        `&videoCategoryId=26` +
-        `&chart=mostPopular` +
+        `&q=%23shorts` +
+        `&type=video` +
         `&videoDuration=short` +
+        `&order=viewCount` +
         `&regionCode=US` +
         `&key=${YOUTUBE_API_KEY}`
       );
@@ -42,9 +43,21 @@ const App = () => {
       if (!response.ok) throw new Error('YouTube API request failed');
 
       const data = await response.json();
-      const videoUrls = data.items.map(item => 
+      const validShorts = data.items.filter(item => {
+        const description = item.snippet.description.toLowerCase();
+        const title = item.snippet.title.toLowerCase();
+        return (
+          (description.includes('#shorts') || title.includes('#shorts')) &&
+          item.id && item.id.videoId
+        );
+      });
+      
+      const videoUrls = validShorts.map(item => 
         `https://www.youtube.com/shorts/${item.id.videoId}`
       );
+      
+      console.log('Fetched shorts:', videoUrls); // Debug log
+      
       setVideos(videoUrls);
       if (videoUrls.length > 0) {
         setCurrentVideoUrl(videoUrls[0]);
