@@ -6,7 +6,7 @@ import MainSelection from './components/VQLN/Selection/MainSelection';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
 import YouTubeLogin from './components/VQLN/YouTubeLogin';
 import SoundEffects from './utils/SoundEffects';
-import YouTubeService from './services/YouTubeService';
+import YouTubeService from './utils/YouTubeService';
 import { VideoProvider, useVideoContext } from './context/VideoContext';
 
 const WARMUP_INTERVAL = 14 * 60 * 1000; // 14 minutes in milliseconds
