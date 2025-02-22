@@ -7,7 +7,7 @@ import MainSelection from './components/VQLN/Selection/MainSelection';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
 import YouTubeLogin from './components/YouTubeLogin';
 import SoundEffects from './utils/SoundEffects';
-import YouTubeShortsService from './utils/YouTubeShortsService';
+import ViralShortsAPI from './utils/ViralShortsAPI';
 import axios from 'axios';
 import './styles/theme.css';
 
@@ -16,7 +16,7 @@ const App = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showQuestion, setShowQuestion] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [videoUrls, setVideoUrls] = useState([]);
+  const [videoCount, setVideoCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
@@ -24,16 +24,21 @@ const App = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
-  const [isPersonalized, setIsPersonalized] = useState(false);
+  const [personalizedVideos, setPersonalizedVideos] = useState([]);
+  const [isUsingPersonalized, setIsUsingPersonalized] = useState(false);
+  const [videoUrls, setVideoUrls] = useState([]);
 
-  // Load initial viral videos
   useEffect(() => {
-    const loadViralVideos = async () => {
-      const viralShorts = await YouTubeShortsService.getViralShorts();
-      setVideoUrls(viralShorts);
+    const fetchInitialVideos = async () => {
+      try {
+        const videos = await ViralShortsAPI.getViralShorts();
+        setVideoUrls(videos.map(v => v.url));
+      } catch (error) {
+        console.error('Error fetching initial videos:', error);
+      }
     };
 
-    loadViralVideos();
+    fetchInitialVideos();
   }, []);
 
   // Handlers
@@ -62,6 +67,7 @@ const App = () => {
       setCorrectAnswers(0);
       setTotalQuestions(0);
       setStreak(0);
+      setVideoCount(0);
       setShowQuestion(false);
       setCurrentQuestion(null);
       setCurrentVideoUrl('');
@@ -72,34 +78,24 @@ const App = () => {
     }, 500);
   };
 
-  const handlePersonalizedVideos = async (videos) => {
-    if (videos.length > 0) {
-      setIsPersonalized(true);
-      setVideoUrls(videos);
-    } else {
-      setIsPersonalized(false);
-      const viralShorts = await YouTubeShortsService.getViralShorts();
-      setVideoUrls(viralShorts);
-    }
-  };
-
   const setRandomVideo = () => {
-    if (videoUrls.length === 0) {
+    const videos = isUsingPersonalized ? personalizedVideos : videoUrls;
+    
+    if (videos.length === 0) {
       console.error('No videos available');
       return;
     }
     
     let newUrl;
     do {
-      const randomIndex = Math.floor(Math.random() * videoUrls.length);
-      const video = videoUrls[randomIndex];
-      newUrl = video.url;
-    } while (newUrl === currentVideoUrl && videoUrls.length > 1);
+      const randomIndex = Math.floor(Math.random() * videos.length);
+      newUrl = isUsingPersonalized ? videos[randomIndex].url : videos[randomIndex];
+    } while (newUrl === currentVideoUrl && videos.length > 1);
     
     window.gtag('event', 'video_shown', {
       'event_category': 'Video',
       'video_url': newUrl,
-      'type': isPersonalized ? 'personalized' : 'viral'
+      'type': isUsingPersonalized ? 'personalized' : 'general'
     });
 
     setIsLoading(true);
@@ -214,13 +210,18 @@ const App = () => {
     }, 1000);
   };
 
+  const handlePersonalizedVideos = (videos) => {
+    setPersonalizedVideos(videos);
+    setIsUsingPersonalized(videos.length > 0);
+  };
+
   // Render
   return (
     <div className="app-container">
       <YouTubeLogin 
         onLoginStatusChange={(isLoggedIn) => {
           if (!isLoggedIn) {
-            setIsPersonalized(false);
+            setIsUsingPersonalized(false);
           }
         }}
         onPersonalizedVideos={handlePersonalizedVideos}
