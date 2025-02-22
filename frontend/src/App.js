@@ -28,45 +28,68 @@ const App = () => {
   // Fetch popular videos for non-logged-in users
  const fetchPopularShorts = async () => {
     try {
+      const VIEW_THRESHOLD = 500000;
+      const LIKE_THRESHOLD = 10000;
+
       const response = await fetch(
-        `https://youtube.googleapis.com/youtube/v3/videos?` +
-        `part=snippet,statistics` +
+        `https://youtube.googleapis.com/youtube/v3/search?` +
+        `part=snippet` +
         `&maxResults=50` +
-        `&videoCategoryId=26` +
-        `&chart=mostPopular` +
-        `&videoDuration=short` +
-        `&regionCode=US` +
+        `&q="%23shorts"` +
+        `&type=video` +
+        `&order=viewCount` +
+        `&relevanceLanguage=en` +
         `&key=${YOUTUBE_API_KEY}`
-      );
       );
 
       if (!response.ok) throw new Error('YouTube API request failed');
 
       const data = await response.json();
-      const validShorts = data.items.filter(item => {
-        const description = item.snippet.description.toLowerCase();
-        const title = item.snippet.title.toLowerCase();
-        return (
-          (description.includes('#shorts') || title.includes('#shorts')) &&
-          item.id && item.id.videoId
+      const videoIds = data.items
+        .filter(item => item.id && item.id.videoId)
+        .map(item => item.id.videoId);
+
+      if (videoIds.length > 0) {
+        const statsResponse = await fetch(
+          `https://youtube.googleapis.com/youtube/v3/videos?` +
+          `part=statistics,snippet,contentDetails` +
+          `&id=${videoIds.join(',')}` +
+          `&key=${YOUTUBE_API_KEY}`
         );
-      });
-      
-      const videoUrls = validShorts.map(item => 
-        `https://www.youtube.com/shorts/${item.id.videoId}`
-      );
-      
-      console.log('Fetched shorts:', videoUrls); // Debug log
-      
-      setVideos(videoUrls);
-      if (videoUrls.length > 0) {
-        setCurrentVideoUrl(videoUrls[0]);
+
+        if (!statsResponse.ok) throw new Error('Failed to fetch video stats');
+
+        const statsData = await statsResponse.json();
+        const validVideos = statsData.items
+          .filter(video => {
+            const viewCount = parseInt(video.statistics.viewCount) || 0;
+            const likeCount = parseInt(video.statistics.likeCount) || 0;
+            const isEnglish = video.snippet.defaultLanguage === 'en' ||
+                            video.snippet.defaultAudioLanguage === 'en';
+            
+            // Verify it's a Short using multiple criteria
+            const isShort = 
+              (video.snippet.description.toLowerCase().includes('#shorts') ||
+               video.snippet.title.toLowerCase().includes('#shorts')) &&
+              video.contentDetails.duration.match(/PT[0-6][0-9]S/);
+            
+            return viewCount >= VIEW_THRESHOLD &&
+                   likeCount >= LIKE_THRESHOLD &&
+                   isShort &&
+                   isEnglish;
+          })
+          .map(video => `https://www.youtube.com/shorts/${video.id}`);
+
+        const shuffledVideos = shuffleArray(validVideos);
+        setVideos(shuffledVideos);
+        if (shuffledVideos.length > 0) {
+          setCurrentVideoUrl(shuffledVideos[0]);
+        }
       }
     } catch (error) {
       console.error('Error fetching popular shorts:', error);
     }
   };
-
   // Initialize with popular videos
   useEffect(() => {
     fetchPopularShorts();
