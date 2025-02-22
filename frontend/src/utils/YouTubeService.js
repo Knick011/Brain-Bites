@@ -2,20 +2,21 @@
 class YouTubeService {
   constructor() {
     this.apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
-    this.ALLOWED_REGIONS = ['US', 'CA'];  // Explicitly define allowed regions
+    this.ALLOWED_REGIONS = ['US', 'CA'];
   }
 
   async getViralShorts() {
     try {
-      // Get popular shorts only from US and Canada
+      // Get popular shorts from US and Canada using search endpoint
       const requests = this.ALLOWED_REGIONS.map(region =>
         fetch(
-          `https://youtube.googleapis.com/youtube/v3/videos?` +
-          `part=snippet,statistics` +
+          `https://youtube.googleapis.com/youtube/v3/search?` +
+          `part=snippet` +
           `&maxResults=25` +
-          `&videoCategoryId=26` + // This category is for Howto & Style, common for shorts
-          `&chart=mostPopular` +
-          `&videoDuration=short` +
+          `&q=%23shorts` +
+          `&type=video` +
+          `&videoDuration=short` + // Only short duration videos
+          `&order=viewCount` + // Sort by views
           `&regionCode=${region}` +
           `&key=${this.apiKey}`
         ).then(r => r.json())
@@ -25,19 +26,20 @@ class YouTubeService {
       const videos = responses
         .flatMap(data => data.items || [])
         .filter(item => {
-          // Additional filtering to ensure we get shorts
+          // Additional verification for shorts
           const description = item.snippet.description.toLowerCase();
           const title = item.snippet.title.toLowerCase();
-          return description.includes('#shorts') || title.includes('#shorts');
+          return (
+            (description.includes('#shorts') || title.includes('#shorts')) &&
+            item.id && item.id.videoId // Ensure we have a valid video ID
+          );
         })
         .map(item => ({
-          url: `https://www.youtube.com/shorts/${item.id}`,
+          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
           title: item.snippet.title,
           channelTitle: item.snippet.channelTitle,
-          views: parseInt(item.statistics.viewCount),
-          region: item.snippet.defaultAudioLanguage
-        }))
-        .sort((a, b) => b.views - a.views); // Sort by view count
+          region: item.snippet.regionCode
+        }));
 
       return this.shuffleArray(videos);
     } catch (error) {
@@ -62,7 +64,7 @@ class YouTubeService {
       if (!subResponse.ok) throw new Error('Failed to fetch subscriptions');
       const subData = await subResponse.json();
       
-      // Get videos from each channel
+      // Get shorts from each channel
       const channelIds = subData.items.map(item => item.snippet.resourceId.channelId);
       const videoPromises = channelIds.map(channelId =>
         fetch(
@@ -73,7 +75,6 @@ class YouTubeService {
           `&q=%23shorts` +
           `&type=video` +
           `&videoDuration=short` +
-          `&regionCode=US` + // Default to US for personalized content
           `&key=${this.apiKey}`
         ).then(r => r.json())
       );
@@ -81,14 +82,22 @@ class YouTubeService {
       const videoResponses = await Promise.all(videoPromises);
       const personalizedVideos = videoResponses
         .flatMap(response => response.items || [])
+        .filter(item => {
+          // Verify these are actually shorts
+          const description = item.snippet.description.toLowerCase();
+          const title = item.snippet.title.toLowerCase();
+          return (
+            (description.includes('#shorts') || title.includes('#shorts')) &&
+            item.id && item.id.videoId
+          );
+        })
         .map(item => ({
           url: `https://www.youtube.com/shorts/${item.id.videoId}`,
           title: item.snippet.title,
-          channelTitle: item.snippet.channelTitle,
-          region: 'US' // Mark as US content
+          channelTitle: item.snippet.channelTitle
         }));
 
-      // Mix with some viral videos but maintain region restriction
+      // Mix with some viral videos
       const viralVideos = await this.getViralShorts();
       const allVideos = [...personalizedVideos, ...viralVideos.slice(0, 10)];
 
