@@ -1,76 +1,119 @@
 // components/VQLN/YouTubeLogin.js
 import React, { useState, useEffect } from 'react';
-import GoogleAuthService from '../../utils/GoogleAuthService';
 import { Youtube, AlertCircle } from 'lucide-react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription,
-  DialogFooter,
-  Button
-} from './Alert';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button } from './Alert';
 
-const YouTubeLogin = ({ onLoginStatusChange, onPersonalizedVideos }) => {
+const YouTubeLogin = ({ onLoginStatusChange }) => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [accessToken, setAccessToken] = useState(null);
 
   useEffect(() => {
-    const initAuth = async () => {
+    const initializeAuth = async () => {
       try {
-        await GoogleAuthService.initialize();
-        const signedIn = GoogleAuthService.isSignedIn();
-        setIsSignedIn(signedIn);
-        if (signedIn) {
-          fetchPersonalizedVideos();
-        }
-        setLoading(false);
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        
+        script.onload = () => {
+          window.google.accounts.oauth2.initTokenClient({
+            client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+            scope: 'https://www.googleapis.com/auth/youtube.readonly',
+            callback: handleAuthResponse,
+          });
+          setLoading(false);
+        };
+
+        document.body.appendChild(script);
       } catch (error) {
-        console.error('Error initializing Google Auth:', error);
+        console.error('Error initializing auth:', error);
         setLoading(false);
       }
     };
 
-    initAuth();
+    initializeAuth();
   }, []);
 
-  const fetchPersonalizedVideos = async () => {
-    const videos = await GoogleAuthService.getPersonalizedShorts();
-    onPersonalizedVideos?.(videos);
+  const handleAuthResponse = async (response) => {
+    if (response.access_token) {
+      setAccessToken(response.access_token);
+      setIsSignedIn(true);
+      const videos = await fetchPersonalizedShorts(response.access_token);
+      onLoginStatusChange(true, videos);
+    }
+  };
+
+  const fetchPersonalizedShorts = async (token) => {
+    try {
+      // First get subscribed channels
+      const subResponse = await fetch(
+        'https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=20',
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        }
+      );
+
+      if (!subResponse.ok) throw new Error('Failed to fetch subscriptions');
+      const subData = await subResponse.json();
+      
+      // Get videos from each channel
+      const channelIds = subData.items.map(item => item.snippet.resourceId.channelId);
+      const videoPromises = channelIds.map(channelId =>
+        fetch(
+          `https://youtube.googleapis.com/youtube/v3/search?` +
+          `part=snippet` +
+          `&channelId=${channelId}` +
+          `&maxResults=5` +
+          `&q=%23shorts` +
+          `&type=video` +
+          `&videoDuration=short` +
+          `&key=${process.env.REACT_APP_YOUTUBE_API_KEY}`
+        ).then(r => r.json())
+      );
+
+      const videoResponses = await Promise.all(videoPromises);
+      const videos = videoResponses
+        .flatMap(response => response.items || [])
+        .map(item => ({
+          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
+          title: item.snippet.title
+        }));
+
+      return videos;
+    } catch (error) {
+      console.error('Error fetching personalized shorts:', error);
+      return [];
+    }
   };
 
   const handleSignIn = () => {
     setShowDisclaimer(true);
   };
 
-  const handleDisclaimerConfirm = async () => {
-    try {
-      await GoogleAuthService.signIn();
-      setIsSignedIn(true);
-      onLoginStatusChange?.(true);
-      await fetchPersonalizedVideos();
-    } catch (error) {
-      console.error('Error signing in:', error);
-    }
+  const handleDisclaimerConfirm = () => {
+    window.google.accounts.oauth2.initTokenClient({
+      client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/youtube.readonly',
+      callback: handleAuthResponse,
+    }).requestAccessToken();
     setShowDisclaimer(false);
   };
 
   const handleSignOut = async () => {
-    try {
-      await GoogleAuthService.signOut();
-      setIsSignedIn(false);
-      onLoginStatusChange?.(false);
-      onPersonalizedVideos?.([]);
-    } catch (error) {
-      console.error('Error signing out:', error);
+    if (accessToken) {
+      window.google?.accounts?.oauth2?.revoke(accessToken);
     }
+    setAccessToken(null);
+    setIsSignedIn(false);
+    onLoginStatusChange(false, []);
   };
 
-  if (loading) {
-    return null;
-  }
+  if (loading) return null;
 
   return (
     <>
