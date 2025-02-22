@@ -1,4 +1,3 @@
-// App.js
 import React, { useState, useEffect } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -115,7 +114,7 @@ const App = () => {
     });
   };
 
-  // Rest of your existing handlers...
+  // Handlers
   const handleStart = () => {
     window.gtag('event', 'game_start', {
       'event_category': 'Game',
@@ -129,7 +128,56 @@ const App = () => {
     }, 500);
   };
 
-  // ... (keep all your existing handlers)
+  const handleMainSelection = (section) => {
+    SoundEffects.playButtonPress();
+    setTimeout(() => {
+      // Reset states
+      setCorrectAnswers(0);
+      setTotalQuestions(0);
+      setStreak(0);
+      setShowQuestion(false);
+      setCurrentQuestion(null);
+      setCurrentVideoUrl('');
+      
+      setSelectedSection(section);
+      SoundEffects.playTransition();
+      fetchQuestion();
+    }, 500);
+  };
+
+  const handleVideoReady = () => {
+    setIsLoading(false);
+  };
+
+  const handleVideoEnd = () => {
+    SoundEffects.playTransition();
+    setTimeout(() => {
+      fetchQuestion();
+    }, 500);
+  };
+
+  const handleVideoSkip = () => {
+    handleVideoEnd();
+  };
+
+  const fetchQuestion = async () => {
+    try {
+      setIsLoading(true);
+      const endpoint = selectedSection === 'funfacts' 
+        ? 'http://localhost:5000/api/questions/random/funfacts'
+        : 'http://localhost:5000/api/questions/random/psychology';
+        
+      const response = await axios.get(endpoint);
+      setCurrentQuestion(response.data);
+      setShowQuestion(true);
+      setTotalQuestions(prev => prev + 1);
+    } catch (error) {
+      console.error('Error fetching question:', error);
+      setNextVideo();
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAnswerSubmit = (isCorrect) => {
     setTimeout(() => {
@@ -160,7 +208,7 @@ const App = () => {
     }, 1000);
   };
 
-  // Return your existing JSX structure...
+  // Render
   return (
     <div className="app-container">
       <YouTubeLogin 
