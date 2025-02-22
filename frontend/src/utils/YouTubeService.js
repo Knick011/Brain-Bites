@@ -1,22 +1,21 @@
-// utils/YouTubeShortsService.js
-class YouTubeShortsService {
+// utils/YouTubeService.js
+class YouTubeService {
   constructor() {
     this.apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
+    this.ALLOWED_REGIONS = ['US', 'CA'];  // Explicitly define allowed regions
   }
 
   async getViralShorts() {
     try {
-      // Get popular shorts from US and Canada
-      const regions = ['US', 'CA'];
-      const requests = regions.map(region =>
+      // Get popular shorts only from US and Canada
+      const requests = this.ALLOWED_REGIONS.map(region =>
         fetch(
-          `https://youtube.googleapis.com/youtube/v3/search?` +
-          `part=snippet` +
+          `https://youtube.googleapis.com/youtube/v3/videos?` +
+          `part=snippet,statistics` +
           `&maxResults=25` +
-          `&q=%23shorts` +
-          `&type=video` +
+          `&videoCategoryId=26` + // This category is for Howto & Style, common for shorts
+          `&chart=mostPopular` +
           `&videoDuration=short` +
-          `&order=viewCount` + // Sort by view count
           `&regionCode=${region}` +
           `&key=${this.apiKey}`
         ).then(r => r.json())
@@ -25,11 +24,20 @@ class YouTubeShortsService {
       const responses = await Promise.all(requests);
       const videos = responses
         .flatMap(data => data.items || [])
+        .filter(item => {
+          // Additional filtering to ensure we get shorts
+          const description = item.snippet.description.toLowerCase();
+          const title = item.snippet.title.toLowerCase();
+          return description.includes('#shorts') || title.includes('#shorts');
+        })
         .map(item => ({
-          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
+          url: `https://www.youtube.com/shorts/${item.id}`,
           title: item.snippet.title,
-          channelTitle: item.snippet.channelTitle
-        }));
+          channelTitle: item.snippet.channelTitle,
+          views: parseInt(item.statistics.viewCount),
+          region: item.snippet.defaultAudioLanguage
+        }))
+        .sort((a, b) => b.views - a.views); // Sort by view count
 
       return this.shuffleArray(videos);
     } catch (error) {
@@ -65,7 +73,7 @@ class YouTubeShortsService {
           `&q=%23shorts` +
           `&type=video` +
           `&videoDuration=short` +
-          `&order=viewCount` + // Get most viewed shorts from each channel
+          `&regionCode=US` + // Default to US for personalized content
           `&key=${this.apiKey}`
         ).then(r => r.json())
       );
@@ -76,10 +84,11 @@ class YouTubeShortsService {
         .map(item => ({
           url: `https://www.youtube.com/shorts/${item.id.videoId}`,
           title: item.snippet.title,
-          channelTitle: item.snippet.channelTitle
+          channelTitle: item.snippet.channelTitle,
+          region: 'US' // Mark as US content
         }));
 
-      // Mix with some viral videos
+      // Mix with some viral videos but maintain region restriction
       const viralVideos = await this.getViralShorts();
       const allVideos = [...personalizedVideos, ...viralVideos.slice(0, 10)];
 
@@ -101,4 +110,4 @@ class YouTubeShortsService {
   }
 }
 
-export default new YouTubeShortsService();
+export default new YouTubeService();
