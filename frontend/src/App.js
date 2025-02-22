@@ -7,7 +7,6 @@ import MainSelection from './components/VQLN/Selection/MainSelection';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
 import YouTubeLogin from './components/YouTubeLogin';
 import SoundEffects from './utils/SoundEffects';
-import ViralShortsAPI from './utils/ViralShortsAPI';
 import axios from 'axios';
 import './styles/theme.css';
 
