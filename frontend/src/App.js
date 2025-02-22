@@ -29,15 +29,15 @@ const App = () => {
  const fetchPopularShorts = async () => {
     try {
       const response = await fetch(
-        `https://youtube.googleapis.com/youtube/v3/search?` +
-        `part=snippet` +
+        `https://youtube.googleapis.com/youtube/v3/videos?` +
+        `part=snippet,statistics` +
         `&maxResults=50` +
-        `&q=%23shorts` +
-        `&type=video` +
+        `&videoCategoryId=26` +
+        `&chart=mostPopular` +
         `&videoDuration=short` +
-        `&order=viewCount` +
         `&regionCode=US` +
         `&key=${YOUTUBE_API_KEY}`
+      );
       );
 
       if (!response.ok) throw new Error('YouTube API request failed');
