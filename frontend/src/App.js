@@ -6,9 +6,8 @@ import MainSelection from './components/VQLN/Selection/MainSelection';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
 import YouTubeLogin from './components/VQLN/YouTubeLogin';
 import SoundEffects from './utils/SoundEffects';
-import YouTubeService from './utils/YouTubeService';
-import axios from 'axios';
-import './styles/theme.css';
+import YouTubeService from './services/YouTubeService';
+import { VideoProvider, useVideoContext } from './context/VideoContext';
 
 const WARMUP_INTERVAL = 14 * 60 * 1000; // 14 minutes in milliseconds
 
@@ -21,15 +20,9 @@ const App = () => {
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [streak, setStreak] = useState(0);
   const [selectedSection, setSelectedSection] = useState(null);
-  const [currentVideo, setCurrentVideo] = useState(null);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [videos, setVideos] = useState([]);
-  const [lastVideoIndex, setLastVideoIndex] = useState(-1);
-
-  // Initialize with popular videos
-  useEffect(() => {
-    fetchVideos();
-  }, []);
 
   // API Warmup Effect
   useEffect(() => {
@@ -45,60 +38,53 @@ const App = () => {
         console.error('API warmup failed:', error);
       }
     };
-
     warmupAPI();
     const intervalId = setInterval(warmupAPI, WARMUP_INTERVAL);
     return () => clearInterval(intervalId);
   }, []);
 
-  const fetchVideos = async () => {
+  // Initialize videos with YouTubeService
+  const loadVideos = async (isPersonalized = false, accessToken = null) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      const viralShorts = await YouTubeService.getViralShorts();
-      setVideos(viralShorts);
-      if (viralShorts.length > 0) {
-        setCurrentVideo(viralShorts[0]);
+      const shorts = isPersonalized
+        ? await YouTubeService.getPersonalizedShorts(accessToken)
+        : await YouTubeService.getTrendingShorts();
+      
+      const videoUrls = shorts.map(short => short.url);
+      setVideos(videoUrls);
+      if (videoUrls.length > 0) {
+        setCurrentVideoUrl(videoUrls[0]);
       }
     } catch (error) {
-      console.error('Error fetching videos:', error);
+      console.error('Error loading videos:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle login status change and personalized videos
+  // Initial video load
+  useEffect(() => {
+    if (!isSignedIn) {
+      loadVideos();
+    }
+  }, []);
+
   const handleLoginStatusChange = async (isLoggedIn, accessToken) => {
     setIsSignedIn(isLoggedIn);
-    setIsLoading(true);
-    
-    try {
-      if (isLoggedIn && accessToken) {
-        const personalizedVideos = await YouTubeService.getPersonalizedShorts(accessToken);
-        setVideos(personalizedVideos);
-        if (personalizedVideos.length > 0) {
-          setCurrentVideo(personalizedVideos[0]);
-        }
-      } else {
-        await fetchVideos();
-      }
-    } catch (error) {
-      console.error('Error handling login status change:', error);
-      await fetchVideos(); // Fallback to viral videos
-    } finally {
-      setIsLoading(false);
+    if (isLoggedIn) {
+      await loadVideos(true, accessToken);
+    } else {
+      await loadVideos();
     }
   };
 
   const setRandomVideo = () => {
     if (videos.length === 0) return;
     
-    let newIndex;
-    do {
-      newIndex = Math.floor(Math.random() * videos.length);
-    } while (newIndex === lastVideoIndex && videos.length > 1);
-    
-    setLastVideoIndex(newIndex);
-    setCurrentVideo(videos[newIndex]);
+    const randomIndex = Math.floor(Math.random() * videos.length);
+    const newUrl = videos[randomIndex];
+    setCurrentVideoUrl(newUrl);
     setShowQuestion(false);
   };
 
@@ -184,59 +170,57 @@ const App = () => {
   };
 
   return (
-    <div className="app-container">
-      <YouTubeLogin 
-        onLoginStatusChange={handleLoginStatusChange}
-      />
-      
-      {showWelcome ? (
-        <InitialWelcome onStart={handleStart} />
-      ) : !selectedSection ? (
-        <MainSelection onSelect={handleMainSelection} />
-      ) : (
-        <>
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="w-[350px] h-[622px] relative">
-              {isLoading && <LoadingSpinner />}
-              
-              <div>
-                {showQuestion ? (
-                  <QuestionCard
-                    question={currentQuestion}
-                    onAnswerSubmit={handleAnswerSubmit}
-                  />
-                ) : (
-                  <div className="video-container">
-                    {currentVideo && (
-                      <VideoCard
-                        key={`video-${currentVideo.id}`}
-                        url={currentVideo.url}
-                        onEnd={handleVideoEnd}
-                        onSkip={handleVideoSkip}
-                        onReady={handleVideoReady}
-                        title={currentVideo.title}
-                        channelTitle={currentVideo.channelTitle}
-                        viewCount={currentVideo.viewCount}
-                        region={currentVideo.region}
-                      />
-                    )}
-                  </div>
-                )}
+    <VideoProvider>
+      <div className="app-container">
+        <YouTubeLogin 
+          onLoginStatusChange={handleLoginStatusChange}
+        />
+        
+        {showWelcome ? (
+          <InitialWelcome onStart={handleStart} />
+        ) : !selectedSection ? (
+          <MainSelection onSelect={handleMainSelection} />
+        ) : (
+          <>
+            <div className="flex items-center justify-center min-h-screen">
+              <div className="w-[350px] h-[622px] relative">
+                {isLoading && <LoadingSpinner />}
+                
+                <div>
+                  {showQuestion ? (
+                    <QuestionCard
+                      question={currentQuestion}
+                      onAnswerSubmit={handleAnswerSubmit}
+                    />
+                  ) : (
+                    <div className="video-container">
+                      {currentVideoUrl && (
+                        <VideoCard
+                          key={`video-${currentVideoUrl}`}
+                          url={currentVideoUrl}
+                          onEnd={handleVideoEnd}
+                          onSkip={handleVideoSkip}
+                          onReady={handleVideoReady}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="stats-container">
-            <div className="streak-counter">
-              <span>🔥 {streak}</span>
+            <div className="stats-container">
+              <div className="streak-counter">
+                <span>🔥 {streak}</span>
+              </div>
+              <div>
+                {correctAnswers} / {totalQuestions} Correct
+              </div>
             </div>
-            <div>
-              {correctAnswers} / {totalQuestions} Correct
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </VideoProvider>
   );
 };
 
