@@ -6,10 +6,10 @@ import MainSelection from './components/VQLN/Selection/MainSelection';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
 import YouTubeLogin from './components/VQLN/YouTubeLogin';
 import SoundEffects from './utils/SoundEffects';
+import YouTubeService from './utils/YouTubeService';
 import axios from 'axios';
 import './styles/theme.css';
 
-const YOUTUBE_API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
 const WARMUP_INTERVAL = 14 * 60 * 1000; // 14 minutes in milliseconds
 
 const App = () => {
@@ -21,78 +21,14 @@ const App = () => {
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [streak, setStreak] = useState(0);
   const [selectedSection, setSelectedSection] = useState(null);
-  const [currentVideoUrl, setCurrentVideoUrl] = useState('');
+  const [currentVideo, setCurrentVideo] = useState(null);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [videos, setVideos] = useState([]);
+  const [lastVideoIndex, setLastVideoIndex] = useState(-1);
 
-  // Fetch popular videos for non-logged-in users
- const fetchPopularShorts = async () => {
-    try {
-      const VIEW_THRESHOLD = 500000;
-      const LIKE_THRESHOLD = 10000;
-
-      const response = await fetch(
-        `https://youtube.googleapis.com/youtube/v3/search?` +
-        `part=snippet` +
-        `&maxResults=50` +
-        `&q="%23shorts"` +
-        `&type=video` +
-        `&order=viewCount` +
-        `&relevanceLanguage=en` +
-        `&key=${YOUTUBE_API_KEY}`
-      );
-
-      if (!response.ok) throw new Error('YouTube API request failed');
-
-      const data = await response.json();
-      const videoIds = data.items
-        .filter(item => item.id && item.id.videoId)
-        .map(item => item.id.videoId);
-
-      if (videoIds.length > 0) {
-        const statsResponse = await fetch(
-          `https://youtube.googleapis.com/youtube/v3/videos?` +
-          `part=statistics,snippet,contentDetails` +
-          `&id=${videoIds.join(',')}` +
-          `&key=${YOUTUBE_API_KEY}`
-        );
-
-        if (!statsResponse.ok) throw new Error('Failed to fetch video stats');
-
-        const statsData = await statsResponse.json();
-        const validVideos = statsData.items
-          .filter(video => {
-            const viewCount = parseInt(video.statistics.viewCount) || 0;
-            const likeCount = parseInt(video.statistics.likeCount) || 0;
-            const isEnglish = video.snippet.defaultLanguage === 'en' ||
-                            video.snippet.defaultAudioLanguage === 'en';
-            
-            // Verify it's a Short using multiple criteria
-            const isShort = 
-              (video.snippet.description.toLowerCase().includes('#shorts') ||
-               video.snippet.title.toLowerCase().includes('#shorts')) &&
-              video.contentDetails.duration.match(/PT[0-6][0-9]S/);
-            
-            return viewCount >= VIEW_THRESHOLD &&
-                   likeCount >= LIKE_THRESHOLD &&
-                   isShort &&
-                   isEnglish;
-          })
-          .map(video => `https://www.youtube.com/shorts/${video.id}`);
-
-        const shuffledVideos = shuffleArray(validVideos);
-        setVideos(shuffledVideos);
-        if (shuffledVideos.length > 0) {
-          setCurrentVideoUrl(shuffledVideos[0]);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching popular shorts:', error);
-    }
-  };
   // Initialize with popular videos
   useEffect(() => {
-    fetchPopularShorts();
+    fetchVideos();
   }, []);
 
   // API Warmup Effect
@@ -100,7 +36,6 @@ const App = () => {
     const warmupAPI = async () => {
       try {
         console.log('Warming up API...');
-        // Make parallel requests to both endpoints
         await Promise.all([
           axios.get('https://brain-bites-api.onrender.com/api/questions/random/funfacts'),
           axios.get('https://brain-bites-api.onrender.com/api/questions/random/psychology')
@@ -110,32 +45,60 @@ const App = () => {
         console.error('API warmup failed:', error);
       }
     };
-    // Initial warmup
+
     warmupAPI();
-    // Set up interval for periodic warmup
     const intervalId = setInterval(warmupAPI, WARMUP_INTERVAL);
-    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
 
+  const fetchVideos = async () => {
+    try {
+      setIsLoading(true);
+      const viralShorts = await YouTubeService.getViralShorts();
+      setVideos(viralShorts);
+      if (viralShorts.length > 0) {
+        setCurrentVideo(viralShorts[0]);
+      }
+    } catch (error) {
+      console.error('Error fetching videos:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Handle login status change and personalized videos
-  const handleLoginStatusChange = async (isLoggedIn, personalizedVideos) => {
+  const handleLoginStatusChange = async (isLoggedIn, accessToken) => {
     setIsSignedIn(isLoggedIn);
-    if (isLoggedIn && personalizedVideos.length > 0) {
-      const videoUrls = personalizedVideos.map(video => video.url);
-      setVideos(videoUrls);
-      setCurrentVideoUrl(videoUrls[0]);
-    } else {
-      fetchPopularShorts();
+    setIsLoading(true);
+    
+    try {
+      if (isLoggedIn && accessToken) {
+        const personalizedVideos = await YouTubeService.getPersonalizedShorts(accessToken);
+        setVideos(personalizedVideos);
+        if (personalizedVideos.length > 0) {
+          setCurrentVideo(personalizedVideos[0]);
+        }
+      } else {
+        await fetchVideos();
+      }
+    } catch (error) {
+      console.error('Error handling login status change:', error);
+      await fetchVideos(); // Fallback to viral videos
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const setRandomVideo = () => {
     if (videos.length === 0) return;
     
-    const randomIndex = Math.floor(Math.random() * videos.length);
-    const newUrl = videos[randomIndex];
-    setCurrentVideoUrl(newUrl);
+    let newIndex;
+    do {
+      newIndex = Math.floor(Math.random() * videos.length);
+    } while (newIndex === lastVideoIndex && videos.length > 1);
+    
+    setLastVideoIndex(newIndex);
+    setCurrentVideo(videos[newIndex]);
     setShowQuestion(false);
   };
 
@@ -244,13 +207,17 @@ const App = () => {
                   />
                 ) : (
                   <div className="video-container">
-                    {currentVideoUrl && (
+                    {currentVideo && (
                       <VideoCard
-                        key={`video-${currentVideoUrl}`}
-                        url={currentVideoUrl}
+                        key={`video-${currentVideo.id}`}
+                        url={currentVideo.url}
                         onEnd={handleVideoEnd}
                         onSkip={handleVideoSkip}
                         onReady={handleVideoReady}
+                        title={currentVideo.title}
+                        channelTitle={currentVideo.channelTitle}
+                        viewCount={currentVideo.viewCount}
+                        region={currentVideo.region}
                       />
                     )}
                   </div>
