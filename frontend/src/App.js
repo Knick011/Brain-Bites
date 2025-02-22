@@ -27,24 +27,32 @@ const App = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [videoQueue, setVideoQueue] = useState([]);
 
-  useEffect(() => {
-    const fetchViralVideos = async () => {
-      try {
-        setIsLoading(true);
-        const videos = await YouTubeShortsService.getViralShorts({
-          maxResults: 50,
-          regions: ['US', 'CA']
-        });
+ useEffect(() => {
+  const fetchViralVideos = async () => {
+    try {
+      console.log('Starting to fetch viral videos...');
+      setIsLoading(true);
+      const videos = await YouTubeShortsService.getViralShorts({
+        maxResults: 50,
+        regions: ['US', 'CA']
+      });
+      console.log('Received videos:', videos);
+      if (videos.length > 0) {
         setViralVideos(videos);
         setVideoQueue(videos);
-      } catch (error) {
-        console.error('Error fetching viral videos:', error);
-      } finally {
-        setIsLoading(false);
+        setCurrentVideoUrl(videos[0].url); // Start with first video
+      } else {
+        console.error('No videos returned from API');
       }
-    };
-    fetchViralVideos();
-  }, []);
+    } catch (error) {
+      console.error('Error fetching viral videos:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  fetchViralVideos();
+}, []);
+
 
   const handleLoginStatusChange = async (isLoggedIn) => {
     setIsSignedIn(isLoggedIn);
@@ -77,6 +85,31 @@ const App = () => {
       return;
     }
 
+const setRandomVideo = () => {
+  if (videoQueue.length === 0) {
+    console.error('No videos available');
+    return;
+  }
+
+  let newUrl;
+  do {
+    const randomIndex = Math.floor(Math.random() * videoQueue.length);
+    const nextVideo = videoQueue[randomIndex];
+    newUrl = nextVideo.url;
+  } while (newUrl === currentVideoUrl && videoQueue.length > 1);
+
+  window.gtag('event', 'video_shown', {
+    'event_category': 'Video',
+    'video_url': newUrl,
+    'type': isSignedIn ? 'personalized' : 'viral'
+  });
+
+  setIsLoading(true);
+  setCurrentVideoUrl(newUrl);
+  setShowQuestion(false);
+};
+
+    
     const nextVideo = videoQueue[0];
     const newQueue = videoQueue.slice(1);
     
@@ -130,7 +163,7 @@ const App = () => {
       setCurrentVideoUrl('');
       setSelectedSection(section);
       SoundEffects.playTransition();
-      fetchQuestion();
+       Math.random() < 0.5 ? fetchQuestion() : setRandomVideo();
     }, 500);
   };
 
@@ -181,7 +214,7 @@ const App = () => {
         'event_category': 'Error',
         'error_message': error.message
       });
-      setNextVideo();
+      setRandomVideo();
     } finally {
       setIsLoading(false);
     }
@@ -216,7 +249,7 @@ const App = () => {
           setIsTransitioning(true);
           SoundEffects.playTransition();
           setTimeout(() => {
-            setNextVideo();
+             setRandomVideo();
             setIsTransitioning(false);
           }, 500);
         }, 1500);
