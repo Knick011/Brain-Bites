@@ -9,8 +9,9 @@ import SoundEffects from './utils/SoundEffects';
 import axios from 'axios';
 import './styles/theme.css';
 
+const YOUTUBE_API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
+
 const App = () => {
-  // Basic states
   const [showWelcome, setShowWelcome] = useState(true);
   const [showQuestion, setShowQuestion] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(null);
@@ -23,34 +24,52 @@ const App = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [videos, setVideos] = useState([]);
 
-  // Default popular YouTube Shorts
-  const defaultVideos = [
-    'https://www.youtube.com/shorts/JfbnpYLe3Ms',
-    'https://www.youtube.com/shorts/6S-5Z2dDjDE',
-    'https://www.youtube.com/shorts/1KFyKwAc5wg',
-    'https://www.youtube.com/shorts/5ubcr90MRA8',
-    'https://www.youtube.com/shorts/Z34l5Kw7BWE',
-    'https://www.youtube.com/shorts/pYqBCuTbXr8',
-    'https://www.youtube.com/shorts/Wy3GSS5LAY0',
-    'https://www.youtube.com/shorts/Cute2zWbQik',
-    'https://www.youtube.com/shorts/XiTdR7JbMBU',
-    'https://www.youtube.com/shorts/T4NxRK0Us4A'
-  ];
+  // Fetch popular videos for non-logged-in users
+  const fetchPopularShorts = async () => {
+    try {
+      const response = await fetch(
+        `https://youtube.googleapis.com/youtube/v3/search?` +
+        `part=snippet` +
+        `&maxResults=50` +
+        `&q=%23shorts` +
+        `&type=video` +
+        `&videoDuration=short` +
+        `&order=viewCount` +
+        `&regionCode=US` +
+        `&key=${YOUTUBE_API_KEY}`
+      );
 
-  // Handle login status change
-  const handleLoginStatusChange = async (isLoggedIn, personalizedVideos) => {
-    setIsSignedIn(isLoggedIn);
-    if (isLoggedIn && personalizedVideos.length > 0) {
-      setVideos(personalizedVideos);
-    } else {
-      setVideos(defaultVideos);
+      if (!response.ok) throw new Error('YouTube API request failed');
+
+      const data = await response.json();
+      const videoUrls = data.items.map(item => 
+        `https://www.youtube.com/shorts/${item.id.videoId}`
+      );
+      setVideos(videoUrls);
+      if (videoUrls.length > 0) {
+        setCurrentVideoUrl(videoUrls[0]);
+      }
+    } catch (error) {
+      console.error('Error fetching popular shorts:', error);
     }
   };
 
-  // Initialize with default videos
+  // Initialize with popular videos
   useEffect(() => {
-    setVideos(defaultVideos);
+    fetchPopularShorts();
   }, []);
+
+  // Handle login status change and personalized videos
+  const handleLoginStatusChange = async (isLoggedIn, personalizedVideos) => {
+    setIsSignedIn(isLoggedIn);
+    if (isLoggedIn && personalizedVideos.length > 0) {
+      const videoUrls = personalizedVideos.map(video => video.url);
+      setVideos(videoUrls);
+      setCurrentVideoUrl(videoUrls[0]);
+    } else {
+      fetchPopularShorts();
+    }
+  };
 
   const setRandomVideo = () => {
     if (videos.length === 0) return;
