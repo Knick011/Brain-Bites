@@ -189,6 +189,7 @@ const App = () => {
 
   return (
     <div className="app-container">
+      <ClearCacheButton /> 
       <YouTubeLogin 
         onLoginStatusChange={handleLoginStatusChange}
       />
@@ -236,7 +237,7 @@ const App = () => {
           </div>
         </>
       )}
-        <ClearCacheButton /> 
+      
     </div>
   );
 };
