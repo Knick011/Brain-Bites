@@ -7,33 +7,50 @@ class YouTubeService {
       lastFetched: null
     };
     this.cacheExpiry = 24 * 60 * 60 * 1000; // 24 hours
-    this.batchSize = 200; // Get maximum videos at once
+    this.batchSize = 200;
     
-    // Filtering criteria
+    // Content categories to rotate through
+    this.contentCategories = [
+      'cute animal shorts',
+      'funny cat shorts',
+      'funny dog shorts',
+      'baby animals shorts',
+      'cute pets shorts',
+      'animal rescue shorts',
+      'amazing animals shorts'
+    ];
+    
+    // Enhanced filtering criteria
     this.filters = {
-      minViews: 1000000,
-      minLikes: 100000,
-      languages: ['en'], // English content
-      forbiddenWords: ['spam', 'sub4sub', 'follow4follow', 'subscribe'], // Filter out spam
-      titleMaxLength: 100, // Filter out overly long titles that might be spam
-      requiredTags: ['#shorts'], // Must have these tags
+      minViews: 500000, // Lowered slightly to include newer quality content
+      minLikes: 50000,
+      languages: ['en'],
+      // Words that indicate quality animal content
+      positiveWords: [
+        'cute', 'adorable', 'funny', 'amazing',
+        'cat', 'dog', 'puppy', 'kitten', 'pet',
+        'animal', 'rescue', 'wildlife'
+      ],
+      // Filter out potentially problematic content
+      forbiddenWords: [
+        'prank', 'gone wrong', 'dangerous',
+        'spam', 'sub4sub', 'follow', 'subscribe',
+        'trauma', 'warning', 'graphic'
+      ],
+      titleMaxLength: 100
     };
   }
 
   async getViralShorts() {
     try {
-      // Check cache first
       if (this.isValidCache()) {
         return this.getRandomVideosFromCache();
       }
 
-      // Fetch new batch if cache expired
-      const videos = await this.fetchAndProcessVideos();
+      // Fetch videos from multiple categories
+      const allVideos = await this.fetchFromAllCategories();
+      const filteredVideos = this.applyCustomFilters(allVideos);
       
-      // Apply our custom filtering
-      const filteredVideos = this.applyCustomFilters(videos);
-      
-      // Update cache with filtered videos
       this.cache = {
         videos: filteredVideos,
         lastFetched: Date.now()
@@ -46,13 +63,29 @@ class YouTubeService {
     }
   }
 
-  async fetchAndProcessVideos() {
-    // Initial search with minimal filtering to get maximum results
+  async fetchFromAllCategories() {
+    const allVideos = [];
+    const videosPerCategory = Math.floor(this.batchSize / this.contentCategories.length);
+
+    // Fetch videos from each category
+    for (const category of this.contentCategories) {
+      try {
+        const videos = await this.fetchVideosForCategory(category, videosPerCategory);
+        allVideos.push(...videos);
+      } catch (error) {
+        console.error(`Error fetching ${category}:`, error);
+      }
+    }
+
+    return allVideos;
+  }
+
+  async fetchVideosForCategory(category, maxResults) {
     const searchResponse = await fetch(
       `https://youtube.googleapis.com/youtube/v3/search?` +
       `part=snippet` +
-      `&maxResults=${this.batchSize}` +
-      `&q=%23shorts` +
+      `&maxResults=${maxResults}` +
+      `&q=${encodeURIComponent(category)}` +
       `&type=video` +
       `&videoDuration=short` +
       `&order=viewCount` +
@@ -63,11 +96,11 @@ class YouTubeService {
     if (!searchResponse.ok) throw new Error('Search request failed');
     const searchData = await searchResponse.json();
 
-    // Get statistics in one batch request
+    // Get video statistics
     const videoIds = searchData.items.map(item => item.id.videoId).join(',');
     const statsResponse = await fetch(
       `https://youtube.googleapis.com/youtube/v3/videos?` +
-      `part=statistics,snippet` + // Get both stats and full snippet
+      `part=statistics,snippet` +
       `&id=${videoIds}` +
       `&key=${this.apiKey}`
     );
@@ -75,7 +108,6 @@ class YouTubeService {
     if (!statsResponse.ok) throw new Error('Stats request failed');
     const statsData = await statsResponse.json();
 
-    // Combine search and stats data
     return statsData.items.map(video => {
       const searchItem = searchData.items.find(item => item.id.videoId === video.id);
       return {
@@ -86,6 +118,7 @@ class YouTubeService {
         publishedAt: video.snippet.publishedAt,
         language: video.snippet.defaultLanguage || video.snippet.defaultAudioLanguage,
         tags: video.snippet.tags || [],
+        category,
         stats: {
           views: parseInt(video.statistics.viewCount),
           likes: parseInt(video.statistics.likeCount),
@@ -97,34 +130,33 @@ class YouTubeService {
 
   applyCustomFilters(videos) {
     return videos.filter(video => {
-      // Check minimum views and likes
+      // Basic stats checks
       if (video.stats.views < this.filters.minViews) return false;
       if (video.stats.likes < this.filters.minLikes) return false;
-
-      // Check language (if available)
-      if (video.language && !this.filters.languages.includes(video.language)) return false;
 
       // Check title length
       if (video.title.length > this.filters.titleMaxLength) return false;
 
-      // Check for required tags
-      const hasRequiredTags = this.filters.requiredTags.some(tag => 
-        video.title.toLowerCase().includes(tag) || 
-        video.description.toLowerCase().includes(tag) ||
-        video.tags.some(videoTag => videoTag.toLowerCase().includes(tag))
-      );
-      if (!hasRequiredTags) return false;
+      // Language check if available
+      if (video.language && !this.filters.languages.includes(video.language)) return false;
 
-      // Check for forbidden words
-      const hasForbiddenWords = this.filters.forbiddenWords.some(word =>
+      // Check for positive indicators in title or description
+      const hasPositiveContent = this.filters.positiveWords.some(word => 
+        video.title.toLowerCase().includes(word) || 
+        video.description.toLowerCase().includes(word)
+      );
+      if (!hasPositiveContent) return false;
+
+      // Check for forbidden content
+      const hasForbiddenContent = this.filters.forbiddenWords.some(word =>
         video.title.toLowerCase().includes(word) ||
         video.description.toLowerCase().includes(word)
       );
-      if (hasForbiddenWords) return false;
+      if (hasForbiddenContent) return false;
 
-      // Calculate engagement rate (likes/views ratio)
+      // Engagement quality check
       const engagementRate = (video.stats.likes / video.stats.views) * 100;
-      if (engagementRate < 1) return false; // Filter out potentially fake/botted videos
+      if (engagementRate < 1) return false;
 
       return true;
     });
