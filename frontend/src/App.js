@@ -5,11 +5,11 @@ import LoadingSpinner from './components/VQLN/Layout/LoadingSpinner';
 import MainSelection from './components/VQLN/Selection/MainSelection';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
 import YouTubeLogin from './components/VQLN/YouTubeLogin';
+import ClearCacheButton from './components/VQLN/ClearCacheButton';
 import SoundEffects from './utils/SoundEffects';
+import YouTubeService from './utils/YouTubeService';
 import axios from 'axios';
 import './styles/theme.css';
-import ClearCacheButton from './components/VQLN/ClearCacheButton';
-
 
 const YOUTUBE_API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
 const WARMUP_INTERVAL = 14 * 60 * 1000; // 14 minutes in milliseconds
@@ -27,33 +27,22 @@ const App = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [videos, setVideos] = useState([]);
 
-  // Fetch popular videos for non-logged-in users
+  // Fetch shorts using YouTubeService
   const fetchPopularShorts = async () => {
     try {
-      const response = await fetch(
-        `https://youtube.googleapis.com/youtube/v3/search?` +
-        `part=snippet` +
-        `&maxResults=50` +
-        `&q=%23shorts` +
-        `&type=video` +
-        `&videoDuration=short` +
-        `&order=viewCount` +
-        `&regionCode=US` +
-        `&key=${YOUTUBE_API_KEY}`
-      );
-
-      if (!response.ok) throw new Error('YouTube API request failed');
-
-      const data = await response.json();
-      const videoUrls = data.items.map(item => 
-        `https://www.youtube.com/shorts/${item.id.videoId}`
-      );
+      console.log('Fetching shorts...');
+      const shorts = await YouTubeService.getViralShorts();
+      console.log('Got shorts:', shorts);
+      
+      const videoUrls = shorts.map(video => video.url);
+      console.log('Video URLs:', videoUrls);
+      
       setVideos(videoUrls);
       if (videoUrls.length > 0) {
         setCurrentVideoUrl(videoUrls[0]);
       }
     } catch (error) {
-      console.error('Error fetching popular shorts:', error);
+      console.error('Error fetching shorts:', error);
     }
   };
 
@@ -189,7 +178,7 @@ const App = () => {
 
   return (
     <div className="app-container">
-      <ClearCacheButton /> 
+      <ClearCacheButton />
       <YouTubeLogin 
         onLoginStatusChange={handleLoginStatusChange}
       />
@@ -237,7 +226,6 @@ const App = () => {
           </div>
         </>
       )}
-      
     </div>
   );
 };
