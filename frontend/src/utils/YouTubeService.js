@@ -6,70 +6,26 @@ class YouTubeService {
       videos: [],
       lastFetched: null
     };
-    this.cacheExpiry = 24 * 60 * 60 * 1000; // 24 hours
-    
-    // List of channel handles
-    this.channels = [
-      'LukeDavidson',
-      'Kallmekris',
-      'MDMotivator',
-      'sandiction',
-      'Mythic',
-      'TheMagicMatt',
-      'GoldenGully',
-      'DokaRyan',
-      'Ottawalks',
-      'Shangerdanger',
-      'Hingaflips',
-      'ChrisIvan',
-      'BrodieThatDood',
-      'AdrianBliss',
-      'ZackDFilms',
-      'ILYABORZOV',
-      'JoJosWorld',
-      'KellyClarksonShow',
-      'iKnowAyrel',
-      'MrBeast',
-      'ZachKing',
-      'JeenieWeenie',
-      'StokesTwins',
-      'AlanChikinChow',
-      'DanRhodes',
-      'FritzProctor',
-      'LoicSuberville',
-      'TheKoreanVegan',
-      'TopperGuild',
-      'NathanKessel',
-      'AzzyLand',
-      'HacksmithIndustries',
-      'SISvsBRO',
-      'CoreyTonge',
-      'CrashAdams',
-      'AndreasEskander',
-      'AnnaMcNulty',
-      'MadFit',
-      'NutshellAnimations',
-      'SAS-ASMR',
-      'ManchurekTriplets',
-      'AaronEsser',
-      'TwiShorts',
-      'LaylaRoblox',
-      'NickEh30',
-      'NileRed',
-      'ElectroBOOM',
-      'Gloom',
-      'MostAmazingTop10',
-      'PapaJake'
-    ];
+    this.cacheExpiry = 24 * 60 * 60 * 1000;
+    this.channels = [/* ... your channel list ... */];
   }
 
   async getViralShorts() {
     try {
+      console.log('Cache status:', {
+        hasCache: this.cache.videos.length > 0,
+        lastFetched: this.cache.lastFetched,
+        isValid: this.isValidCache()
+      });
+
       if (this.isValidCache()) {
+        console.log('Using cached videos');
         return this.getRandomVideosFromCache();
       }
 
+      console.log('Fetching new videos...');
       const allVideos = await this.fetchFromChannels();
+      console.log(`Successfully fetched ${allVideos.length} videos`);
       
       this.cache = {
         videos: allVideos,
@@ -78,8 +34,8 @@ class YouTubeService {
 
       return this.getRandomVideosFromCache();
     } catch (error) {
-      console.error('Error fetching shorts:', error);
-      return this.cache.videos.length ? this.getRandomVideosFromCache() : [];
+      console.error('Error in getViralShorts:', error);
+      return [];
     }
   }
 
@@ -88,81 +44,119 @@ class YouTubeService {
 
     for (const channel of this.channels) {
       try {
-        // First get channel ID from handle
+        console.log(`Fetching videos for channel: ${channel}`);
+        
+        // Get channel ID first
         const channelResponse = await fetch(
-          `https://youtube.googleapis.com/youtube/v3/search?` +
-          `part=snippet` +
-          `&q=@${channel}` +
-          `&type=channel` +
+          `https://youtube.googleapis.com/youtube/v3/channels?` +
+          `part=id` +
+          `&forHandle=${channel}` +
           `&key=${this.apiKey}`
         );
 
-        if (!channelResponse.ok) continue;
-        const channelData = await channelResponse.json();
-        if (!channelData.items?.length) continue;
-        
-        const channelId = channelData.items[0].id.channelId;
+        if (!channelResponse.ok) {
+          console.error(`Channel response not OK for ${channel}:`, await channelResponse.text());
+          continue;
+        }
 
-        // Then get shorts from this channel
+        const channelData = await channelResponse.json();
+        console.log('Channel data:', channelData);
+
+        if (!channelData.items?.length) {
+          console.error(`No channel found for ${channel}`);
+          continue;
+        }
+
+        const channelId = channelData.items[0].id;
+        console.log(`Found channel ID: ${channelId} for ${channel}`);
+
+        // Get shorts from this channel
         const searchResponse = await fetch(
           `https://youtube.googleapis.com/youtube/v3/search?` +
           `part=snippet` +
           `&channelId=${channelId}` +
-          `&maxResults=10` + // Get 10 recent shorts per channel
+          `&maxResults=10` +
           `&q=%23shorts` +
           `&type=video` +
           `&videoDuration=short` +
-          `&order=date` + // Get most recent shorts
+          `&order=date` +
           `&key=${this.apiKey}`
         );
 
-        if (!searchResponse.ok) continue;
-        const searchData = await searchResponse.json();
-        
-        // Process videos
-        const channelVideos = searchData.items.map(item => ({
-          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
-          title: item.snippet.title,
-          channelTitle: item.snippet.channelTitle,
-          publishedAt: item.snippet.publishedAt
-        }));
+        if (!searchResponse.ok) {
+          console.error(`Search response not OK for ${channel}:`, await searchResponse.text());
+          continue;
+        }
 
+        const searchData = await searchResponse.json();
+        console.log(`Found ${searchData.items?.length || 0} videos for ${channel}`);
+
+        if (!searchData.items?.length) {
+          console.log(`No shorts found for ${channel}`);
+          continue;
+        }
+
+        const channelVideos = searchData.items
+          .filter(item => item.id?.videoId) // Make sure we have a video ID
+          .map(item => ({
+            url: `https://www.youtube.com/shorts/${item.id.videoId}`,
+            title: item.snippet.title,
+            channelTitle: item.snippet.channelTitle,
+            channelHandle: channel,
+            publishedAt: item.snippet.publishedAt
+          }));
+
+        console.log(`Processed ${channelVideos.length} videos for ${channel}`);
         allVideos.push(...channelVideos);
+
       } catch (error) {
-        console.error(`Error fetching videos for ${channel}:`, error);
-        continue; // Skip to next channel on error
+        console.error(`Error processing channel ${channel}:`, error);
       }
     }
 
-    // Shuffle videos for variety
+    console.log(`Total videos fetched: ${allVideos.length}`);
     return this.shuffleArray(allVideos);
   }
 
-  shuffleArray(array) {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
+  clearCache() {
+    console.log('Clearing cache');
+    this.cache = {
+      videos: [],
+      lastFetched: null
+    };
+    console.log('Cache cleared');
   }
 
   isValidCache() {
-    return (
+    const isValid = (
       this.cache.lastFetched && 
       this.cache.videos.length > 0 && 
       (Date.now() - this.cache.lastFetched) < this.cacheExpiry
     );
+    console.log('Cache validity check:', {
+      hasLastFetched: !!this.cache.lastFetched,
+      videosCount: this.cache.videos.length,
+      timeSinceLastFetch: this.cache.lastFetched ? (Date.now() - this.cache.lastFetched) : null,
+      isValid
+    });
+    return isValid;
   }
 
   getRandomVideosFromCache(count = 10) {
     const videos = [...this.cache.videos];
     const results = [];
     
+    console.log(`Getting ${count} random videos from cache of ${videos.length} videos`);
+    
     while (results.length < count && videos.length > 0) {
       const randomIndex = Math.floor(Math.random() * videos.length);
       results.push(videos.splice(randomIndex, 1)[0]);
     }
+    
+    console.log('Selected videos:', results.map(v => ({
+      channel: v.channelHandle,
+      title: v.title
+    })));
     
     return results;
   }
