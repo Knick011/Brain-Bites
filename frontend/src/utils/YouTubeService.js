@@ -1,104 +1,154 @@
-// utils/YouTubeShortsService.js
-class YouTubeShortsService {
+// YouTubeService.js
+class YouTubeService {
   constructor() {
     this.apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
+    this.cache = {
+      videos: [],
+      lastFetched: null
+    };
+    this.cacheExpiry = 24 * 60 * 60 * 1000; // 24 hours
+    this.batchSize = 200; // Get maximum videos at once
+    
+    // Filtering criteria
+    this.filters = {
+      minViews: 1000000,
+      minLikes: 100000,
+      languages: ['en'], // English content
+      forbiddenWords: ['spam', 'sub4sub', 'follow4follow', 'subscribe'], // Filter out spam
+      titleMaxLength: 100, // Filter out overly long titles that might be spam
+      requiredTags: ['#shorts'], // Must have these tags
+    };
   }
 
   async getViralShorts() {
     try {
-      // Get popular shorts from US and Canada
-      const regions = ['US', 'CA'];
-      const requests = regions.map(region =>
-        fetch(
-          `https://youtube.googleapis.com/youtube/v3/search?` +
-          `part=snippet` +
-          `&maxResults=25` +
-          `&q=%23shorts` +
-          `&type=video` +
-          `&videoDuration=short` +
-          `&order=viewCount` + // Sort by view count
-          `&regionCode=${region}` +
-          `&key=${this.apiKey}`
-        ).then(r => r.json())
-      );
+      // Check cache first
+      if (this.isValidCache()) {
+        return this.getRandomVideosFromCache();
+      }
 
-      const responses = await Promise.all(requests);
-      const videos = responses
-        .flatMap(data => data.items || [])
-        .map(item => ({
-          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
-          title: item.snippet.title,
-          channelTitle: item.snippet.channelTitle
-        }));
+      // Fetch new batch if cache expired
+      const videos = await this.fetchAndProcessVideos();
+      
+      // Apply our custom filtering
+      const filteredVideos = this.applyCustomFilters(videos);
+      
+      // Update cache with filtered videos
+      this.cache = {
+        videos: filteredVideos,
+        lastFetched: Date.now()
+      };
 
-      return this.shuffleArray(videos);
+      return this.getRandomVideosFromCache();
     } catch (error) {
       console.error('Error fetching viral shorts:', error);
-      return [];
+      return this.cache.videos.length ? this.getRandomVideosFromCache() : [];
     }
   }
 
-  async getPersonalizedShorts(accessToken) {
-    try {
-      // Get user's subscribed channels
-      const subResponse = await fetch(
-        'https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=20',
-        {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Accept': 'application/json'
-          }
+  async fetchAndProcessVideos() {
+    // Initial search with minimal filtering to get maximum results
+    const searchResponse = await fetch(
+      `https://youtube.googleapis.com/youtube/v3/search?` +
+      `part=snippet` +
+      `&maxResults=${this.batchSize}` +
+      `&q=%23shorts` +
+      `&type=video` +
+      `&videoDuration=short` +
+      `&order=viewCount` +
+      `&regionCode=US` +
+      `&key=${this.apiKey}`
+    );
+
+    if (!searchResponse.ok) throw new Error('Search request failed');
+    const searchData = await searchResponse.json();
+
+    // Get statistics in one batch request
+    const videoIds = searchData.items.map(item => item.id.videoId).join(',');
+    const statsResponse = await fetch(
+      `https://youtube.googleapis.com/youtube/v3/videos?` +
+      `part=statistics,snippet` + // Get both stats and full snippet
+      `&id=${videoIds}` +
+      `&key=${this.apiKey}`
+    );
+
+    if (!statsResponse.ok) throw new Error('Stats request failed');
+    const statsData = await statsResponse.json();
+
+    // Combine search and stats data
+    return statsData.items.map(video => {
+      const searchItem = searchData.items.find(item => item.id.videoId === video.id);
+      return {
+        url: `https://www.youtube.com/shorts/${video.id}`,
+        title: video.snippet.title,
+        description: video.snippet.description,
+        channelTitle: video.snippet.channelTitle,
+        publishedAt: video.snippet.publishedAt,
+        language: video.snippet.defaultLanguage || video.snippet.defaultAudioLanguage,
+        tags: video.snippet.tags || [],
+        stats: {
+          views: parseInt(video.statistics.viewCount),
+          likes: parseInt(video.statistics.likeCount),
+          comments: parseInt(video.statistics.commentCount)
         }
-      );
-
-      if (!subResponse.ok) throw new Error('Failed to fetch subscriptions');
-      const subData = await subResponse.json();
-      
-      // Get videos from each channel
-      const channelIds = subData.items.map(item => item.snippet.resourceId.channelId);
-      const videoPromises = channelIds.map(channelId =>
-        fetch(
-          `https://youtube.googleapis.com/youtube/v3/search?` +
-          `part=snippet` +
-          `&channelId=${channelId}` +
-          `&maxResults=5` +
-          `&q=%23shorts` +
-          `&type=video` +
-          `&videoDuration=short` +
-          `&order=viewCount` + // Get most viewed shorts from each channel
-          `&key=${this.apiKey}`
-        ).then(r => r.json())
-      );
-
-      const videoResponses = await Promise.all(videoPromises);
-      const personalizedVideos = videoResponses
-        .flatMap(response => response.items || [])
-        .map(item => ({
-          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
-          title: item.snippet.title,
-          channelTitle: item.snippet.channelTitle
-        }));
-
-      // Mix with some viral videos
-      const viralVideos = await this.getViralShorts();
-      const allVideos = [...personalizedVideos, ...viralVideos.slice(0, 10)];
-
-      return this.shuffleArray(allVideos);
-    } catch (error) {
-      console.error('Error fetching personalized shorts:', error);
-      // Fallback to viral shorts if personalized fails
-      return this.getViralShorts();
-    }
+      };
+    });
   }
 
-  shuffleArray(array) {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  applyCustomFilters(videos) {
+    return videos.filter(video => {
+      // Check minimum views and likes
+      if (video.stats.views < this.filters.minViews) return false;
+      if (video.stats.likes < this.filters.minLikes) return false;
+
+      // Check language (if available)
+      if (video.language && !this.filters.languages.includes(video.language)) return false;
+
+      // Check title length
+      if (video.title.length > this.filters.titleMaxLength) return false;
+
+      // Check for required tags
+      const hasRequiredTags = this.filters.requiredTags.some(tag => 
+        video.title.toLowerCase().includes(tag) || 
+        video.description.toLowerCase().includes(tag) ||
+        video.tags.some(videoTag => videoTag.toLowerCase().includes(tag))
+      );
+      if (!hasRequiredTags) return false;
+
+      // Check for forbidden words
+      const hasForbiddenWords = this.filters.forbiddenWords.some(word =>
+        video.title.toLowerCase().includes(word) ||
+        video.description.toLowerCase().includes(word)
+      );
+      if (hasForbiddenWords) return false;
+
+      // Calculate engagement rate (likes/views ratio)
+      const engagementRate = (video.stats.likes / video.stats.views) * 100;
+      if (engagementRate < 1) return false; // Filter out potentially fake/botted videos
+
+      return true;
+    });
+  }
+
+  isValidCache() {
+    return (
+      this.cache.lastFetched && 
+      this.cache.videos.length > 0 && 
+      (Date.now() - this.cache.lastFetched) < this.cacheExpiry
+    );
+  }
+
+  getRandomVideosFromCache(count = 10) {
+    const videos = [...this.cache.videos];
+    const results = [];
+    
+    while (results.length < count && videos.length > 0) {
+      const randomIndex = Math.floor(Math.random() * videos.length);
+      results.push(videos.splice(randomIndex, 1)[0]);
     }
-    return newArray;
+    
+    return results;
   }
 }
 
-export default new YouTubeShortsService();
+export default new YouTubeService();
