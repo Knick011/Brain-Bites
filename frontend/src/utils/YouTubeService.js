@@ -6,146 +6,180 @@ class YouTubeService {
       videos: [],
       lastFetched: null
     };
-    this.cacheExpiry = 24 * 60 * 60 * 1000;
+    this.cacheExpiry = 24 * 60 * 60 * 1000; // 24 hours
+    this.batchSize = 200;
     
-    // Channel IDs (these are more reliable than handles)
-    this.channels = [
-      { handle: 'LukeDavidson', id: 'UCgukwUkm4KxWtR4NHVIz_aw' },
-      { handle: 'Kallmekris', id: 'UCrVxhp3_PsRTCEHV_-bGnmQ' },
-      { handle: 'Mythic', id: 'UCjIl9tbIu-FmH8b8UaeLqzw' },
-      { handle: 'ZachKing', id: 'UCq8DICunczvLuJJq414110A' },
-      { handle: 'MrBeast', id: 'UCX6OQ3DkcsbYNE6H8uQQuVA' }
-      // We can add more channels, but let's test with these first
+    // Content categories to rotate through
+    this.contentCategories = [
+      'cute animal shorts',
+      'funny cat shorts',
+      'funny dog shorts',
+      'baby animals shorts',
+      'cute pets shorts',
+      'animal rescue shorts',
+      'amazing animals shorts'
     ];
+    
+    // Enhanced filtering criteria
+    this.filters = {
+      minViews: 500000, // Lowered slightly to include newer quality content
+      minLikes: 50000,
+      languages: ['en'],
+      // Words that indicate quality animal content
+      positiveWords: [
+        'cute', 'adorable', 'funny', 'amazing',
+        'cat', 'dog', 'puppy', 'kitten', 'pet',
+        'animal', 'rescue', 'wildlife'
+      ],
+      // Filter out potentially problematic content
+      forbiddenWords: [
+        'prank', 'gone wrong', 'dangerous',
+        'spam', 'sub4sub', 'follow', 'subscribe',
+        'trauma', 'warning', 'graphic'
+      ],
+      titleMaxLength: 100
+    };
   }
 
   async getViralShorts() {
     try {
-      console.log('Starting getViralShorts');
       if (this.isValidCache()) {
-        console.log('Using cached videos');
         return this.getRandomVideosFromCache();
       }
 
-      console.log('Cache invalid, fetching new videos');
-      const allVideos = await this.fetchFromChannels();
+      // Fetch videos from multiple categories
+      const allVideos = await this.fetchFromAllCategories();
+      const filteredVideos = this.applyCustomFilters(allVideos);
       
       this.cache = {
-        videos: allVideos,
+        videos: filteredVideos,
         lastFetched: Date.now()
       };
 
       return this.getRandomVideosFromCache();
     } catch (error) {
-      console.error('Error in getViralShorts:', error);
+      console.error('Error fetching viral shorts:', error);
       return this.cache.videos.length ? this.getRandomVideosFromCache() : [];
     }
   }
 
-  async fetchFromChannels() {
+  async fetchFromAllCategories() {
     const allVideos = [];
+    const videosPerCategory = Math.floor(this.batchSize / this.contentCategories.length);
 
-    for (const channel of this.channels) {
+    // Fetch videos from each category
+    for (const category of this.contentCategories) {
       try {
-        console.log(`Fetching videos for channel: ${channel.handle}`);
-        
-        // Get recent shorts from this channel
-        const searchResponse = await fetch(
-          `https://youtube.googleapis.com/youtube/v3/search?` +
-          `part=snippet` +
-          `&channelId=${channel.id}` +
-          `&maxResults=10` +
-          `&type=video` +
-          `&videoDuration=short` +
-          `&order=date` + // Get most recent shorts
-          `&key=${this.apiKey}`
-        );
-
-        if (!searchResponse.ok) {
-          console.error(`Search response not OK for ${channel.handle}:`, await searchResponse.text());
-          continue;
-        }
-
-        const searchData = await searchResponse.json();
-        console.log(`Found ${searchData.items?.length || 0} videos for ${channel.handle}`);
-
-        if (!searchData.items?.length) {
-          console.log(`No shorts found for ${channel.handle}`);
-          continue;
-        }
-
-        const channelVideos = searchData.items
-          .filter(item => item.id?.videoId) // Make sure we have a video ID
-          .map(item => ({
-            url: `https://www.youtube.com/shorts/${item.id.videoId}`,
-            title: item.snippet.title,
-            channelTitle: item.snippet.channelTitle,
-            channelHandle: channel.handle,
-            publishedAt: item.snippet.publishedAt
-          }));
-
-        console.log(`Processed ${channelVideos.length} videos for ${channel.handle}`);
-        allVideos.push(...channelVideos);
-
+        const videos = await this.fetchVideosForCategory(category, videosPerCategory);
+        allVideos.push(...videos);
       } catch (error) {
-        console.error(`Error processing channel ${channel.handle}:`, error);
+        console.error(`Error fetching ${category}:`, error);
       }
     }
 
-    console.log(`Total videos fetched: ${allVideos.length}`);
-    return this.shuffleArray(allVideos);
+    return allVideos;
   }
 
-  shuffleArray(array) {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
+  async fetchVideosForCategory(category, maxResults) {
+    const searchResponse = await fetch(
+      `https://youtube.googleapis.com/youtube/v3/search?` +
+      `part=snippet` +
+      `&maxResults=${maxResults}` +
+      `&q=${encodeURIComponent(category)}` +
+      `&type=video` +
+      `&videoDuration=short` +
+      `&order=viewCount` +
+      `&regionCode=US` +
+      `&key=${this.apiKey}`
+    );
+
+    if (!searchResponse.ok) throw new Error('Search request failed');
+    const searchData = await searchResponse.json();
+
+    // Get video statistics
+    const videoIds = searchData.items.map(item => item.id.videoId).join(',');
+    const statsResponse = await fetch(
+      `https://youtube.googleapis.com/youtube/v3/videos?` +
+      `part=statistics,snippet` +
+      `&id=${videoIds}` +
+      `&key=${this.apiKey}`
+    );
+
+    if (!statsResponse.ok) throw new Error('Stats request failed');
+    const statsData = await statsResponse.json();
+
+    return statsData.items.map(video => {
+      const searchItem = searchData.items.find(item => item.id.videoId === video.id);
+      return {
+        url: `https://www.youtube.com/shorts/${video.id}`,
+        title: video.snippet.title,
+        description: video.snippet.description,
+        channelTitle: video.snippet.channelTitle,
+        publishedAt: video.snippet.publishedAt,
+        language: video.snippet.defaultLanguage || video.snippet.defaultAudioLanguage,
+        tags: video.snippet.tags || [],
+        category,
+        stats: {
+          views: parseInt(video.statistics.viewCount),
+          likes: parseInt(video.statistics.likeCount),
+          comments: parseInt(video.statistics.commentCount)
+        }
+      };
+    });
+  }
+
+  applyCustomFilters(videos) {
+    return videos.filter(video => {
+      // Basic stats checks
+      if (video.stats.views < this.filters.minViews) return false;
+      if (video.stats.likes < this.filters.minLikes) return false;
+
+      // Check title length
+      if (video.title.length > this.filters.titleMaxLength) return false;
+
+      // Language check if available
+      if (video.language && !this.filters.languages.includes(video.language)) return false;
+
+      // Check for positive indicators in title or description
+      const hasPositiveContent = this.filters.positiveWords.some(word => 
+        video.title.toLowerCase().includes(word) || 
+        video.description.toLowerCase().includes(word)
+      );
+      if (!hasPositiveContent) return false;
+
+      // Check for forbidden content
+      const hasForbiddenContent = this.filters.forbiddenWords.some(word =>
+        video.title.toLowerCase().includes(word) ||
+        video.description.toLowerCase().includes(word)
+      );
+      if (hasForbiddenContent) return false;
+
+      // Engagement quality check
+      const engagementRate = (video.stats.likes / video.stats.views) * 100;
+      if (engagementRate < 1) return false;
+
+      return true;
+    });
   }
 
   isValidCache() {
-    const isValid = (
+    return (
       this.cache.lastFetched && 
       this.cache.videos.length > 0 && 
       (Date.now() - this.cache.lastFetched) < this.cacheExpiry
     );
-    console.log('Cache validity check:', {
-      hasLastFetched: !!this.cache.lastFetched,
-      videosCount: this.cache.videos.length,
-      timeSinceLastFetch: this.cache.lastFetched ? (Date.now() - this.cache.lastFetched) : null,
-      isValid
-    });
-    return isValid;
   }
 
   getRandomVideosFromCache(count = 10) {
     const videos = [...this.cache.videos];
     const results = [];
     
-    console.log(`Getting ${count} random videos from cache of ${videos.length} videos`);
-    
     while (results.length < count && videos.length > 0) {
       const randomIndex = Math.floor(Math.random() * videos.length);
       results.push(videos.splice(randomIndex, 1)[0]);
     }
     
-    console.log('Selected videos:', results.map(v => ({
-      channel: v.channelHandle,
-      title: v.title
-    })));
-    
     return results;
-  }
-
-  clearCache() {
-    console.log('Clearing cache');
-    this.cache = {
-      videos: [],
-      lastFetched: null
-    };
-    console.log('Cache cleared');
   }
 }
 
