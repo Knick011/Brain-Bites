@@ -8,6 +8,8 @@ import YouTubeLogin from './components/VQLN/YouTubeLogin';
 import SoundEffects from './utils/SoundEffects';
 import axios from 'axios';
 import './styles/theme.css';
+import ClearCacheButton from './components/VQLN/ClearCacheButton';
+
 
 const YOUTUBE_API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
 const WARMUP_INTERVAL = 14 * 60 * 1000; // 14 minutes in milliseconds
@@ -234,6 +236,7 @@ const App = () => {
           </div>
         </>
       )}
+        <ClearCacheButton /> 
     </div>
   );
 };
