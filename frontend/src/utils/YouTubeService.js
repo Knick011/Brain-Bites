@@ -7,20 +7,59 @@ class YouTubeService {
       lastFetched: null
     };
     this.cacheExpiry = 24 * 60 * 60 * 1000; // 24 hours
-    this.batchSize = 200;
     
-    // Specific content we want to fetch
-    this.searchQueries = [
-      'cute kitten shorts',
-      'funny puppy shorts',
-      'cute baby animals shorts',
-      'funny cat compilation shorts',
-      'happy dog shorts',
-      'playful pets shorts',
-      'adorable animals shorts',
-      'cat and dog friends shorts',
-      'rescue animals shorts',
-      'animal friendship shorts'
+    // List of channel handles
+    this.channels = [
+      'LukeDavidson',
+      'Kallmekris',
+      'MDMotivator',
+      'sandiction',
+      'Mythic',
+      'TheMagicMatt',
+      'GoldenGully',
+      'DokaRyan',
+      'Ottawalks',
+      'Shangerdanger',
+      'Hingaflips',
+      'ChrisIvan',
+      'BrodieThatDood',
+      'AdrianBliss',
+      'ZackDFilms',
+      'ILYABORZOV',
+      'JoJosWorld',
+      'KellyClarksonShow',
+      'iKnowAyrel',
+      'MrBeast',
+      'ZachKing',
+      'JeenieWeenie',
+      'StokesTwins',
+      'AlanChikinChow',
+      'DanRhodes',
+      'FritzProctor',
+      'LoicSuberville',
+      'TheKoreanVegan',
+      'TopperGuild',
+      'NathanKessel',
+      'AzzyLand',
+      'HacksmithIndustries',
+      'SISvsBRO',
+      'CoreyTonge',
+      'CrashAdams',
+      'AndreasEskander',
+      'AnnaMcNulty',
+      'MadFit',
+      'NutshellAnimations',
+      'SAS-ASMR',
+      'ManchurekTriplets',
+      'AaronEsser',
+      'TwiShorts',
+      'LaylaRoblox',
+      'NickEh30',
+      'NileRed',
+      'ElectroBOOM',
+      'Gloom',
+      'MostAmazingTop10',
+      'PapaJake'
     ];
   }
 
@@ -30,10 +69,7 @@ class YouTubeService {
         return this.getRandomVideosFromCache();
       }
 
-      const allVideos = await this.fetchQualityContent();
-      
-      // Sort by views in descending order
-      allVideos.sort((a, b) => b.stats.views - a.stats.views);
+      const allVideos = await this.fetchFromChannels();
       
       this.cache = {
         videos: allVideos,
@@ -47,88 +83,68 @@ class YouTubeService {
     }
   }
 
-  async fetchQualityContent() {
+  async fetchFromChannels() {
     const allVideos = [];
-    const videosPerQuery = Math.floor(this.batchSize / this.searchQueries.length);
 
-    for (const query of this.searchQueries) {
+    for (const channel of this.channels) {
       try {
+        // First get channel ID from handle
+        const channelResponse = await fetch(
+          `https://youtube.googleapis.com/youtube/v3/search?` +
+          `part=snippet` +
+          `&q=@${channel}` +
+          `&type=channel` +
+          `&key=${this.apiKey}`
+        );
+
+        if (!channelResponse.ok) continue;
+        const channelData = await channelResponse.json();
+        if (!channelData.items?.length) continue;
+        
+        const channelId = channelData.items[0].id.channelId;
+
+        // Then get shorts from this channel
         const searchResponse = await fetch(
           `https://youtube.googleapis.com/youtube/v3/search?` +
           `part=snippet` +
-          `&maxResults=${videosPerQuery}` +
-          `&q=${encodeURIComponent(query)}` +
+          `&channelId=${channelId}` +
+          `&maxResults=10` + // Get 10 recent shorts per channel
+          `&q=%23shorts` +
           `&type=video` +
           `&videoDuration=short` +
-          `&regionCode=US` +
-          `&relevanceLanguage=en` +
+          `&order=date` + // Get most recent shorts
           `&key=${this.apiKey}`
         );
 
-        if (!searchResponse.ok) throw new Error('Search request failed');
+        if (!searchResponse.ok) continue;
         const searchData = await searchResponse.json();
+        
+        // Process videos
+        const channelVideos = searchData.items.map(item => ({
+          url: `https://www.youtube.com/shorts/${item.id.videoId}`,
+          title: item.snippet.title,
+          channelTitle: item.snippet.channelTitle,
+          publishedAt: item.snippet.publishedAt
+        }));
 
-        // Get video statistics
-        const videoIds = searchData.items.map(item => item.id.videoId).join(',');
-        const statsResponse = await fetch(
-          `https://youtube.googleapis.com/youtube/v3/videos?` +
-          `part=statistics,snippet` +
-          `&id=${videoIds}` +
-          `&key=${this.apiKey}`
-        );
-
-        if (!statsResponse.ok) throw new Error('Stats request failed');
-        const statsData = await statsResponse.json();
-
-        const processedVideos = statsData.items
-          .map(video => {
-            const searchItem = searchData.items.find(item => item.id.videoId === video.id);
-            return {
-              url: `https://www.youtube.com/shorts/${video.id}`,
-              title: video.snippet.title,
-              description: video.snippet.description,
-              channelTitle: video.snippet.channelTitle,
-              publishedAt: video.snippet.publishedAt,
-              query, // Store the search query that found this video
-              stats: {
-                views: parseInt(video.statistics.viewCount) || 0,
-                likes: parseInt(video.statistics.likeCount) || 0,
-                comments: parseInt(video.statistics.commentCount) || 0
-              }
-            };
-          })
-          .filter(video => {
-            // Basic quality filters
-            if (video.stats.views < 100000) return false; // Minimum views
-            if (video.stats.likes < 10000) return false;  // Minimum likes
-            
-            // Filter out likely spam/unwanted content
-            const lowercaseTitle = video.title.toLowerCase();
-            const lowercaseDesc = video.description.toLowerCase();
-            
-            const spamWords = ['sub4sub', 'follow4follow', 'subscribe', 'link in bio'];
-            if (spamWords.some(word => lowercaseTitle.includes(word) || lowercaseDesc.includes(word))) {
-              return false;
-            }
-
-            // Check for relevant content indicators
-            const qualityIndicators = ['cute', 'funny', 'adorable', 'pet', 'animal', 'kitten', 'puppy', 'cat', 'dog'];
-            return qualityIndicators.some(word => 
-              lowercaseTitle.includes(word) || lowercaseDesc.includes(word)
-            );
-          });
-
-        allVideos.push(...processedVideos);
+        allVideos.push(...channelVideos);
       } catch (error) {
-        console.error(`Error fetching ${query}:`, error);
+        console.error(`Error fetching videos for ${channel}:`, error);
+        continue; // Skip to next channel on error
       }
     }
 
-    // Remove duplicates (same video might appear in different searches)
-    const uniqueVideos = Array.from(new Map(allVideos.map(video => [video.url, video])).values());
-    
-    // Sort by views in descending order
-    return uniqueVideos.sort((a, b) => b.stats.views - a.stats.views);
+    // Shuffle videos for variety
+    return this.shuffleArray(allVideos);
+  }
+
+  shuffleArray(array) {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
   }
 
   isValidCache() {
@@ -140,14 +156,12 @@ class YouTubeService {
   }
 
   getRandomVideosFromCache(count = 10) {
-    // Get top 50 videos by views
-    const topVideos = this.cache.videos.slice(0, 50);
+    const videos = [...this.cache.videos];
     const results = [];
     
-    // Select random videos from top 50
-    while (results.length < count && topVideos.length > 0) {
-      const randomIndex = Math.floor(Math.random() * topVideos.length);
-      results.push(topVideos.splice(randomIndex, 1)[0]);
+    while (results.length < count && videos.length > 0) {
+      const randomIndex = Math.floor(Math.random() * videos.length);
+      results.push(videos.splice(randomIndex, 1)[0]);
     }
     
     return results;
