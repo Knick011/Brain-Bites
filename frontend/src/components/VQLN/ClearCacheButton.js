@@ -1,22 +1,17 @@
 // components/VQLN/ClearCacheButton.js
 import React from 'react';
 import { Trash2 } from 'lucide-react';
+import YouTubeService from '../../utils/YouTubeService';
 
 const ClearCacheButton = () => {
   const clearCache = () => {
-    // Clear localStorage
+    // Clear YouTube service cache
+    YouTubeService.clearCache();
+    
+    // Clear localStorage as well
     window.localStorage.clear();
     
-    // Clear YouTube service cache if it exists
-    if (window.YouTubeService) {
-      window.YouTubeService.cache = {
-        videos: [],
-        lastFetched: null
-      };
-    }
-    
-    // Log for debugging
-    console.log('Cache cleared!');
+    alert('Cache cleared successfully! Reloading page...');
     
     // Reload the page to fetch fresh content
     window.location.reload();
