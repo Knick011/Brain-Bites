@@ -21,10 +21,14 @@ class YouTubeService {
       }
 
       console.log('Fetching videos from GitHub Pages');
+      console.log('URL:', this.dataUrl);
+
       const response = await fetch(this.dataUrl);
+       console.log('Response status:', response.status);
       if (!response.ok) throw new Error('Failed to fetch videos');
       
       const data = await response.json();
+      console.log('Data received:', data);
       console.log(`Fetched ${data.count} videos from GitHub`);
       
       this.cache = {
