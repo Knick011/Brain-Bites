@@ -11,6 +11,7 @@ import YouTubeService from './utils/YouTubeService';
 import axios from 'axios';
 import './styles/theme.css';
 
+const YOUTUBE_API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
 const WARMUP_INTERVAL = 14 * 60 * 1000; // 14 minutes in milliseconds
 
 const App = () => {
@@ -27,26 +28,27 @@ const App = () => {
   const [videos, setVideos] = useState([]);
 
   // Fetch shorts using YouTubeService
-  const fetchVideos = async () => {
+  const fetchPopularShorts = async () => {
     try {
-      setIsLoading(true);
-      const videoData = await YouTubeService.getViralShorts();
-      const videoUrls = videoData.map(video => video.url);
+      console.log('Fetching shorts...');
+      const shorts = await YouTubeService.getViralShorts();
+      console.log('Got shorts:', shorts);
+      
+      const videoUrls = shorts.map(video => video.url);
+      console.log('Video URLs:', videoUrls);
       
       setVideos(videoUrls);
       if (videoUrls.length > 0) {
         setCurrentVideoUrl(videoUrls[0]);
       }
     } catch (error) {
-      console.error('Error fetching videos:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error fetching shorts:', error);
     }
   };
 
-  // Initialize with videos
+  // Initialize with popular videos
   useEffect(() => {
-    fetchVideos();
+    fetchPopularShorts();
   }, []);
 
   // API Warmup Effect
@@ -54,6 +56,7 @@ const App = () => {
     const warmupAPI = async () => {
       try {
         console.log('Warming up API...');
+        // Make parallel requests to both endpoints
         await Promise.all([
           axios.get('https://brain-bites-api.onrender.com/api/questions/random/funfacts'),
           axios.get('https://brain-bites-api.onrender.com/api/questions/random/psychology')
@@ -63,12 +66,15 @@ const App = () => {
         console.error('API warmup failed:', error);
       }
     };
+    // Initial warmup
     warmupAPI();
+    // Set up interval for periodic warmup
     const intervalId = setInterval(warmupAPI, WARMUP_INTERVAL);
+    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
 
-  // Handle login status change
+  // Handle login status change and personalized videos
   const handleLoginStatusChange = async (isLoggedIn, personalizedVideos) => {
     setIsSignedIn(isLoggedIn);
     if (isLoggedIn && personalizedVideos.length > 0) {
@@ -76,7 +82,7 @@ const App = () => {
       setVideos(videoUrls);
       setCurrentVideoUrl(videoUrls[0]);
     } else {
-      fetchVideos();
+      fetchPopularShorts();
     }
   };
 
@@ -85,22 +91,8 @@ const App = () => {
     
     const randomIndex = Math.floor(Math.random() * videos.length);
     const newUrl = videos[randomIndex];
-    
-    // Mark as played (handled by YouTubeService)
-    YouTubeService.markVideoAsPlayed(newUrl);
-    
-    // Remove from current list
-    const updatedVideos = videos.filter(url => url !== newUrl);
-    setVideos(updatedVideos);
-    
-    // Set current video
     setCurrentVideoUrl(newUrl);
     setShowQuestion(false);
-    
-    // Low on videos? Get more
-    if (updatedVideos.length < 5) {
-      fetchVideos();
-    }
   };
 
   const handleStart = () => {
