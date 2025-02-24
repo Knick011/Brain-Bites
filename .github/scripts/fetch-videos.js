@@ -85,7 +85,7 @@ async function fetchVideosFromChannel(channel) {
       `&type=video` +
       `&videoDuration=short` +
       `&order=viewCount` +
-      `&key=${process.env.YOUTUBE_API_KEY}`
+      `&key=${process.env.REACT_APP_YOUTUBE_API_KEY}`
     );
 
     if (!response.data.items?.length) {
