@@ -3,330 +3,149 @@ class YouTubeService {
   constructor() {
     this.apiKey = process.env.REACT_APP_YOUTUBE_API_KEY;
     this.cache = {
-      viralVideos: [],
-      lastFetched: null
+      videos: [],
+      lastFetched: null,
+      shownVideos: new Set() // Track shown videos to prevent repeats
     };
     this.cacheExpiry = 24 * 60 * 60 * 1000; // 24 hours
     
-    // Track played videos to prevent repeats
-    this.playedVideos = new Set();
-    
-    // Load played videos from localStorage
-    this.loadPlayedVideos();
+    // All channels with their IDs
+    this.channels = [
+      { handle: 'LukeDavidson', id: 'UCgukwUkm4KxWtR4NHVIz_aw' },
+      { handle: 'Kallmekris', id: 'UCrVxhp3_PsRTCEHV_-bGnmQ' },
+      { handle: 'MDMotivator', id: 'UCO0F_MB6xTV_BY5AZT-OVJQ' },
+      { handle: 'sandiction', id: 'UCQkA7PsZm6G9QXJPQhz9_sA' },
+      { handle: 'Mythic', id: 'UCjIl9tbIu-FmH8b8UaeLqzw' },
+      { handle: 'TheMagicMatt', id: 'UCtc2iRmzJA_y2aV-F6LNVHQ' },
+      { handle: 'GoldenGully', id: 'UCjtB3JF_FYXJTnLl-lRN_5Q' },
+      { handle: 'DokaRyan', id: 'UCrxnUEw7w3rWyvazn_QAjjQ' },
+      { handle: 'Ottawalks', id: 'UCdOvlULrkZHlgpOCiYKYEfQ' },
+      { handle: 'Shangerdanger', id: 'UC3EKIGYCjfKg8qK1KlceBLw' },
+      { handle: 'Hingaflips', id: 'UCORjlzGBYCeJvspCUJMzvzA' },
+      { handle: 'ChrisIvan', id: 'UCLbMTQR7TXzPAYJ0FsAL2xw' },
+      { handle: 'BrodieThatDood', id: 'UCLt2UjGcHpzvQGCDxlV-P-g' },
+      { handle: 'AdrianBliss', id: 'UCGv3KG_qIWQuIZn1GCATuOQ' },
+      { handle: 'ZackDFilms', id: 'UCiMnriUF5hZg8llQWq6FzCg' },
+      { handle: 'ILYABORZOV', id: 'UC_iQvdDV3r9lqJtvdAtHk6Q' },
+      { handle: 'JoJosWorld', id: 'UCqjvlcXH4CbMgv9QqAUvxZw' },
+      { handle: 'KellyClarksonShow', id: 'UCmFu4PNQdMc1qDqHtdBYB1Q' },
+      { handle: 'iKnowAyrel', id: 'UCH0C-wHzZKvL9s7XTxpXD_Q' },
+      { handle: 'MrBeast', id: 'UCX6OQ3DkcsbYNE6H8uQQuVA' },
+      { handle: 'ZachKing', id: 'UCq8DICunczvLuJJq414110A' },
+      { handle: 'JeenieWeenie', id: 'UClw0M9qyDxc_h_biGG7Ay5g' },
+      { handle: 'StokesTwins', id: 'UC4NndlbP8qzF9tC9PgKcBcg' },
+      { handle: 'AlanChikinChow', id: 'UC_9vN1gLWexhqaX9I5P_mwQ' },
+      { handle: 'DanRhodes', id: 'UC1ySlYiQjYUmUlD52ZGUVgw' },
+      { handle: 'FritzProctor', id: 'UCZCLrz01Hl4bV84SHjClK7w' },
+      { handle: 'LoicSuberville', id: 'UCy1PpKdRu0UC7FCtTUkZxnA' },
+      { handle: 'TheKoreanVegan', id: 'UCyn3RR2Zbzk1LK-F8HBtHjw' },
+      { handle: 'TopperGuild', id: 'UC5T3PbKmz1zw_4zGYf4lFJw' },
+      { handle: 'NathanKessel', id: 'UCs7fWU7dWqvdLzTcnfXs-gw' },
+      { handle: 'AzzyLand', id: 'UCzeB_0FNcPIyUSjL_TL5lEw' },
+      { handle: 'HacksmithIndustries', id: 'UCjgpFI5dU-D5_ftJD9SYRJQ' },
+      { handle: 'SISvsBRO', id: 'UCFAtXHD2_qs-sTDOAUE-yIw' },
+      { handle: 'CoreyTonge', id: 'UC3E5-_fjN7Je_l1DfV0xmWg' },
+      { handle: 'CrashAdams', id: 'UCEJHdGMlGIaDfCfw-xYqPIA' },
+      { handle: 'AndreasEskander', id: 'UC9MPfqmxj-52qihjIYSPYkw' },
+      { handle: 'AnnaMcNulty', id: 'UCeSKaUd5E_KXEgEcxGLxsAA' },
+      { handle: 'MadFit', id: 'UCpQ34afVgk8cRQBjSJ1xuJQ' },
+      { handle: 'NutshellAnimations', id: 'UCsaEBhRsI6tmmz12fkSEYdw' },
+      { handle: 'SAS-ASMR', id: 'UCp4LfMtDfoa29kTlLnqEg5g' },
+      { handle: 'ManchurekTriplets', id: 'UCJwn1w8QRZ3-VbJU3Dna-iA' },
+      { handle: 'AaronEsser', id: 'UCabr1XnvE_tQcQHTbezG4QQ' },
+      { handle: 'TwiShorts', id: 'UCTLcNP0soBZz_sFb8X-elrQ' },
+      { handle: 'LaylaRoblox', id: 'UCrNg4XtbG4F89aQPsmnzXHQ' },
+      { handle: 'NickEh30', id: 'UCt9nYeSz90lnOnaVFjxFJsw' },
+      { handle: 'NileRed', id: 'UCFhXFikryT4aFcLkLw2LBLA' },
+      { handle: 'ElectroBOOM', id: 'UCJ0-OtVpF0wOKEqT2Z1HEtA' },
+      { handle: 'Gloom', id: 'UCQ9npS-QvXoNh_UNtKsLCdA' },
+      { handle: 'MostAmazingTop10', id: 'UCBINYCmwE29fBXCpUI8DgTA' },
+      { handle: 'PapaJake', id: 'UC16ridNZ56R5WUQ9MEYv5jQ' }
+    ];
   }
 
-  // Get viral shorts for non-logged-in users
   async getViralShorts() {
     try {
-      console.log('Getting viral shorts');
-      if (this.isViralCacheValid()) {
-        console.log('Using cached viral videos');
-        // Filter out already played videos
-        const unplayedVideos = this.cache.viralVideos.filter(
-          video => !this.playedVideos.has(video.url)
-        );
-        
-        console.log(`Found ${unplayedVideos.length} unplayed videos out of ${this.cache.viralVideos.length} cached videos`);
-        
-        // If we're running low on unplayed videos (less than 20), fetch new ones
-        if (unplayedVideos.length < 20) {
-          console.log('Running low on unplayed videos, fetching new ones');
-          const newShorts = await this.fetchViralShorts();
-          
-          // Update cache with new videos
-          this.cache = {
-            viralVideos: [...unplayedVideos, ...newShorts.filter(v => !this.playedVideos.has(v.url))],
-            lastFetched: Date.now()
-          };
-          
-          return this.cache.viralVideos;
-        }
-        
-        return unplayedVideos;
+      console.log('Starting getViralShorts');
+      
+      // Check if cache is valid
+      if (this.isValidCache()) {
+        console.log('Using cached videos');
+        return this.getUniqueVideosFromCache();
       }
 
-      console.log('Fetching new viral videos');
-      const shorts = await this.fetchViralShorts();
-      
-      // Filter out any videos that might have been played in a previous session
-      const unplayedShorts = shorts.filter(video => !this.playedVideos.has(video.url));
+      console.log('Cache invalid, fetching new videos');
+      const allVideos = await this.fetchFromChannels();
       
       this.cache = {
-        viralVideos: unplayedShorts,
-        lastFetched: Date.now()
+        videos: allVideos,
+        lastFetched: Date.now(),
+        shownVideos: new Set() // Reset shown videos when refreshing cache
       };
 
-      return unplayedShorts;
+      return this.getUniqueVideosFromCache();
     } catch (error) {
-      console.error('Error getting viral shorts:', error);
-      return this.cache.viralVideos.length ? 
-        this.cache.viralVideos.filter(video => !this.playedVideos.has(video.url)) : 
-        [];
+      console.error('Error in getViralShorts:', error);
+      return this.cache.videos.length ? this.getUniqueVideosFromCache() : [];
     }
   }
 
-  // Get personalized shorts for logged-in users (mixed with viral)
-  async getPersonalizedShorts(accessToken) {
-    try {
-      console.log('Getting personalized shorts');
-      // First get user's subscribed channels
-      const channels = await this.fetchSubscribedChannels(accessToken);
-      
-      if (channels.length === 0) {
-        console.log('No subscribed channels found, returning viral shorts');
-        return this.getViralShorts();
-      }
-      
-      // Get shorts from user's channels
-      const personalShorts = await this.fetchShortsFromChannels(channels);
-      console.log(`Found ${personalShorts.length} personalized shorts`);
-      
-      // Filter out already played videos
-      const unplayedPersonalShorts = personalShorts.filter(
-        video => !this.playedVideos.has(video.url)
-      );
-      console.log(`Found ${unplayedPersonalShorts.length} unplayed personalized shorts`);
-      
-      // Mix with viral shorts (80% personal, 20% viral)
-      const viralShorts = await this.getViralShorts();
-      
-      const result = this.mixVideos(unplayedPersonalShorts, viralShorts, 0.8);
-      return result;
-    } catch (error) {
-      console.error('Error getting personalized shorts:', error);
-      return this.getViralShorts(); // Fallback to viral videos
-    }
-  }
-  
-  // Mark a video as played
-  markVideoAsPlayed(videoUrl) {
-    if (videoUrl) {
-      console.log(`Marking video as played: ${videoUrl}`);
-      this.playedVideos.add(videoUrl);
-      
-      // Save to localStorage for persistence across refreshes
-      this.savePlayedVideos();
-    }
-  }
-  
-  // Save played videos to localStorage
-  savePlayedVideos() {
-    try {
-      const playedVideosArray = Array.from(this.playedVideos);
-      localStorage.setItem('playedVideos', JSON.stringify(playedVideosArray));
-    } catch (error) {
-      console.error('Error saving played videos to localStorage:', error);
-    }
-  }
-  
-  // Load played videos from localStorage
-  loadPlayedVideos() {
-    try {
-      const playedVideosString = localStorage.getItem('playedVideos');
-      if (playedVideosString) {
-        const playedVideosArray = JSON.parse(playedVideosString);
-        this.playedVideos = new Set(playedVideosArray);
-        console.log(`Loaded ${this.playedVideos.size} played videos from localStorage`);
-      }
-    } catch (error) {
-      console.error('Error loading played videos from localStorage:', error);
-    }
-  }
+  async fetchFromChannels() {
+    const allVideos = [];
+    const videosPerChannel = 5; // Get 5 videos per channel to ensure variety
 
-  // Fetch viral shorts from US and Canada
-  async fetchViralShorts() {
-    try {
-      const regions = ['CA'];
-      const allVideos = [];
-      
-      for (const region of regions) {
-        console.log(`Fetching viral shorts for region ${region}`);
+    for (const channel of this.channels) {
+      try {
+        console.log(`Fetching videos for channel: ${channel.handle}`);
         
+        // Get shorts from this channel
         const searchResponse = await fetch(
           `https://youtube.googleapis.com/youtube/v3/search?` +
           `part=snippet` +
-          `&maxResults=100` + // Max allowed by API
-          `&q=%23shorts` +
+          `&channelId=${channel.id}` +
+          `&maxResults=${videosPerChannel}` +
           `&type=video` +
           `&videoDuration=short` +
-          `&order=viewCount` + // Sort by views
-          `&regionCode=${region}` +
+          `&order=date` + // Get most recent shorts
           `&key=${this.apiKey}`
         );
 
         if (!searchResponse.ok) {
-          console.error(`Search failed for region ${region}`);
+          console.error(`Search response not OK for ${channel.handle}:`, await searchResponse.text());
           continue;
         }
 
         const searchData = await searchResponse.json();
-        
-        // Filter for proper shorts and format
-        const shortsUrls = searchData.items
-          .filter(item => item.id?.videoId)
+        console.log(`Found ${searchData.items?.length || 0} videos for ${channel.handle}`);
+
+        if (!searchData.items?.length) {
+          console.log(`No shorts found for ${channel.handle}`);
+          continue;
+        }
+
+        const channelVideos = searchData.items
+          .filter(item => item.id?.videoId) // Make sure we have a video ID
           .map(item => ({
+            id: item.id.videoId, // Store ID separately for tracking
             url: `https://www.youtube.com/shorts/${item.id.videoId}`,
             title: item.snippet.title,
             channelTitle: item.snippet.channelTitle,
-            publishedAt: item.snippet.publishedAt,
-            isPersonalized: false,
-            region
+            channelHandle: channel.handle,
+            publishedAt: item.snippet.publishedAt
           }));
-        
-        allVideos.push(...shortsUrls);
-      }
-      
-      // Remove duplicates and shuffle
-      const uniqueVideos = this.removeDuplicates(allVideos);
-      return this.shuffleArray(uniqueVideos);
-    } catch (error) {
-      console.error('Error fetching viral shorts:', error);
-      return [];
-    }
-  }
 
-  // Get user's subscribed channels
-  async fetchSubscribedChannels(accessToken) {
-    try {
-      const response = await fetch(
-        'https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=50',
-        {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Accept': 'application/json'
-          }
-        }
-      );
+        console.log(`Processed ${channelVideos.length} videos for ${channel.handle}`);
+        allVideos.push(...channelVideos);
 
-      if (!response.ok) {
-        console.error('Failed to fetch subscriptions');
-        return [];
-      }
-      
-      const data = await response.json();
-      return data.items.map(item => ({
-        id: item.snippet.resourceId.channelId,
-        title: item.snippet.title
-      }));
-    } catch (error) {
-      console.error('Error fetching subscribed channels:', error);
-      return [];
-    }
-  }
-
-  // Fetch shorts from specified channels
-  async fetchShortsFromChannels(channels) {
-    try {
-      const allShorts = [];
-      const maxPerChannel = Math.floor(200 / channels.length);
-      
-      for (const channel of channels) {
-        try {
-          console.log(`Fetching shorts for channel ${channel.title}`);
-          
-          const searchResponse = await fetch(
-            `https://youtube.googleapis.com/youtube/v3/search?` +
-            `part=snippet` +
-            `&channelId=${channel.id}` +
-            `&maxResults=${maxPerChannel}` +
-            `&q=%23shorts` +
-            `&type=video` +
-            `&videoDuration=short` +
-            `&key=${this.apiKey}`
-          );
-
-          if (!searchResponse.ok) continue;
-          
-          const searchData = await searchResponse.json();
-          
-          if (!searchData.items?.length) continue;
-          
-          const channelShorts = searchData.items
-            .filter(item => item.id?.videoId)
-            .map(item => ({
-              url: `https://www.youtube.com/shorts/${item.id.videoId}`,
-              title: item.snippet.title,
-              channelTitle: item.snippet.channelTitle,
-              publishedAt: item.snippet.publishedAt,
-              isPersonalized: true
-            }));
-          
-          allShorts.push(...channelShorts);
-        } catch (error) {
-          console.error(`Error fetching channel ${channel.title}:`, error);
-        }
-      }
-      
-      return this.shuffleArray(allShorts);
-    } catch (error) {
-      console.error('Error fetching shorts from channels:', error);
-      return [];
-    }
-  }
-
-  // Mix personal and viral videos with a given ratio
-  mixVideos(personalVideos, viralVideos, personalRatio) {
-    const totalCount = 200;
-    const personalCount = Math.min(Math.floor(totalCount * personalRatio), personalVideos.length);
-    const viralCount = Math.min(totalCount - personalCount, viralVideos.length);
-    
-    const selectedPersonal = this.getRandomVideos(personalVideos, personalCount);
-    const selectedViral = this.getRandomVideos(viralVideos, viralCount);
-    
-    // Interleave personal and viral videos
-    const result = [];
-    const maxLength = Math.max(selectedPersonal.length, selectedViral.length);
-    
-    for (let i = 0; i < maxLength; i++) {
-      // Add 4 personal videos, then 1 viral
-      const personalIndex = i * 4;
-      for (let j = 0; j < 4 && personalIndex + j < selectedPersonal.length; j++) {
-        result.push(selectedPersonal[personalIndex + j]);
-      }
-      
-      if (i < selectedViral.length) {
-        result.push(selectedViral[i]);
+      } catch (error) {
+        console.error(`Error processing channel ${channel.handle}:`, error);
       }
     }
-    
-    return this.shuffleArray(result);
+
+    console.log(`Total videos fetched: ${allVideos.length}`);
+    return this.shuffleArray(allVideos);
   }
 
-  // Get random videos from array
-  getRandomVideos(videos, count) {
-    const shuffled = this.shuffleArray([...videos]);
-    return shuffled.slice(0, count);
-  }
-
-  // Remove duplicate videos by URL
-  removeDuplicates(videos) {
-    return Array.from(new Map(videos.map(video => [video.url, video])).values());
-  }
-
-  // Check if viral video cache is valid
-  isViralCacheValid() {
-    return (
-      this.cache.lastFetched && 
-      this.cache.viralVideos.length > 0 && 
-      (Date.now() - this.cache.lastFetched) < this.cacheExpiry
-    );
-  }
-
-  // Clear cache and played videos
-  clearCache() {
-    this.cache = {
-      viralVideos: [],
-      lastFetched: null
-    };
-    
-    // Clear played videos
-    this.playedVideos.clear();
-    localStorage.removeItem('playedVideos');
-    
-    console.log('Cache and played videos history cleared');
-  }
-
-  // Fisher-Yates shuffle
   shuffleArray(array) {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -334,6 +153,73 @@ class YouTubeService {
       [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
     return newArray;
+  }
+
+  isValidCache() {
+    const isValid = (
+      this.cache.lastFetched && 
+      this.cache.videos.length > 0 && 
+      (Date.now() - this.cache.lastFetched) < this.cacheExpiry &&
+      // Make sure we still have unwatched videos
+      this.cache.videos.length > this.cache.shownVideos.size
+    );
+    
+    console.log('Cache validity check:', {
+      hasLastFetched: !!this.cache.lastFetched,
+      videosCount: this.cache.videos.length,
+      shownVideosCount: this.cache.shownVideos ? this.cache.shownVideos.size : 0,
+      timeSinceLastFetch: this.cache.lastFetched ? (Date.now() - this.cache.lastFetched) : null,
+      isValid
+    });
+    
+    return isValid;
+  }
+
+  getUniqueVideosFromCache(count = 10) {
+    // Filter out already shown videos
+    const availableVideos = this.cache.videos.filter(video => 
+      !this.cache.shownVideos.has(video.id)
+    );
+    
+    console.log(`Getting ${count} videos from ${availableVideos.length} unwatched videos`);
+    
+    // If we're running low on videos, refresh the list
+    if (availableVideos.length < count) {
+      console.log('Running low on unwatched videos, clearing shown videos list');
+      this.cache.shownVideos.clear();
+      return this.getUniqueVideosFromCache(count);
+    }
+    
+    const results = [];
+    const tempAvailable = [...availableVideos];
+    
+    // Get random videos from unwatched set
+    while (results.length < count && tempAvailable.length > 0) {
+      const randomIndex = Math.floor(Math.random() * tempAvailable.length);
+      const video = tempAvailable.splice(randomIndex, 1)[0];
+      
+      // Add to shown videos set
+      this.cache.shownVideos.add(video.id);
+      results.push(video);
+    }
+    
+    console.log('Selected videos:', results.map(v => ({
+      channel: v.channelHandle,
+      title: v.title.substring(0, 30) + '...'
+    })));
+    
+    return results;
+  }
+
+  clearCache() {
+    console.log('Clearing cache');
+    this.cache = {
+      videos: [],
+      lastFetched: null,
+      shownVideos: new Set()
+    };
+    console.log('Cache cleared');
+    return true;
   }
 }
 
