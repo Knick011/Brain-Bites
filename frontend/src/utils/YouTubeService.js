@@ -2,7 +2,7 @@
 class YouTubeService {
   constructor() {
     // Replace with your GitHub username and repository name
-    this.dataUrl = 'https://Knick011.github.io/Brain-Bites/youtube-videos.json';
+    this.dataUrl = 'https://Knick011.github.io/Brain-Bites/public/youtube-videos.json';
     this.cache = {
       videos: [],
       lastFetched: null,
