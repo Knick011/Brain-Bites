@@ -136,7 +136,7 @@ class YouTubeService {
   // Fetch viral shorts from US and Canada
   async fetchViralShorts() {
     try {
-      const regions = ['US', 'CA'];
+      const regions = ['CA'];
       const allVideos = [];
       
       for (const region of regions) {
