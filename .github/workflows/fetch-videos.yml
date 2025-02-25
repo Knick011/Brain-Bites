@@ -2,7 +2,7 @@ name: Fetch YouTube Videos
 
 on:
   schedule:
-    - cron: '1 0 * * *'  # Runs at 12:01 AM UTC daily
+    - cron: '1 5 * * *'  # Runs at 12:01 AM UTC daily
   workflow_dispatch:     # Also allows manual trigger
 
 jobs:
