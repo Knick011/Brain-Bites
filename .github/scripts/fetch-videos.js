@@ -76,23 +76,25 @@ if (fs.existsSync(OUTPUT_FILE)) {
 
 async function fetchVideosFromChannel(channel) {
   try {
+    // Simpler request - just get videos from the channel without extra filters
     const url = `https://youtube.googleapis.com/youtube/v3/search?` +
       `part=snippet` +
       `&channelId=${channel.id}` +
       `&maxResults=3` +
       `&type=video` +
-      `&videoDuration=short` +
-      `&order=viewCount` +
       `&key=${process.env.REACT_APP_YOUTUBE_API_KEY}`;
     
-    console.log(`Request URL: ${url.replace(process.env.REACT_APP_YOUTUBE_API_KEY, 'API_KEY_HIDDEN')}`);
+    console.log(`Making request for ${channel.handle}...`);
     
     const response = await axios.get(url);
+    console.log(`Got response for ${channel.handle}: ${response.status}`);
 
     if (!response.data.items?.length) {
+      console.log(`No videos found for ${channel.handle}`);
       return [];
     }
 
+    console.log(`Found ${response.data.items.length} videos for ${channel.handle}`);
     return response.data.items
       .map(item => ({
         id: item.id.videoId,
@@ -106,12 +108,12 @@ async function fetchVideosFromChannel(channel) {
   } catch (error) {
     console.error(`Error fetching videos for ${channel.handle}:`, error.message);
     if (error.response) {
+      console.error('Error response status:', error.response.status);
       console.error('Error details:', JSON.stringify(error.response.data));
     }
     return [];
   }
 }
-
 // Main function
 async function main() {
   console.log('Starting to fetch videos...');
