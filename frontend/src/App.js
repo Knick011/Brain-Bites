@@ -123,41 +123,38 @@ function App() {
   };
 
   // Fetch a random question from the API
-  const fetchQuestion = async () => {
-    try {
-      let endpoint = `${API_BASE_URL}/api/questions/random`;
+ const fetchQuestion = async () => {
+  try {
+    setIsLoading(true);
+    const endpoint = selectedSection === 'funfacts' 
+      ? 'https://brain-bites-api.onrender.com/api/questions/random/funfacts'
+      : 'https://brain-bites-api.onrender.com/api/questions/random/psychology';
       
-      // Use category-specific endpoint if a section is selected
-      if (selectedSection) {
-        endpoint = `${API_BASE_URL}/api/questions/random/${selectedSection}`;
-      }
-
-      const response = await axios.get(endpoint);
-      setCurrentQuestion(response.data);
-      
-      // Reset timer for time mode
-      if (timeMode) {
-        setTimeRemaining(10);
-        setQuestionStartTime(Date.now());
-      }
-    } catch (error) {
-      console.error('Error fetching question:', error);
-      // Fallback question in case API fails
-      setCurrentQuestion({
-        id: 0,
-        question: "What is the capital of France?",
-        options: {
-          A: "London",
-          B: "Paris",
-          C: "Berlin",
-          D: "Madrid"
-        },
-        correctAnswer: "B",
-        explanation: "Paris is the capital city of France."
-      });
-    }
-  };
-
+    const response = await axios.get(endpoint);
+    setCurrentQuestion(response.data);
+    setShowQuestion(true);
+    setTotalQuestions(prev => prev + 1);
+  } catch (error) {
+    console.error('Error fetching question:', error);
+    
+    // Fallback question if API fails
+    setCurrentQuestion({
+      id: Math.floor(Math.random() * 1000),
+      question: "What is the only mammal capable of true flight?",
+      options: {
+        A: "Bat",
+        B: "Flying squirrel",
+        C: "Flying fox",
+        D: "Sugar glider"
+      },
+      correctAnswer: "A",
+      explanation: "Bats are the only mammals that can truly fly, as opposed to gliding which some other mammals can do."
+    });
+    setShowQuestion(true);
+  } finally {
+    setIsLoading(false);
+  }
+};
   // Modified function to handle answer submission with new logic
   const handleAnswerSubmit = (isCorrect, answerTime = null) => {
     if (isCorrect) {
