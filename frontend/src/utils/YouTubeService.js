@@ -1,8 +1,7 @@
 // YouTubeService.js
 class YouTubeService {
   constructor() {
-    // Replace with your GitHub username and repository name
-    this.dataUrl = 'https://knick011.github.io/Brain-Bites/public/youtube-videos.json';
+    this.dataUrl = 'https://raw.githubusercontent.com/knick011/Brain-Bites/main/public/youtube-videos.json';
     this.cache = {
       videos: [],
       lastFetched: null,
@@ -11,106 +10,24 @@ class YouTubeService {
     this.cacheExpiry = 6 * 60 * 60 * 1000; // 6 hours
   }
 
-  async getViralShorts(maxResults = 10) {
+  isValidShort(url) {
+    // Only accept videos that have 'shorts' in their URL and are of appropriate length
+    if (!url || typeof url !== 'string') return false;
+    return url.includes('/shorts/') && url.split('/shorts/')[1].length === 11;
+  }
+
+  async validateVideoUrl(videoId) {
     try {
-      console.log('Starting getViralShorts');
-      
-      if (this.isValidCache()) {
-        console.log('Using cached videos');
-        return this.getUniqueVideosFromCache(maxResults);
-      }
-
-      console.log('Fetching videos from GitHub Pages');
-      console.log('URL:', this.dataUrl);
-      
-      const response = await fetch(this.dataUrl);
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) throw new Error(`Failed to fetch videos: ${response.status}`);
-      
-      const data = await response.json();
-      console.log('Videos fetched:', data.count);
-      
-      this.cache = {
-        videos: data.videos || [],
-        lastFetched: Date.now(),
-        shownVideos: new Set()
-      };
-
-      return this.getUniqueVideosFromCache(maxResults);
+      const response = await fetch(`https://www.youtube.com/shorts/${videoId}`);
+      // If it redirects to watch?v=, it's not a valid short
+      return !response.url.includes('watch?v=');
     } catch (error) {
-      console.error('Error fetching shorts:', error);
-      return this.cache.videos.length ? 
-        this.getUniqueVideosFromCache(maxResults) : 
-        this.getFallbackVideos();
+      console.error('Error validating video:', error);
+      return false;
     }
-  }
-
-  isValidCache() {
-    const isValid = (
-      this.cache.lastFetched && 
-      this.cache.videos.length > 0 && 
-      (Date.now() - this.cache.lastFetched) < this.cacheExpiry &&
-      this.cache.videos.length > this.cache.shownVideos.size
-    );
-    
-    console.log('Cache validity check:', {
-      hasLastFetched: !!this.cache.lastFetched,
-      videosCount: this.cache.videos.length,
-      shownVideosCount: this.cache.shownVideos ? this.cache.shownVideos.size : 0,
-      timeSinceLastFetch: this.cache.lastFetched ? (Date.now() - this.cache.lastFetched) : null,
-      isValid
-    });
-    
-    return isValid;
-  }
-
-  getUniqueVideosFromCache(count = 10) {
-    const availableVideos = this.cache.videos.filter(video => 
-      !this.cache.shownVideos.has(video.id)
-    );
-    
-    console.log(`Getting ${count} videos from ${availableVideos.length} unwatched videos`);
-    
-    if (availableVideos.length < count) {
-      console.log('Running low on unwatched videos, clearing shown videos list');
-      this.cache.shownVideos.clear();
-      return this.getUniqueVideosFromCache(count);
-    }
-    
-    const results = [];
-    const tempAvailable = [...availableVideos];
-    let lastSelectedChannel = null;
-    
-    while (results.length < count && tempAvailable.length > 0) {
-      const eligibleVideos = lastSelectedChannel 
-        ? tempAvailable.filter(v => v.channelHandle !== lastSelectedChannel)
-        : tempAvailable;
-      
-      const videosToUse = eligibleVideos.length > 0 ? eligibleVideos : tempAvailable;
-      
-      const randomIndex = Math.floor(Math.random() * videosToUse.length);
-      const video = videosToUse[randomIndex];
-      
-      const indexInTemp = tempAvailable.findIndex(v => v.id === video.id);
-      tempAvailable.splice(indexInTemp, 1);
-      
-      this.cache.shownVideos.add(video.id);
-      results.push(video);
-      
-      lastSelectedChannel = video.channelHandle;
-    }
-    
-    console.log('Selected videos:', results.map(v => ({
-      channel: v.channelHandle,
-      title: v.title.substring(0, 30) + '...'
-    })));
-    
-    return results;
   }
 
   getFallbackVideos() {
-    console.log('Using fallback videos');
     return [
       {
         id: "8_gdcaX9Xqk",
@@ -129,14 +46,80 @@ class YouTubeService {
     ];
   }
 
+  async getViralShorts(maxResults = 10) {
+    try {
+      if (this.isValidCache()) {
+        return this.getUniqueVideosFromCache(maxResults);
+      }
+
+      const response = await fetch(this.dataUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch videos: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data || !data.videos || !data.videos.length) {
+        throw new Error('No videos found in response');
+      }
+
+      // Filter videos to only include proper shorts
+      const validVideos = data.videos.filter(video => this.isValidShort(video.url));
+
+      this.cache = {
+        videos: validVideos,
+        lastFetched: Date.now(),
+        shownVideos: new Set()
+      };
+
+      return this.getUniqueVideosFromCache(maxResults);
+    } catch (error) {
+      console.error('Error fetching shorts:', error);
+      return this.getFallbackVideos();
+    }
+  }
+
+  isValidCache() {
+    return (
+      this.cache.lastFetched && 
+      this.cache.videos.length > 0 && 
+      (Date.now() - this.cache.lastFetched) < this.cacheExpiry &&
+      this.cache.videos.length > this.cache.shownVideos.size
+    );
+  }
+
+  getUniqueVideosFromCache(count = 10) {
+    const availableVideos = this.cache.videos.filter(video => 
+      !this.cache.shownVideos.has(video.id)
+    );
+    
+    if (availableVideos.length < count) {
+      this.cache.shownVideos.clear();
+      return this.getUniqueVideosFromCache(count);
+    }
+    
+    const results = [];
+    const tempAvailable = [...availableVideos];
+    
+    while (results.length < count && tempAvailable.length > 0) {
+      const randomIndex = Math.floor(Math.random() * tempAvailable.length);
+      const video = tempAvailable[randomIndex];
+      
+      tempAvailable.splice(randomIndex, 1);
+      this.cache.shownVideos.add(video.id);
+      results.push(video);
+    }
+    
+    return results;
+  }
+
   clearCache() {
-    console.log('Clearing cache');
     this.cache = {
       videos: [],
       lastFetched: null,
       shownVideos: new Set()
     };
-    console.log('Cache cleared');
     return true;
   }
 }
