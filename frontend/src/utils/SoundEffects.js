@@ -1,58 +1,67 @@
-// SoundEffects.js
+// utils/SoundEffects.js
 class SoundEffects {
-  constructor() {
-    // Import all sounds
-    this.correct = new Audio('/sounds/correct.mp3');
-    this.incorrect = new Audio('/sounds/incorrect.mp3');
-    this.streak = new Audio('/sounds/streak.mp3');
-    this.transition = new Audio('/sounds/transition.mp3');
-    this.buttonPress = new Audio('/sounds/button-press.mp3');
+  static sounds = {
+    correct: null,
+    incorrect: null,
+    buttonPress: null,
+    transition: null,
+    streak: null
+  };
+
+  static preloadSounds() {
+    try {
+      // Only load sounds if we're in a browser environment
+      if (typeof Audio !== 'undefined') {
+        this.sounds.correct = new Audio('/sounds/correct.mp3');
+        this.sounds.incorrect = new Audio('/sounds/incorrect.mp3');
+        this.sounds.buttonPress = new Audio('/sounds/button-press.mp3');
+        this.sounds.transition = new Audio('/sounds/transition.mp3');
+        this.sounds.streak = new Audio('/sounds/streak.mp3');
         
-    // Pre-load all sounds and set volumes
-    this.sounds = [
-      this.correct,
-      this.incorrect,
-      this.streak,
-      this.transition,
-      this.buttonPress
-    ];
-
-    this.sounds.forEach(sound => {
-      sound.load();
-    });
-
-    // Set individual volumes
-    this.correct.volume = 0.4;
-    this.incorrect.volume = 0.3;
-    this.streak.volume = 0.5;
-    this.transition.volume = 0.2;
-    this.buttonPress.volume = 0.1;
+        // Preload all sounds
+        Object.values(this.sounds).forEach(sound => {
+          if (sound) {
+            sound.load();
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error preloading sounds:', error);
+    }
   }
 
-  playCorrect() {
-    this.correct.currentTime = 0;
-    this.correct.play().catch(e => console.log('Audio play failed:', e));
+  static playSound(sound) {
+    try {
+      if (this.sounds[sound]) {
+        // Create a clone to allow overlapping sounds
+        const soundClone = this.sounds[sound].cloneNode();
+        soundClone.volume = 0.7;
+        soundClone.play().catch(err => console.error('Error playing sound:', err));
+      }
+    } catch (error) {
+      console.error(`Error playing ${sound} sound:`, error);
+    }
   }
 
-  playIncorrect() {
-    this.incorrect.currentTime = 0;
-    this.incorrect.play().catch(e => console.log('Audio play failed:', e));
+  static playCorrect() {
+    this.playSound('correct');
   }
 
-  playStreak() {
-    this.streak.currentTime = 0;
-    this.streak.play().catch(e => console.log('Audio play failed:', e));
+  static playIncorrect() {
+    this.playSound('incorrect');
   }
 
-  playTransition() {
-    this.transition.currentTime = 0;
-    this.transition.play().catch(e => console.log('Audio play failed:', e));
+  static playButtonPress() {
+    this.playSound('buttonPress');
   }
 
-  playButtonPress() {
-    this.buttonPress.currentTime = 0;
-    this.buttonPress.play().catch(e => console.log('Audio play failed:', e));
+  static playTransition() {
+    this.playSound('transition');
+  }
+
+  static playStreak() {
+    this.playSound('streak');
   }
 }
 
-export default new SoundEffects();
+export default SoundEffects;
