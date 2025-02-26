@@ -11,6 +11,7 @@ import ProgressBar from './components/VQLN/ProgressBar';
 import ScoreDisplay from './components/VQLN/ScoreDisplay';
 import MilestoneCelebration from './components/VQLN/MilestoneCelebration';
 import TimeModeIntro from './components/VQLN/TimeModeIntro';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button } from './components/VQLN/Alert';
 import SoundEffects from './utils/SoundEffects';
 import ClearCacheButton from './components/VQLN/ClearCacheButton';
 import YouTubeService from './utils/YouTubeService';
@@ -26,11 +27,12 @@ function App() {
   const [showMilestone, setShowMilestone] = useState(false);
   const [showTimeIntro, setShowTimeIntro] = useState(false);
   const [currentMilestone, setCurrentMilestone] = useState(0);
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
 
   // Content state
   const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [videos, setVideos] = useState([]);
-  const [currentVideo, setCurrentVideo] = useState(null);
+  const [rewardVideos, setRewardVideos] = useState([]);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [selectedSection, setSelectedSection] = useState(null);
   const [videoReady, setVideoReady] = useState(false);
 
@@ -49,28 +51,11 @@ function App() {
   const [youtubePersonalization, setYoutubePersonalization] = useState(false);
   const [personalizedVideos, setPersonalizedVideos] = useState([]);
 
-  // Load videos on initial mount
   useEffect(() => {
-    const loadVideos = async () => {
-      try {
-        const shorts = await YouTubeService.getViralShorts();
-        if (shorts && shorts.length > 0) {
-          setVideos(shorts);
-          setIsLoading(false);
-        } else {
-          throw new Error('No videos found');
-        }
-      } catch (error) {
-        console.error('Error loading videos:', error);
-        setIsLoading(false);
-      }
-    };
-
-    loadVideos();
     SoundEffects.preloadSounds();
   }, []);
 
-  // Fetch questions from the backend
+  // Fetch questions from the API
   const fetchQuestion = async () => {
     try {
       setIsLoading(true);
@@ -118,8 +103,7 @@ function App() {
         if (gameStats.questionsAnswered >= 4) {
           setTutorialMode(false);
         }
-        setShowQuestion(false);
-        setRandomVideo();
+        watchRewardVideo();
       } else {
         if (isMilestone) {
           setAvailableVideos(prev => prev + 1);
@@ -149,26 +133,26 @@ function App() {
     return false;
   };
 
-  const setRandomVideo = () => {
-    setVideoReady(false);
-    const availableVideosList = youtubePersonalization && personalizedVideos.length > 0 
-      ? personalizedVideos 
-      : videos;
-    
-    if (availableVideosList && availableVideosList.length > 0) {
-      const randomIndex = Math.floor(Math.random() * availableVideosList.length);
-      setCurrentVideo(availableVideosList[randomIndex]);
+  const watchRewardVideo = async () => {
+    if (availableVideos > 0) {
+      try {
+        const videos = await YouTubeService.getViralShorts(availableVideos);
+        setRewardVideos(videos);
+        setCurrentVideoIndex(0);
+        setShowQuestion(false);
+        setAvailableVideos(0); // Use all rewards at once
+      } catch (error) {
+        console.error('Error fetching reward videos:', error);
+      }
     }
   };
 
   const handleVideoEnd = () => {
-    setShowQuestion(true);
-    fetchQuestion();
-  };
-
-  const handleVideoSkip = () => {
-    setShowQuestion(true);
-    fetchQuestion();
+    if (currentVideoIndex < rewardVideos.length - 1) {
+      setCurrentVideoIndex(prev => prev + 1);
+    } else {
+      setShowCompletionDialog(true);
+    }
   };
 
   const handleVideoReady = () => {
@@ -188,26 +172,17 @@ function App() {
     fetchQuestion();
   };
 
-  const handleMilestoneClose = () => {
-    setShowMilestone(false);
-  };
-
-  const handleTimeIntroClose = () => {
-    setShowTimeIntro(false);
+  const handleCompletionDialogClose = () => {
+    setShowCompletionDialog(false);
+    setShowQuestion(true);
+    setRewardVideos([]);
+    setCurrentVideoIndex(0);
   };
 
   const handleYouTubeLogin = (isLoggedIn, videos = []) => {
     setYoutubePersonalization(isLoggedIn);
     if (isLoggedIn && videos.length > 0) {
       setPersonalizedVideos(videos);
-    }
-  };
-
-  const watchRewardVideo = () => {
-    if (availableVideos > 0) {
-      setAvailableVideos(prev => prev - 1);
-      setShowQuestion(false);
-      setRandomVideo();
     }
   };
 
@@ -257,9 +232,9 @@ function App() {
             </div>
           ) : (
             <VideoCard 
-              url={currentVideo?.url} 
+              videos={rewardVideos}
+              currentIndex={currentVideoIndex}
               onEnd={handleVideoEnd}
-              onSkip={handleVideoSkip}
               onReady={handleVideoReady}
             />
           )}
@@ -269,12 +244,30 @@ function App() {
       {showMilestone && (
         <MilestoneCelebration 
           milestone={currentMilestone} 
-          onClose={handleMilestoneClose} 
+          onClose={() => setShowMilestone(false)} 
         />
       )}
       
       {showTimeIntro && (
-        <TimeModeIntro onClose={handleTimeIntroClose} />
+        <TimeModeIntro onClose={() => setShowTimeIntro(false)} />
+      )}
+
+      {showCompletionDialog && (
+        <Dialog open={true} onClose={handleCompletionDialogClose}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>All Videos Watched!</DialogTitle>
+              <DialogDescription>
+                Answer more questions correctly to earn more video rewards.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={handleCompletionDialogClose}>
+                Continue
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
