@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import SoundEffects from '../../../utils/SoundEffects';
 import QuestionTimer from './QuestionTimer';
+import StreakCounter from './StreakCounter';
+import PointsAnimation from './PointsAnimation';
 
 const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -10,6 +12,8 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
   const [showResult, setShowResult] = useState(false);
   const [answerTime, setAnswerTime] = useState(10);
   const [timerActive, setTimerActive] = useState(true);
+  const [pointsEarned, setPointsEarned] = useState(0);
+  const [showPoints, setShowPoints] = useState(false);
 
   useEffect(() => {
     // Reset states when a new question is loaded
@@ -70,6 +74,12 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
     // Stop the timer
     setTimerActive(false);
     
+    // Calculate points if in time mode
+    if (timeMode && remainingTime) {
+      const calculatedPoints = Math.max(10, Math.floor(100 - (remainingTime * 9)));
+      setPointsEarned(calculatedPoints);
+    }
+    
     // Play button press sound
     SoundEffects.playButtonPress();
     
@@ -83,6 +93,13 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
       
       if (isCorrect) {
         setCanProceed(true);
+        
+        // Show points animation if in time mode
+        if (timeMode) {
+          setShowPoints(true);
+          setTimeout(() => setShowPoints(false), 1500);
+        }
+        
         onAnswerSubmit(true, remainingTime);
       } else {
         onAnswerSubmit(false);
@@ -104,12 +121,7 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
     <div className="w-full h-full bg-white p-4 overflow-y-auto">
       {/* Streak and Timer Display */}
       <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center">
-          <span className="text-sm font-medium text-gray-600">Streak:</span>
-          <span className="ml-1 px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
-            {streak}
-          </span>
-        </div>
+        <StreakCounter streak={streak} />
         
         {timeMode && (
           <div className="w-2/3">
@@ -121,6 +133,14 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
           </div>
         )}
       </div>
+      
+      {/* Points animation */}
+      {showPoints && timeMode && (
+        <PointsAnimation 
+          points={pointsEarned} 
+          position={{ top: '30%', left: '50%' }} 
+        />
+      )}
       
       <div className="mb-6">
         <h2 className="text-xl font-bold mb-4">{question.question}</h2>
