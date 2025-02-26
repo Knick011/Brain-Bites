@@ -6,6 +6,11 @@ import QuestionCard from './components/VQLN/Question/QuestionCard';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
 import MainSelection from './components/VQLN/Selection/MainSelection';
 import YouTubeLogin from './components/VQLN/YouTubeLogin';
+import RewardsButton from './components/VQLN/RewardsButton';
+import ProgressBar from './components/VQLN/ProgressBar';
+import ScoreDisplay from './components/VQLN/ScoreDisplay';
+import MilestoneCelebration from './components/VQLN/MilestoneCelebration';
+import TimeModeIntro from './components/VQLN/TimeModeIntro';
 import SoundEffects from './utils/SoundEffects';
 import ClearCacheButton from './components/VQLN/ClearCacheButton';
 import YouTubeService from './utils/YouTubeService';
@@ -259,171 +264,6 @@ function App() {
     }
   };
 
-  // RewardsButton component - will be created later
-  const RewardsButton = ({ availableVideos, onWatchVideo }) => {
-    const [showRewards, setShowRewards] = useState(false);
-    
-    return (
-      <>
-        <button 
-          onClick={() => setShowRewards(true)}
-          className="fixed top-4 left-4 z-50 bg-orange-500 text-white px-4 py-2 rounded-full flex items-center gap-2"
-        >
-          <span className="icon-video"></span>
-          <span>{availableVideos}</span>
-        </button>
-        
-        {showRewards && (
-          <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Your Rewards</h2>
-                <button onClick={() => setShowRewards(false)}>
-                  <span className="icon-close"></span>
-                </button>
-              </div>
-              
-              <div className="text-center mb-6">
-                <span className="icon-video text-4xl text-orange-500"></span>
-                <p className="text-2xl font-bold">{availableVideos}</p>
-                <p className="text-gray-600">Available Videos</p>
-              </div>
-              
-              {availableVideos > 0 ? (
-                <button 
-                  onClick={() => {
-                    onWatchVideo();
-                    setShowRewards(false);
-                  }}
-                  className="w-full bg-orange-500 text-white py-3 rounded-lg font-medium"
-                >
-                  Watch Now
-                </button>
-              ) : (
-                <p className="text-center text-gray-600">
-                  Answer more questions correctly to earn video rewards!
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      </>
-    );
-  };
-
-  // ProgressBar component - will be created later
-  const ProgressBar = ({ questionsAnswered, tutorialMode }) => {
-    const barLabel = tutorialMode 
-      ? `Tutorial: ${questionsAnswered}/5`
-      : `Questions: ${questionsAnswered}`;
-    
-    const percentage = tutorialMode 
-      ? (questionsAnswered / 5) * 100
-      : 100;
-      
-    return (
-      <div className="w-full mb-4 px-4">
-        <div className="flex justify-between text-xs text-gray-600 mb-1">
-          <span>{barLabel}</span>
-          {tutorialMode && <span>{questionsAnswered}/5</span>}
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-orange-500 h-2 rounded-full"
-            style={{ width: `${percentage}%` }}
-          ></div>
-        </div>
-      </div>
-    );
-  };
-
-  // ScoreDisplay component - will be created later
-  const ScoreDisplay = ({ score, timeMode }) => {
-    if (!timeMode) return null;
-    
-    return (
-      <div className="fixed top-4 right-4 z-40 bg-white shadow-md rounded-full px-4 py-2 flex items-center gap-2">
-        <span className="icon-award text-orange-500"></span>
-        <span className="font-bold">{score}</span>
-      </div>
-    );
-  };
-
-  // MilestoneCelebration component - will be created later
-  const MilestoneCelebration = ({ milestone, onClose }) => {
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        onClose();
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }, [onClose]);
-    
-    return (
-      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70">
-        <div className="bg-white rounded-xl p-6 text-center max-w-sm mx-4">
-          <div className="mb-4 flex justify-center">
-            <div className="bg-orange-500 text-white rounded-full p-4">
-              <span className="icon-award text-3xl"></span>
-            </div>
-          </div>
-          
-          <h2 className="text-2xl font-bold mb-2">Streak Milestone!</h2>
-          <p className="text-lg mb-4">You've answered {milestone} questions correctly in a row!</p>
-          
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <span className="icon-video text-orange-500 text-2xl"></span>
-            <span className="icon-arrow-up text-green-500"></span>
-            <span className="text-xl font-bold">+1 Video Reward</span>
-          </div>
-          
-          <button 
-            onClick={onClose}
-            className="bg-orange-500 text-white px-6 py-2 rounded-lg font-medium"
-          >
-            Continue
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // TimeModeIntro component - will be created later
-  const TimeModeIntro = ({ onClose }) => {
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        onClose();
-      }, 5000);
-      
-      return () => clearTimeout(timer);
-    }, [onClose]);
-    
-    return (
-      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-80">
-        <div className="bg-white rounded-xl p-6 text-center max-w-sm mx-4">
-          <div className="mb-4 flex justify-center">
-            <div className="bg-blue-600 text-white rounded-full p-4">
-              <span className="icon-clock text-3xl"></span>
-            </div>
-          </div>
-          
-          <h2 className="text-2xl font-bold mb-2">Time Mode Activated!</h2>
-          <p className="mb-4">You now have 10 seconds to answer each question.</p>
-          <p className="mb-4">Answer quickly for more points!</p>
-          
-          <div className="flex justify-center items-center gap-2 mb-4">
-            <span className="icon-zap text-yellow-500 text-2xl"></span>
-            <span className="text-lg font-medium">Fast = More Points</span>
-          </div>
-          
-          <div className="w-full bg-gray-200 h-1 mt-4">
-            <div className="h-1 bg-orange-500 animate-shrink"></div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="app">
       <ClearCacheButton />
@@ -433,7 +273,7 @@ function App() {
           <YouTubeLogin onLoginStatusChange={handleYouTubeLogin} />
           
           {/* Add rewards button when questions are showing */}
-          {showQuestion && !tutorialMode && (
+          {showQuestion && !tutorialMode && availableVideos > 0 && (
             <RewardsButton 
               availableVideos={availableVideos} 
               onWatchVideo={watchRewardVideo} 
