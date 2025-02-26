@@ -1,5 +1,5 @@
-// utils/YouTubeShortsService.js
-class YouTubeShortsService {
+// YouTubeService.js
+class YouTubeService {
   constructor() {
     // Replace with your GitHub username and repository name
     this.dataUrl = 'https://knick011.github.io/Brain-Bites/youtube-videos.json';
@@ -11,7 +11,7 @@ class YouTubeShortsService {
     this.cacheExpiry = 6 * 60 * 60 * 1000; // 6 hours
   }
 
-  async getViralShorts({ maxResults = 10 }) {
+  async getViralShorts(maxResults = 10) {
     try {
       console.log('Starting getViralShorts');
       
@@ -120,25 +120,4 @@ class YouTubeShortsService {
         channelHandle: "MrBeast"
       },
       {
-        id: "c0YNnrHBARc",
-        url: "https://www.youtube.com/shorts/c0YNnrHBARc",
-        title: "How I Start My Mornings - Harvest Edition",
-        channelTitle: "Zach King",
-        channelHandle: "ZachKing"
-      }
-    ];
-  }
-
-  clearCache() {
-    console.log('Clearing cache');
-    this.cache = {
-      videos: [],
-      lastFetched: null,
-      shownVideos: new Set()
-    };
-    console.log('Cache cleared');
-    return true;
-  }
-}
-
-export default new YouTubeShortsService();
+        id: "c
