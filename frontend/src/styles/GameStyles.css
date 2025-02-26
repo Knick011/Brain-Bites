@@ -1,155 +1,321 @@
-/* GameStyles.css - Add this to your styles directory */
+/* GameStyles.css - Enhanced game-specific animations and interactions */
 
-/* Streak display animations */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+/* ===== Streak Animations ===== */
+@keyframes streakPulse {
+  0% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
+  }
+  50% { 
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+  }
+  100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+  }
+}
+
+.streak-counter {
+  transition: all 0.3s ease;
 }
 
 .streak-pulse {
-  animation: pulse 1s ease-in-out;
+  animation: streakPulse 0.6s ease-in-out;
 }
 
-/* Timer animations */
-@keyframes shrink {
-  from { width: 100%; }
-  to { width: 0%; }
-}
-
-.animate-shrink {
-  animation: shrink 10s linear forwards;
-}
-
-/* Milestone celebration animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-.animate-scaleIn {
-  animation: scaleIn 0.5s ease-out forwards;
-}
-
-/* Points earned animation */
-@keyframes pointsEarned {
-  0% { transform: scale(0.8); opacity: 0; }
-  20% { transform: scale(1.2); opacity: 1; }
-  80% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1); opacity: 0; }
-}
-
-.points-animation {
-  animation: pointsEarned 1.5s ease-out forwards;
-  position: absolute;
-  font-weight: bold;
-  color: #f97316; /* orange-500 */
-}
-
-/* Tutorial mode styles */
-.tutorial-highlight {
-  position: relative;
-  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.5);
-  border-radius: 0.5rem;
-  transition: box-shadow 0.3s ease;
-}
-
-.tutorial-tooltip {
-  position: absolute;
-  background-color: #f97316;
+.streak-milestone {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  z-index: 50;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  max-width: 200px;
-  text-align: center;
-}
-
-.tutorial-tooltip::after {
-  content: '';
-  position: absolute;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #f97316 transparent transparent transparent;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* Confetti animation for milestone celebrations */
-.confetti {
-  width: 10px;
-  height: 10px;
-  background-color: #f97316;
-  position: absolute;
-  opacity: 0;
-}
-
-/* Time mode progress bar styles */
-.time-progress {
-  height: 0.5rem;
-  border-radius: 9999px;
-  overflow: hidden;
-  background-color: #e5e7eb; /* gray-200 */
-  transition: width 1s linear;
-}
-
-.time-progress-bar {
-  height: 100%;
-  transition: width 1s linear, background-color 0.5s ease;
-}
-
-/* Streak counter styles */
-.streak-counter {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  background-color: rgba(249, 115, 22, 0.1);
-  border-radius: 9999px;
-  font-weight: 600;
-  transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
-.streak-counter.milestone {
-  background-color: rgba(249, 115, 22, 0.3);
   transform: scale(1.1);
 }
 
-/* Score display styles */
-.score-display {
-  display: flex;
+/* ===== Timer Animations ===== */
+@keyframes timerWarning {
+  0%, 100% { 
+    background-color: var(--warning);
+  }
+  50% { 
+    background-color: var(--error);
+  }
+}
+
+.timer-bar {
+  position: relative;
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.timer-fill {
+  height: 100%;
+  transition: width 1s linear, background-color 0.3s ease;
+}
+
+.timer-fill.high {
+  background-color: var(--success);
+}
+
+.timer-fill.medium {
+  background-color: var(--warning);
+}
+
+.timer-fill.low {
+  background-color: var(--error);
+  animation: timerWarning 0.5s ease-in-out infinite;
+}
+
+/* ===== Answer Feedback Animations ===== */
+@keyframes correctAnswer {
+  0% { 
+    transform: scale(1);
+    background-color: var(--surface);
+  }
+  50% { 
+    transform: scale(1.02);
+    background-color: var(--success-light);
+  }
+  100% { 
+    transform: scale(1);
+    background-color: var(--success-light);
+  }
+}
+
+@keyframes wrongAnswer {
+  0%, 100% { 
+    transform: translateX(0);
+  }
+  20%, 60% { 
+    transform: translateX(-5px);
+  }
+  40%, 80% { 
+    transform: translateX(5px);
+  }
+}
+
+.answer-option {
+  transition: all 0.3s ease;
+}
+
+.answer-option.correct {
+  animation: correctAnswer 0.6s ease-out forwards;
+}
+
+.answer-option.incorrect {
+  animation: wrongAnswer 0.4s ease-in-out;
+  background-color: var(--error-light);
+}
+
+/* ===== Points Animation ===== */
+@keyframes pointsFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.2);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-40px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(1);
+  }
+}
+
+.points-popup {
+  position: absolute;
+  font-weight: bold;
+  color: var(--success);
+  pointer-events: none;
+  animation: pointsFloat 1.2s ease-out forwards;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+/* ===== Confetti Animation ===== */
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  animation: confettiFall 4s ease-out forwards;
+  z-index: 1000;
+}
+
+/* ===== Video Transitions ===== */
+@keyframes videoEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes videoExit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+}
+
+.video-enter {
+  animation: videoEnter 0.5s ease-out forwards;
+}
+
+.video-exit {
+  animation: videoExit 0.5s ease-in forwards;
+}
+
+/* ===== Question Transitions ===== */
+@keyframes questionSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes questionSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+.question-enter {
+  animation: questionSlideIn 0.4s ease-out forwards;
+}
+
+.question-exit {
+  animation: questionSlideOut 0.4s ease-in forwards;
+}
+
+/* ===== Tutorial Highlight ===== */
+.tutorial-highlight {
+  position: relative;
+}
+
+.tutorial-highlight::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-md);
+  animation: highlightPulse 1.5s infinite;
+}
+
+@keyframes highlightPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+  }
+}
+
+/* ===== Milestone Progress ===== */
+.milestone-progress {
+  position: relative;
+  height: 8px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.milestone-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transition: width 0.5s ease-out;
+}
+
+/* ===== Reward Counter ===== */
+.reward-counter {
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: white;
-  border-radius: 9999px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  background: var(--surface);
+  border-radius: 999px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
 }
 
-.score-display:hover {
+.reward-counter:hover {
   transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
-/* Reward button pulse animation for available videos */
-@keyframes rewardPulse {
-  0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
-}
-
-.reward-pulse {
+.reward-counter.has-rewards {
   animation: rewardPulse 2s infinite;
+}
+
+@keyframes rewardPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+  }
+}
+
+/* ===== Time Mode Badge ===== */
+.time-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: var(--info-light);
+  color: var(--info);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.time-mode-badge .icon {
+  animation: clockTick 1s linear infinite;
+}
+
+@keyframes clockTick {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
