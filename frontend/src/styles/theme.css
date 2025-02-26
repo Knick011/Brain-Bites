@@ -456,8 +456,310 @@ body {
   }
 }
 
-/* ===== Dark Mode Support ===== */
+/* ===== Dark Mode Support (Continued) ===== */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #1A1B1E;
-    --
+    --surface: #26282B;
+    --border: #2F3237;
+    
+    --text-primary: #FFFFFF;
+    --text-secondary: #A0A4A8;
+    --text-tertiary: #6C7075;
+    
+    --primary-light: rgba(255, 107, 107, 0.2);
+    --secondary-light: rgba(78, 205, 196, 0.2);
+    --accent-light: rgba(255, 230, 109, 0.2);
+    
+    --success-light: rgba(46, 204, 113, 0.2);
+    --warning-light: rgba(241, 196, 15, 0.2);
+    --error-light: rgba(231, 76, 60, 0.2);
+    --info-light: rgba(52, 152, 219, 0.2);
+    
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* ===== Milestone Celebration Modal ===== */
+.milestone-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 50;
+  padding: var(--space-md);
+  animation: fadeIn var(--transition-normal);
+  backdrop-filter: blur(8px);
+}
+
+.milestone-content {
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-xl);
+  animation: scaleIn var(--transition-normal);
+}
+
+.milestone-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-lg);
+  color: var(--text-inverse);
+}
+
+.milestone-title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.milestone-description {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+}
+
+.milestone-reward {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background-color: var(--primary-light);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ===== Time Mode Intro ===== */
+.time-intro {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 50;
+  padding: var(--space-md);
+  animation: fadeIn var(--transition-normal);
+  backdrop-filter: blur(8px);
+}
+
+.time-intro-content {
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-xl);
+  animation: scaleIn var(--transition-normal);
+}
+
+.time-intro-timer {
+  width: 100%;
+  height: 4px;
+  background-color: var(--border);
+  border-radius: var(--radius-full);
+  margin-top: var(--space-lg);
+  overflow: hidden;
+}
+
+.time-intro-timer-fill {
+  height: 100%;
+  background-color: var(--primary);
+  border-radius: var(--radius-full);
+  transition: width linear;
+}
+
+/* ===== Rewards Button ===== */
+.rewards-button {
+  position: fixed;
+  top: var(--space-md);
+  right: var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--surface);
+  border-radius: var(--radius-full);
+  color: var(--primary);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-normal);
+  z-index: 40;
+}
+
+.rewards-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+}
+
+.rewards-button.has-rewards {
+  animation: pulse 2s infinite;
+}
+
+/* ===== Score Display ===== */
+.score-display {
+  position: fixed;
+  top: var(--space-md);
+  left: var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--surface);
+  border-radius: var(--radius-full);
+  color: var(--text-primary);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  box-shadow: var(--shadow-lg);
+  z-index: 40;
+}
+
+/* ===== Points Animation ===== */
+.points-animation {
+  position: absolute;
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--primary);
+  pointer-events: none;
+  z-index: 50;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  animation: pointsEarned 1s ease-out forwards;
+}
+
+@keyframes pointsEarned {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(0);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.2) translateY(-20px);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1.2) translateY(-20px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1) translateY(-40px);
+  }
+}
+
+/* ===== Loading States ===== */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: var(--radius-full);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-skeleton {
+  background-color: var(--border);
+  border-radius: var(--radius-md);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ===== Error States ===== */
+.error-container {
+  text-align: center;
+  padding: var(--space-xl);
+  color: var(--error);
+}
+
+.error-icon {
+  font-size: var(--text-4xl);
+  margin-bottom: var(--space-md);
+}
+
+.error-message {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+}
+
+/* ===== Tooltip ===== */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-content {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-xs) var(--space-sm);
+  background-color: var(--surface);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: all var(--transition-normal);
+}
+
+.tooltip:hover .tooltip-content {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+/* ===== Focus States ===== */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ===== Print Styles ===== */
+@media print {
+  .app {
+    background: none;
+    color: black;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
