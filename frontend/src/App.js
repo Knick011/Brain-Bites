@@ -14,7 +14,8 @@ import TimeModeIntro from './components/VQLN/TimeModeIntro';
 import SoundEffects from './utils/SoundEffects';
 import ClearCacheButton from './components/VQLN/ClearCacheButton';
 import YouTubeService from './utils/YouTubeService';
-import './styles/App.css';
+import './styles/theme.css';
+import './styles/GameStyles.css';
 
 function App() {
   // Existing state variables
@@ -246,12 +247,12 @@ function App() {
     fetchQuestion();
   };
 
-  // Add this for milestone modal
+  // Handle milestone modal close
   const handleMilestoneClose = () => {
     setShowMilestone(false);
   };
 
-  // Add this for time mode intro modal
+  // Handle time mode intro modal close
   const handleTimeIntroClose = () => {
     setShowTimeIntro(false);
   };
@@ -273,7 +274,7 @@ function App() {
           <YouTubeLogin onLoginStatusChange={handleYouTubeLogin} />
           
           {/* Add rewards button when questions are showing */}
-          {showQuestion && !tutorialMode && availableVideos > 0 && (
+          {showQuestion && !tutorialMode && (
             <RewardsButton 
               availableVideos={availableVideos} 
               onWatchVideo={watchRewardVideo} 
