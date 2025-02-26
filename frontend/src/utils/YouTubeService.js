@@ -120,4 +120,25 @@ class YouTubeService {
         channelHandle: "MrBeast"
       },
       {
-        id: "c
+        id: "c0YNnrHBARc",
+        url: "https://www.youtube.com/shorts/c0YNnrHBARc",
+        title: "How I Start My Mornings - Harvest Edition",
+        channelTitle: "Zach King",
+        channelHandle: "ZachKing"
+      }
+    ];
+  }
+
+  clearCache() {
+    console.log('Clearing cache');
+    this.cache = {
+      videos: [],
+      lastFetched: null,
+      shownVideos: new Set()
+    };
+    console.log('Cache cleared');
+    return true;
+  }
+}
+
+export default new YouTubeService();
