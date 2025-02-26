@@ -1,47 +1,26 @@
 // VideoCard.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import { ChevronDown } from 'lucide-react';
 
-const VideoCard = ({ 
-  videos = [], 
-  currentIndex = 0,
-  onEnd, 
-  onReady,
-  onFinishAllVideos 
-}) => {
-  const [isReady, setIsReady] = useState(false);
-  const currentVideo = videos[currentIndex];
+const VideoCard = ({ url, onEnd, onSkip, onReady }) => {
+  // Validate URL
+  if (!url || !url.includes('youtube.com/shorts/')) {
+    console.error('Invalid YouTube Shorts URL:', url);
+    onSkip();
+    return null;
+  }
 
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'ArrowDown') {
-        handleNext();
+        onSkip();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex]);
-
-  const handleNext = () => {
-    if (currentIndex < videos.length - 1) {
-      onEnd(); // Go to next video
-    } else {
-      onFinishAllVideos(); // No more videos left
-    }
-  };
-
-  const handleVideoEnd = () => {
-    handleNext();
-  };
-
-  const handleVideoReady = () => {
-    setIsReady(true);
-    onReady?.();
-  };
-
-  if (!currentVideo) return null;
+  }, [onSkip]);
 
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-black">
@@ -62,13 +41,17 @@ const VideoCard = ({
           position: 'relative'
         }}>
           <ReactPlayer
-            url={currentVideo.url}
+            url={url}
             width="350px"
             height="622px"
             playing={true}
             controls={false}
-            onEnded={handleVideoEnd}
-            onReady={handleVideoReady}
+            onEnded={onEnd}
+            onReady={onReady}
+            onError={(e) => {
+              console.error('Video playback error:', e);
+              onSkip();
+            }}
             config={{
               youtube: {
                 playerVars: {
@@ -86,32 +69,11 @@ const VideoCard = ({
             }}
           />
         </div>
-
-        {/* Video Progress Indicator */}
-        <div className="absolute top-4 left-0 right-0 flex justify-center gap-2">
-          {videos.map((_, idx) => (
-            <div 
-              key={idx}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                idx === currentIndex ? 'bg-white w-4' : 'bg-white/50'
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Videos Remaining Count */}
-        <div className="absolute bottom-8 left-0 right-0 flex justify-center">
-          <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-white text-sm">
-            {videos.length - currentIndex} videos remaining
-          </div>
-        </div>
-
-        {/* Swipe Indicator */}
-        <div className="absolute bottom-20 left-0 right-0 flex justify-center">
-          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-white text-sm">
-            <ChevronDown size={16} />
-            Swipe down for next
-          </div>
+        
+        {/* Skip hint */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-black bg-opacity-50 px-4 py-2 rounded-full text-white text-sm">
+          <ChevronDown size={16} />
+          <span>Press ↓ to skip</span>
         </div>
       </div>
     </div>
