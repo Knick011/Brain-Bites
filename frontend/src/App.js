@@ -17,6 +17,7 @@ import YouTubeService from './utils/YouTubeService';
 import TutorialPopup from './components/VQLN/Tutorial/TutorialPopup';
 import RewardsConfirmation from './components/VQLN/RewardsConfirmation';
 import AllDoneMessage from './components/VQLN/AllDoneMessage';
+import { Video } from 'lucide-react';
 import './styles/theme.css';
 import './styles/GameStyles.css';
 
@@ -65,6 +66,43 @@ function App() {
   const [showTimeModeEnhancedPopup, setShowTimeModeEnhancedPopup] = useState(false);
   const [showSkipButton, setShowSkipButton] = useState(false);
   
+  // Get random videos ensuring no repeats
+  const getUniqueRandomVideos = useCallback((count) => {
+    const availableVideosList = youtubePersonalization && personalizedVideos.length > 0 
+      ? personalizedVideos 
+      : videos;
+    
+    if (!availableVideosList || availableVideosList.length === 0) return [];
+    
+    const unusedVideos = availableVideosList.filter(video => !usedVideoIds.has(video.id));
+    
+    // If we've used all videos, reset the used set
+    if (unusedVideos.length < count) {
+      setUsedVideoIds(new Set());
+      return getUniqueRandomVideos(count);
+    }
+    
+    // Select random unused videos
+    const selectedVideos = [];
+    const tempUnusedVideos = [...unusedVideos];
+    
+    while (selectedVideos.length < count && tempUnusedVideos.length > 0) {
+      const randomIndex = Math.floor(Math.random() * tempUnusedVideos.length);
+      const video = tempUnusedVideos[randomIndex];
+      
+      // Remove the selected video from the temp array
+      tempUnusedVideos.splice(randomIndex, 1);
+      
+      // Add to selected videos
+      selectedVideos.push(video);
+      
+      // Mark as used
+      setUsedVideoIds(prev => new Set([...prev, video.id]));
+    }
+    
+    return selectedVideos;
+  }, [personalizedVideos, videos, youtubePersonalization, usedVideoIds]);
+
   // Tutorial steps configuration
   const tutorialSteps = [
     {
@@ -104,43 +142,6 @@ function App() {
       position: "bottom"
     }
   ];
-
-  // Get unique random videos
-  const getUniqueRandomVideos = useCallback((count) => {
-    const availableVideosList = youtubePersonalization && personalizedVideos.length > 0 
-      ? personalizedVideos 
-      : videos;
-    
-    if (!availableVideosList || availableVideosList.length === 0) return [];
-    
-    const unusedVideos = availableVideosList.filter(video => !usedVideoIds.has(video.id));
-    
-    // If we've used all videos, reset the used set
-    if (unusedVideos.length < count) {
-      setUsedVideoIds(new Set());
-      return getUniqueRandomVideos(count);
-    }
-    
-    // Select random unused videos
-    const selectedVideos = [];
-    const tempUnusedVideos = [...unusedVideos];
-    
-    while (selectedVideos.length < count && tempUnusedVideos.length > 0) {
-      const randomIndex = Math.floor(Math.random() * tempUnusedVideos.length);
-      const video = tempUnusedVideos[randomIndex];
-      
-      // Remove the selected video from the temp array
-      tempUnusedVideos.splice(randomIndex, 1);
-      
-      // Add to selected videos
-      selectedVideos.push(video);
-      
-      // Mark as used
-      setUsedVideoIds(prev => new Set([...prev, video.id]));
-    }
-    
-    return selectedVideos;
-  }, [personalizedVideos, videos, youtubePersonalization, usedVideoIds]);
 
   // Fetch question with retry logic and ensuring no repeats
   const fetchQuestion = useCallback(async (retryCount = 0) => {
@@ -199,7 +200,7 @@ function App() {
         setShowQuestion(true);
         setQuestionsAnswered(prev => prev + 1);
         
-        // After 5 seconds, show skip button for explanation
+        // After 15 seconds, show skip button for explanation
         setTimeout(() => {
           setShowSkipButton(true);
         }, 5000);
@@ -234,40 +235,6 @@ function App() {
       setIsQuestionLoading(false);
     }
   }, [selectedSection, usedQuestionIds]);
-
-  // Load videos on initial mount
-  useEffect(() => {
-    const loadVideos = async () => {
-      try {
-        const videos = await YouTubeService.getViralShorts();
-        if (videos && videos.length > 0) {
-          setVideos(videos);
-        } else {
-          throw new Error('No videos found');
-        }
-      } catch (error) {
-        console.error('Error loading videos:', error);
-        // Set fallback video
-        setVideos([{
-          id: 'dummyId',
-          url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
-          title: 'Sample Video'
-        }]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadVideos();
-    SoundEffects.preloadSounds();
-    
-    // Start tutorial after loading
-    setTimeout(() => {
-      if (tutorialMode) {
-        setShowTutorial(true);
-      }
-    }, 1500);
-  }, []);
 
   // Handle answer submission
   const handleAnswerSubmit = useCallback((isCorrect, answerTime = null) => {
@@ -394,13 +361,10 @@ function App() {
         setTimeout(() => setShowAllDoneMessage(false), 3000);
       }
     } else {
-      // Single video mode (tutorial mode)
+      // Single video mode (legacy support)
       setShowQuestion(true);
-      if (!tutorialMode) {
-        fetchQuestion();
-      }
     }
-  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch, tutorialMode, fetchQuestion]);
+  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch]);
 
   // Handle video skip
   const handleVideoSkip = useCallback(() => {
@@ -417,13 +381,10 @@ function App() {
         setTimeout(() => setShowAllDoneMessage(false), 3000);
       }
     } else {
-      // Single video mode
+      // Single video mode (legacy support)
       setShowQuestion(true);
-      if (!tutorialMode) {
-        fetchQuestion();
-      }
     }
-  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch, tutorialMode, fetchQuestion]);
+  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch]);
 
   // Handle exit from rewards section
   const handleExitRewards = useCallback(() => {
@@ -505,11 +466,43 @@ function App() {
     }
   }, [tutorialStep, tutorialSteps.length]);
 
+  // Load videos on initial mount
+  useEffect(() => {
+    const loadVideos = async () => {
+      try {
+        const videos = await YouTubeService.getViralShorts();
+        if (videos && videos.length > 0) {
+          setVideos(videos);
+        } else {
+          throw new Error('No videos found');
+        }
+      } catch (error) {
+        console.error('Error loading videos:', error);
+        // Set fallback video
+        setVideos([{
+          id: 'dummyId',
+          url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
+          title: 'Sample Video'
+        }]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadVideos();
+    SoundEffects.preloadSounds();
+    
+    // Start tutorial after loading
+    setTimeout(() => {
+      if (tutorialMode) {
+        setShowTutorial(true);
+      }
+    }, 1500);
+  }, []);
+
   return (
     <div className="app">
-      {!showWelcome && (
-        <ClearCacheButton />
-      )}
+      <ClearCacheButton />
       
       {!showWelcome && !showSection && (
         <>
@@ -534,10 +527,7 @@ function App() {
             <div className="fixed right-4 bottom-20 z-50 bg-orange-500 text-white px-4 py-3 rounded-lg shadow-lg animate-slideIn">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white bg-opacity-20 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
-                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-                  </svg>
+                  <Video size={20} color="white" />
                 </div>
                 <div>
                   <p className="font-bold">New Reward!</p>
