@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import VideoCard from './components/VQLN/Video/VideoCard';
+
 import QuestionCard from './components/VQLN/Question/QuestionCard';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
 import MainSelection from './components/VQLN/Selection/MainSelection';
@@ -17,7 +18,6 @@ import YouTubeService from './utils/YouTubeService';
 import TutorialPopup from './components/VQLN/Tutorial/TutorialPopup';
 import RewardsConfirmation from './components/VQLN/RewardsConfirmation';
 import AllDoneMessage from './components/VQLN/AllDoneMessage';
-import { Video } from 'lucide-react';
 import './styles/theme.css';
 import './styles/GameStyles.css';
 
@@ -36,7 +36,6 @@ function App() {
   const [currentVideo, setCurrentVideo] = useState(null);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
   const [youtubePersonalization, setYoutubePersonalization] = useState(false);
   const [personalizedVideos, setPersonalizedVideos] = useState([]);
@@ -61,85 +60,43 @@ function App() {
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
   const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
   const [gameMode, setGameMode] = useState(false);
-  const [showGameModePopup, setShowGameModePopup] = useState(false);
-  const [showRewardPopup, setShowRewardPopup] = useState(false);
-  const [showTimeModeEnhancedPopup, setShowTimeModeEnhancedPopup] = useState(false);
-  const [showSkipButton, setShowSkipButton] = useState(false);
   
-  // Get random videos ensuring no repeats
-  const getUniqueRandomVideos = useCallback((count) => {
-    const availableVideosList = youtubePersonalization && personalizedVideos.length > 0 
-      ? personalizedVideos 
-      : videos;
-    
-    if (!availableVideosList || availableVideosList.length === 0) return [];
-    
-    const unusedVideos = availableVideosList.filter(video => !usedVideoIds.has(video.id));
-    
-    // If we've used all videos, reset the used set
-    if (unusedVideos.length < count) {
-      setUsedVideoIds(new Set());
-      return getUniqueRandomVideos(count);
-    }
-    
-    // Select random unused videos
-    const selectedVideos = [];
-    const tempUnusedVideos = [...unusedVideos];
-    
-    while (selectedVideos.length < count && tempUnusedVideos.length > 0) {
-      const randomIndex = Math.floor(Math.random() * tempUnusedVideos.length);
-      const video = tempUnusedVideos[randomIndex];
-      
-      // Remove the selected video from the temp array
-      tempUnusedVideos.splice(randomIndex, 1);
-      
-      // Add to selected videos
-      selectedVideos.push(video);
-      
-      // Mark as used
-      setUsedVideoIds(prev => new Set([...prev, video.id]));
-    }
-    
-    return selectedVideos;
-  }, [personalizedVideos, videos, youtubePersonalization, usedVideoIds]);
-
   // Tutorial steps configuration
   const tutorialSteps = [
     {
       title: "Welcome to Brain Bites!",
       content: "Let's learn how to use this app. First, you'll be answering trivia questions.",
-      element: ".question-container",
-      position: "bottom"
+      element: ".question-container"
     },
     {
       title: "Answer Questions",
-      content: "Select the correct answer from the options. For each correct answer, you'll earn video rewards!",
-      element: ".space-y-3",
-      position: "bottom"
+      content: "Select the correct answer from the options. For each correct answer, you'll earn streak points.",
+      element: ".space-y-3"
     },
     {
       title: "Build Your Streak",
       content: "Your streak counter shows how many questions you've answered correctly in a row.",
-      element: ".streak-counter",
-      position: "bottom"
+      element: ".streak-counter"
     },
     {
-      title: "Watch Videos",
-      content: "After each correct answer in tutorial mode, you'll get to watch a fun video!",
-      element: ".video-container",
-      position: "bottom"
+      title: "Earn Rewards",
+      content: "Every 2 questions you answer correctly, you'll earn a video reward! Reach a streak of 5 to earn double rewards.",
+      element: ".fixed.top-4.left-4.z-50"
+    },
+    {
+      title: "Watch Rewards",
+      content: "Click the rewards button to watch fun short videos as your reward. You can exit rewards at any time.",
+      element: ".fixed.top-4.left-4.z-50"
     },
     {
       title: "Time Mode",
       content: "After you've mastered the basics, you'll enter Time Mode where you can earn points for answering quickly!",
-      element: ".score-display",
-      position: "bottom"
+      element: ".score-display"
     },
     {
       title: "Ready to Start?",
       content: "You're all set! Let's begin with your first question.",
-      element: ".question-container",
-      position: "bottom"
+      element: ".question-container"
     }
   ];
 
@@ -147,9 +104,7 @@ function App() {
   const fetchQuestion = useCallback(async (retryCount = 0) => {
     try {
       setIsLoading(true);
-      setIsQuestionLoading(true);
       setError(null);
-      setShowSkipButton(false);
       
       const endpoint = selectedSection === 'funfacts' 
         ? `${API_BASE_URL}/api/questions/random/funfacts`
@@ -199,11 +154,6 @@ function App() {
         setCurrentQuestion(shuffledQuestion);
         setShowQuestion(true);
         setQuestionsAnswered(prev => prev + 1);
-        
-        // After 15 seconds, show skip button for explanation
-        setTimeout(() => {
-          setShowSkipButton(true);
-        }, 5000);
       } else {
         throw new Error('No question data received');
       }
@@ -232,9 +182,42 @@ function App() {
       });
     } finally {
       setIsLoading(false);
-      setIsQuestionLoading(false);
     }
   }, [selectedSection, usedQuestionIds]);
+
+  // Load videos on initial mount
+  useEffect(() => {
+    const loadVideos = async () => {
+      try {
+        const videos = await YouTubeService.getViralShorts();
+        if (videos && videos.length > 0) {
+          setVideos(videos);
+        } else {
+          throw new Error('No videos found');
+        }
+      } catch (error) {
+        console.error('Error loading videos:', error);
+        // Set fallback video
+        setVideos([{
+          id: 'dummyId',
+          url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
+          title: 'Sample Video'
+        }]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadVideos();
+    SoundEffects.preloadSounds();
+    
+    // Start tutorial after loading
+    setTimeout(() => {
+      if (tutorialMode) {
+        setShowTutorial(true);
+      }
+    }, 1500);
+  }, []);
 
   // Handle answer submission
   const handleAnswerSubmit = useCallback((isCorrect, answerTime = null) => {
@@ -252,44 +235,29 @@ function App() {
       const newStreak = streak + 1;
       setStreak(newStreak);
       
-      SoundEffects.playCorrect();
-      
-      // Tutorial mode - show video immediately after each correct answer
+      // Check if we should reward videos based on tutorial or game mode
       if (tutorialMode) {
-        setTimeout(() => {
-          // Get a unique video for immediate viewing
-          const videoToWatch = getUniqueRandomVideos(1)[0];
-          if (videoToWatch) {
-            setCurrentVideo(videoToWatch);
-            setShowQuestion(false);
-          }
+        // In tutorial mode, give a reward every 2 questions
+        if (correctAnswers % 2 === 1) { // Using correctAnswers, not newStreak
+          setAvailableVideos(prev => prev + 1);
+        }
+        
+        // Exit tutorial mode after 5 correct answers
+        if (correctAnswers + 1 >= 5) {
+          setTutorialMode(false);
+          setGameMode(true);
           
-          // Exit tutorial mode after 5 correct answers
-          if (correctAnswers + 1 >= 5) {
-            // Show transition to game mode pop-up
-            setTutorialMode(false);
-            setGameMode(true);
-            
-            // Show time mode intro after tutorial completion
-            setTimeout(() => {
-              setTimeMode(true);
-              setShowTimeIntro(true);
-              
-              // Show pop-up explaining the change to game mode
-              setTimeout(() => {
-                setShowGameModePopup(true);
-              }, 3000);
-            }, 1000);
-          }
-        }, 3000); // Wait 3 seconds to show explanation before video
+          // Show time mode intro after tutorial completion
+          setTimeout(() => {
+            setTimeMode(true);
+            setShowTimeIntro(true);
+          }, 1000);
+        }
       } else {
         // Game mode reward logic
         if (newStreak % 2 === 0) {
           // Standard reward: 1 video every 2 questions
           setAvailableVideos(prev => prev + 1);
-          // Show reward notification
-          setShowRewardPopup(true);
-          setTimeout(() => setShowRewardPopup(false), 2000);
         }
         
         // Milestone rewards: extra video at streaks of 5, 10, 15, etc.
@@ -308,26 +276,58 @@ function App() {
         
         // Enhance time mode at streak of 15
         if (newStreak === 15 && timeMode) {
-          // Show pop-up explaining time pressure increase
-          setShowTimeModeEnhancedPopup(true);
-          setTimeout(() => setShowTimeModeEnhancedPopup(false), 3000);
+          // Could add additional time pressure or scoring bonuses here
         }
-        
-        // Fetch next question after a delay to show explanation
-        setTimeout(() => {
-          fetchQuestion();
-        }, 15000); // 15-second delay to show explanation
       }
+      
+      SoundEffects.playCorrect();
+      
+      // Fetch next question after a delay to show explanation
+      setTimeout(() => {
+        fetchQuestion();
+      }, 3000);
     } else {
       setStreak(0);
       SoundEffects.playIncorrect();
-      
-      // Even in failed answers, we should eventually move on
-      setTimeout(() => {
-        fetchQuestion();
-      }, 5000);
     }
-  }, [correctAnswers, fetchQuestion, streak, timeMode, tutorialMode, getUniqueRandomVideos]);
+  }, [correctAnswers, fetchQuestion, streak, timeMode, tutorialMode]);
+
+  // Get random videos ensuring no repeats
+  const getUniqueRandomVideos = useCallback((count) => {
+    const availableVideosList = youtubePersonalization && personalizedVideos.length > 0 
+      ? personalizedVideos 
+      : videos;
+    
+    if (!availableVideosList || availableVideosList.length === 0) return [];
+    
+    const unusedVideos = availableVideosList.filter(video => !usedVideoIds.has(video.id));
+    
+    // If we've used all videos, reset the used set
+    if (unusedVideos.length < count) {
+      setUsedVideoIds(new Set());
+      return getUniqueRandomVideos(count);
+    }
+    
+    // Select random unused videos
+    const selectedVideos = [];
+    const tempUnusedVideos = [...unusedVideos];
+    
+    while (selectedVideos.length < count && tempUnusedVideos.length > 0) {
+      const randomIndex = Math.floor(Math.random() * tempUnusedVideos.length);
+      const video = tempUnusedVideos[randomIndex];
+      
+      // Remove the selected video from the temp array
+      tempUnusedVideos.splice(randomIndex, 1);
+      
+      // Add to selected videos
+      selectedVideos.push(video);
+      
+      // Mark as used
+      setUsedVideoIds(prev => new Set([...prev, video.id]));
+    }
+    
+    return selectedVideos;
+  }, [personalizedVideos, videos, youtubePersonalization, usedVideoIds]);
 
   // Start watching all rewards
   const startWatchingAllRewards = useCallback(() => {
@@ -466,96 +466,15 @@ function App() {
     }
   }, [tutorialStep, tutorialSteps.length]);
 
-  // Load videos on initial mount
-  useEffect(() => {
-    const loadVideos = async () => {
-      try {
-        const videos = await YouTubeService.getViralShorts();
-        if (videos && videos.length > 0) {
-          setVideos(videos);
-        } else {
-          throw new Error('No videos found');
-        }
-      } catch (error) {
-        console.error('Error loading videos:', error);
-        // Set fallback video
-        setVideos([{
-          id: 'dummyId',
-          url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
-          title: 'Sample Video'
-        }]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadVideos();
-    SoundEffects.preloadSounds();
-    
-    // Start tutorial after loading
-    setTimeout(() => {
-      if (tutorialMode) {
-        setShowTutorial(true);
-      }
-    }, 1500);
-  }, []);
-
   return (
     <div className="app">
       <ClearCacheButton />
       
       {!showWelcome && !showSection && (
         <>
-          {showGameModePopup && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
-              <div className="bg-white rounded-xl p-6 max-w-md text-center animate-scaleIn">
-                <h2 className="text-2xl font-bold mb-3 text-orange-500">Game Mode Activated!</h2>
-                <p className="mb-4">You've completed the tutorial. Now you'll earn rewards for answering correctly!</p>
-                <p className="mb-3">• Every 2 correct answers = 1 video</p>
-                <p className="mb-3">• Reach streak milestones (5, 10, 15...) for bonus videos</p>
-                <button 
-                  onClick={() => setShowGameModePopup(false)}
-                  className="bg-orange-500 text-white px-6 py-2 rounded-full font-medium"
-                >
-                  Let's Go!
-                </button>
-              </div>
-            </div>
-          )}
-          
-          {showRewardPopup && (
-            <div className="fixed right-4 bottom-20 z-50 bg-orange-500 text-white px-4 py-3 rounded-lg shadow-lg animate-slideIn">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white bg-opacity-20 rounded-full">
-                  <Video size={20} color="white" />
-                </div>
-                <div>
-                  <p className="font-bold">New Reward!</p>
-                  <p className="text-sm">Video added to your rewards</p>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {showTimeModeEnhancedPopup && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
-              <div className="bg-white rounded-xl p-6 max-w-md text-center animate-scaleIn">
-                <h2 className="text-2xl font-bold mb-3 text-blue-500">Time Challenge Increased!</h2>
-                <p className="mb-4">You've reached a streak of 15! The timer will now move faster.</p>
-                <p className="mb-3">Answer quickly for even more points!</p>
-                <button 
-                  onClick={() => setShowTimeModeEnhancedPopup(false)}
-                  className="bg-blue-500 text-white px-6 py-2 rounded-full font-medium"
-                >
-                  I'm Ready!
-                </button>
-              </div>
-            </div>
-          )}
-        
           <YouTubeLogin onLoginStatusChange={handleYouTubeLogin} />
           
-          {showQuestion && !isLoading && !tutorialMode && (
+          {showQuestion && !isLoading && (
             <RewardsButton 
               availableVideos={availableVideos} 
               onWatchVideo={startWatchingAllRewards} 
@@ -578,32 +497,22 @@ function App() {
         <>
           {showQuestion ? (
             <div className="question-container">
-              {tutorialMode ? (
-                <div className="w-full bg-orange-500 text-white py-2 px-4 text-center font-bold rounded-t-lg">
-                  Tutorial Mode: Question {questionsAnswered} of 5
-                </div>
-              ) : (
-                <ProgressBar 
-                  questionsAnswered={questionsAnswered}
-                  tutorialMode={false}
-                />
-              )}
+              <ProgressBar 
+                questionsAnswered={questionsAnswered}
+                tutorialMode={tutorialMode}
+              />
               
-              {isQuestionLoading ? (
-                <div className="flex items-center justify-center h-full my-20">
+              {isLoading ? (
+                <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
                 </div>
               ) : (
-                <>
-                  <QuestionCard 
-                    question={currentQuestion}
-                    onAnswerSubmit={handleAnswerSubmit}
-                    timeMode={timeMode}
-                    streak={streak}
-                    showSkipButton={showSkipButton}
-                    onSkip={() => fetchQuestion()}
-                  />
-                </>
+                <QuestionCard 
+                  question={currentQuestion}
+                  onAnswerSubmit={handleAnswerSubmit}
+                  timeMode={timeMode}
+                  streak={streak}
+                />
               )}
             </div>
           ) : (
