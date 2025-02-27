@@ -705,3 +705,128 @@ button {
     font-size: 0.9rem;
   }
 }
+/* Additional animation styles for new components */
+@keyframes scale-fade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.animate-scale-fade {
+  animation: scale-fade 3s ease-in-out forwards;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.3s ease-in-out forwards;
+}
+
+/* Tutorial highlight animation */
+@keyframes highlight-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 159, 28, 0.2);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 159, 28, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 159, 28, 0);
+  }
+}
+
+.tutorial-highlight {
+  position: relative;
+  animation: highlight-pulse 1.5s infinite;
+}
+
+.tutorial-target::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px dashed var(--primary-orange);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  animation: highlight-pulse 1.5s infinite;
+}
+
+/* Video progress animation */
+.video-progress-bar {
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+  width: 200px;
+  margin: 0 auto;
+}
+
+.video-progress-fill {
+  height: 100%;
+  background-color: var(--primary-orange);
+  border-radius: 2px;
+  transition: width 0.5s linear;
+}
+
+/* Reward collection animation */
+@keyframes reward-collect {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-30px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(1);
+  }
+}
+
+.reward-collect {
+  animation: reward-collect 1s ease-out forwards;
+}
+
+/* Explanation timer animation */
+.explanation-timer {
+  position: relative;
+}
+
+.explanation-timer::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background-color: var(--primary-orange);
+  animation: timer-countdown 15s linear forwards;
+}
+
+@keyframes timer-countdown {
+  from { width: 100%; }
+  to { width: 0%; }
+}
