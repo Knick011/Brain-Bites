@@ -66,6 +66,43 @@ function App() {
   const [showTimeModeEnhancedPopup, setShowTimeModeEnhancedPopup] = useState(false);
   const [showSkipButton, setShowSkipButton] = useState(false);
   
+  // Get random videos ensuring no repeats
+  const getUniqueRandomVideos = useCallback((count) => {
+    const availableVideosList = youtubePersonalization && personalizedVideos.length > 0 
+      ? personalizedVideos 
+      : videos;
+    
+    if (!availableVideosList || availableVideosList.length === 0) return [];
+    
+    const unusedVideos = availableVideosList.filter(video => !usedVideoIds.has(video.id));
+    
+    // If we've used all videos, reset the used set
+    if (unusedVideos.length < count) {
+      setUsedVideoIds(new Set());
+      return getUniqueRandomVideos(count);
+    }
+    
+    // Select random unused videos
+    const selectedVideos = [];
+    const tempUnusedVideos = [...unusedVideos];
+    
+    while (selectedVideos.length < count && tempUnusedVideos.length > 0) {
+      const randomIndex = Math.floor(Math.random() * tempUnusedVideos.length);
+      const video = tempUnusedVideos[randomIndex];
+      
+      // Remove the selected video from the temp array
+      tempUnusedVideos.splice(randomIndex, 1);
+      
+      // Add to selected videos
+      selectedVideos.push(video);
+      
+      // Mark as used
+      setUsedVideoIds(prev => new Set([...prev, video.id]));
+    }
+    
+    return selectedVideos;
+  }, [personalizedVideos, videos, youtubePersonalization, usedVideoIds]);
+  
   // Tutorial steps configuration
   const tutorialSteps = [
     {
