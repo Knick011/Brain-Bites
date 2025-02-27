@@ -14,6 +14,9 @@ import TimeModeIntro from './components/VQLN/TimeModeIntro';
 import SoundEffects from './utils/SoundEffects';
 import ClearCacheButton from './components/VQLN/ClearCacheButton';
 import YouTubeService from './utils/YouTubeService';
+import TutorialPopup from './components/VQLN/Tutorial/TutorialPopup';
+import RewardsConfirmation from './components/VQLN/RewardsConfirmation';
+import AllDoneMessage from './components/VQLN/AllDoneMessage';
 import './styles/theme.css';
 import './styles/GameStyles.css';
 
@@ -30,6 +33,7 @@ function App() {
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [videos, setVideos] = useState([]);
   const [currentVideo, setCurrentVideo] = useState(null);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
@@ -51,11 +55,16 @@ function App() {
   const [tutorialMode, setTutorialMode] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
+  const [watchingAllRewards, setWatchingAllRewards] = useState(false);
+  const [rewardsToWatch, setRewardsToWatch] = useState([]);
+  const [showExitConfirmation, setShowExitConfirmation] = useState(false);
+  const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
+  const [gameMode, setGameMode] = useState(false);
   const [showGameModePopup, setShowGameModePopup] = useState(false);
   const [showRewardPopup, setShowRewardPopup] = useState(false);
   const [showTimeModeEnhancedPopup, setShowTimeModeEnhancedPopup] = useState(false);
   const [showSkipButton, setShowSkipButton] = useState(false);
-
+  
   // Tutorial steps configuration
   const tutorialSteps = [
     {
@@ -95,6 +104,43 @@ function App() {
       position: "bottom"
     }
   ];
+
+  // Get unique random videos
+  const getUniqueRandomVideos = useCallback((count) => {
+    const availableVideosList = youtubePersonalization && personalizedVideos.length > 0 
+      ? personalizedVideos 
+      : videos;
+    
+    if (!availableVideosList || availableVideosList.length === 0) return [];
+    
+    const unusedVideos = availableVideosList.filter(video => !usedVideoIds.has(video.id));
+    
+    // If we've used all videos, reset the used set
+    if (unusedVideos.length < count) {
+      setUsedVideoIds(new Set());
+      return getUniqueRandomVideos(count);
+    }
+    
+    // Select random unused videos
+    const selectedVideos = [];
+    const tempUnusedVideos = [...unusedVideos];
+    
+    while (selectedVideos.length < count && tempUnusedVideos.length > 0) {
+      const randomIndex = Math.floor(Math.random() * tempUnusedVideos.length);
+      const video = tempUnusedVideos[randomIndex];
+      
+      // Remove the selected video from the temp array
+      tempUnusedVideos.splice(randomIndex, 1);
+      
+      // Add to selected videos
+      selectedVideos.push(video);
+      
+      // Mark as used
+      setUsedVideoIds(prev => new Set([...prev, video.id]));
+    }
+    
+    return selectedVideos;
+  }, [personalizedVideos, videos, youtubePersonalization, usedVideoIds]);
 
   // Fetch question with retry logic and ensuring no repeats
   const fetchQuestion = useCallback(async (retryCount = 0) => {
@@ -244,10 +290,10 @@ function App() {
       // Tutorial mode - show video immediately after each correct answer
       if (tutorialMode) {
         setTimeout(() => {
-          // Get a random video for immediate viewing
-          if (videos.length > 0) {
-            const randomIndex = Math.floor(Math.random() * videos.length);
-            setCurrentVideo(videos[randomIndex]);
+          // Get a unique video for immediate viewing
+          const videoToWatch = getUniqueRandomVideos(1)[0];
+          if (videoToWatch) {
+            setCurrentVideo(videoToWatch);
             setShowQuestion(false);
           }
           
@@ -255,6 +301,7 @@ function App() {
           if (correctAnswers + 1 >= 5) {
             // Show transition to game mode pop-up
             setTutorialMode(false);
+            setGameMode(true);
             
             // Show time mode intro after tutorial completion
             setTimeout(() => {
@@ -313,37 +360,91 @@ function App() {
         fetchQuestion();
       }, 5000);
     }
-  }, [correctAnswers, fetchQuestion, streak, timeMode, tutorialMode, videos]);
+  }, [correctAnswers, fetchQuestion, streak, timeMode, tutorialMode, getUniqueRandomVideos]);
 
-  // Watch reward video
-  const watchRewardVideo = useCallback(() => {
-    if (availableVideos > 0) {
-      setAvailableVideos(prev => prev - 1);
-      
-      // Select a random video
-      if (videos.length > 0) {
-        const randomIndex = Math.floor(Math.random() * videos.length);
-        setCurrentVideo(videos[randomIndex]);
-        setShowQuestion(false);
-      }
+  // Start watching all rewards
+  const startWatchingAllRewards = useCallback(() => {
+    if (availableVideos <= 0) return;
+    
+    // Get unique videos for all available rewards
+    const videosToWatch = getUniqueRandomVideos(availableVideos);
+    
+    if (videosToWatch.length > 0) {
+      setRewardsToWatch(videosToWatch);
+      setCurrentVideoIndex(0);
+      setCurrentVideo(videosToWatch[0]);
+      setWatchingAllRewards(true);
+      setShowQuestion(false);
+      setAvailableVideos(0); // Reset available videos count
     }
-  }, [availableVideos, videos]);
+  }, [availableVideos, getUniqueRandomVideos]);
 
   // Handle video ending
   const handleVideoEnd = useCallback(() => {
-    setShowQuestion(true);
-    if (!tutorialMode) {
-      fetchQuestion();
+    if (watchingAllRewards) {
+      // Move to next video if available
+      if (currentVideoIndex < rewardsToWatch.length - 1) {
+        setCurrentVideoIndex(prev => prev + 1);
+        setCurrentVideo(rewardsToWatch[currentVideoIndex + 1]);
+      } else {
+        // No more videos
+        setWatchingAllRewards(false);
+        setShowQuestion(true);
+        setShowAllDoneMessage(true);
+        setTimeout(() => setShowAllDoneMessage(false), 3000);
+      }
+    } else {
+      // Single video mode (tutorial mode)
+      setShowQuestion(true);
+      if (!tutorialMode) {
+        fetchQuestion();
+      }
     }
-  }, [fetchQuestion, tutorialMode]);
+  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch, tutorialMode, fetchQuestion]);
 
   // Handle video skip
   const handleVideoSkip = useCallback(() => {
-    setShowQuestion(true);
-    if (!tutorialMode) {
-      fetchQuestion();
+    if (watchingAllRewards) {
+      // Move to next video if available
+      if (currentVideoIndex < rewardsToWatch.length - 1) {
+        setCurrentVideoIndex(prev => prev + 1);
+        setCurrentVideo(rewardsToWatch[currentVideoIndex + 1]);
+      } else {
+        // No more videos
+        setWatchingAllRewards(false);
+        setShowQuestion(true);
+        setShowAllDoneMessage(true);
+        setTimeout(() => setShowAllDoneMessage(false), 3000);
+      }
+    } else {
+      // Single video mode
+      setShowQuestion(true);
+      if (!tutorialMode) {
+        fetchQuestion();
+      }
     }
-  }, [fetchQuestion, tutorialMode]);
+  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch, tutorialMode, fetchQuestion]);
+
+  // Handle exit from rewards section
+  const handleExitRewards = useCallback(() => {
+    if (watchingAllRewards) {
+      setShowExitConfirmation(true);
+    } else {
+      setShowQuestion(true);
+    }
+  }, [watchingAllRewards]);
+
+  // Confirm exit from rewards
+  const confirmExitRewards = useCallback(() => {
+    setShowExitConfirmation(false);
+    setWatchingAllRewards(false);
+    setShowQuestion(true);
+  }, []);
+
+  // Cancel exit from rewards
+  const cancelExitRewards = useCallback(() => {
+    setShowExitConfirmation(false);
+  }, []);
 
   // Handle video ready state
   const handleVideoReady = useCallback(() => {
@@ -382,6 +483,18 @@ function App() {
       setPersonalizedVideos(videos);
     }
   }, []);
+
+  // Watch a single reward video (legacy support)
+  const watchSingleRewardVideo = useCallback(() => {
+    if (availableVideos > 0) {
+      const videoToWatch = getUniqueRandomVideos(1)[0];
+      if (videoToWatch) {
+        setCurrentVideo(videoToWatch);
+        setShowQuestion(false);
+        setAvailableVideos(prev => prev - 1);
+      }
+    }
+  }, [availableVideos, getUniqueRandomVideos]);
 
   // Handle tutorial step navigation
   const handleNextTutorialStep = useCallback(() => {
@@ -455,7 +568,7 @@ function App() {
           {showQuestion && !isLoading && !tutorialMode && (
             <RewardsButton 
               availableVideos={availableVideos} 
-              onWatchVideo={watchRewardVideo} 
+              onWatchVideo={startWatchingAllRewards} 
             />
           )}
           
@@ -510,7 +623,19 @@ function App() {
                 onEnd={handleVideoEnd}
                 onSkip={handleVideoSkip}
                 onReady={handleVideoReady}
+                onExit={handleExitRewards}
+                watchingAllRewards={watchingAllRewards}
+                currentIndex={currentVideoIndex + 1}
+                totalVideos={rewardsToWatch.length}
               />
+              
+              {showExitConfirmation && (
+                <RewardsConfirmation 
+                  onConfirm={confirmExitRewards}
+                  onCancel={cancelExitRewards}
+                  remainingVideos={rewardsToWatch.length - currentVideoIndex - 1}
+                />
+              )}
             </>
           )}
         </>
@@ -518,55 +643,12 @@ function App() {
 
       {/* Tutorial Popup */}
       {showTutorial && (
-        <div className="fixed inset-0 z-50 pointer-events-none">
-          <div className="absolute inset-0 bg-black bg-opacity-30 pointer-events-auto" onClick={handleNextTutorialStep}></div>
-          
-          <div 
-            className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-white rounded-xl shadow-xl w-80 p-4 pointer-events-auto"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-orange-100 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-orange-500">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M12 16v-4"></path>
-                  <path d="M12 8h.01"></path>
-                </svg>
-              </div>
-              <h3 className="font-bold text-lg text-orange-500">{tutorialSteps[tutorialStep].title}</h3>
-            </div>
-            
-            <p className="text-gray-700 mb-4">{tutorialSteps[tutorialStep].content}</p>
-            
-            <div className="flex justify-between items-center">
-              <div className="text-xs font-medium bg-orange-100 text-orange-800 px-3 py-1 rounded-full">
-                {tutorialStep + 1} of {tutorialSteps.length}
-              </div>
-              
-              <button 
-                onClick={handleNextTutorialStep}
-                className="flex items-center gap-1 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
-              >
-                {tutorialStep === tutorialSteps.length - 1 ? (
-                  <>
-                    <span>Got it</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                  </>
-                ) : (
-                  <>
-                    <span>Next</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                      <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+        <TutorialPopup 
+          step={tutorialSteps[tutorialStep]} 
+          onNext={handleNextTutorialStep}
+          currentStep={tutorialStep + 1}
+          totalSteps={tutorialSteps.length}
+        />
       )}
 
       {/* Milestone Celebration */}
@@ -580,6 +662,11 @@ function App() {
       {/* Time Mode Intro */}
       {showTimeIntro && (
         <TimeModeIntro onClose={handleTimeIntroClose} />
+      )}
+      
+      {/* All Done Message */}
+      {showAllDoneMessage && (
+        <AllDoneMessage />
       )}
       
       {/* Error message */}
