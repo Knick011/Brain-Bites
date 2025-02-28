@@ -1,7 +1,13 @@
-// Fix for utils/YouTubeService.js
+// utils/YouTubeService.js
 class YouTubeService {
   constructor() {
-    this.videosJsonUrl = '/youtube-videos.json'; // Change this to use local path
+    // Try different possible paths to handle both development and production
+    this.videosJsonUrl = './youtube-videos.json'; // Try relative path
+    this.fallbackUrls = [
+      '/youtube-videos.json',
+      './public/youtube-videos.json',
+      'youtube-videos.json'
+    ];
     this.cache = {
       videos: [],
       lastFetched: null,
@@ -11,6 +17,7 @@ class YouTubeService {
   }
 
   getFallbackVideos() {
+    // Extended fallback videos to ensure content is always available
     return [
       {
         id: "8_gdcaX9Xqk",
@@ -25,20 +32,63 @@ class YouTubeService {
         title: "How I Start My Mornings - Harvest Edition",
         channelTitle: "Zach King",
         channelHandle: "ZachKing"
+      },
+      
+      {
+        id: "J3AAvZjmeI8",
+        url: "https://www.youtube.com/shorts/J3AAvZjmeI8",
+        title: "Why no aquarium has a great white shark #shorts",
+        channelTitle: "Vox",
+        channelHandle: "ByteSizedFunShorts"
       }
     ];
   }
 
   async getVideoData() {
     try {
-      console.log('Attempting to fetch YouTube videos JSON');
-      const response = await fetch(this.videosJsonUrl);
+      console.log('Attempting to fetch YouTube videos from primary JSON path');
+      let response = await fetch(this.videosJsonUrl);
+      
+      // If the primary path fails, try the fallback paths
+      if (!response.ok) {
+        console.log('Primary JSON path failed, trying fallback paths');
+        
+        for (const fallbackUrl of this.fallbackUrls) {
+          console.log('Trying fallback URL:', fallbackUrl);
+          try {
+            response = await fetch(fallbackUrl);
+            
+            if (response.ok) {
+              console.log('Successfully fetched videos from fallback URL:', fallbackUrl);
+              break;
+            }
+          } catch (err) {
+            console.log(`Fetch failed for ${fallbackUrl}:`, err.message);
+          }
+        }
+      }
       
       if (!response.ok) {
         throw new Error(`Failed to fetch videos: ${response.status}`);
       }
       
-      const data = await response.json();
+      // Check content type to avoid parsing HTML as JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && !contentType.includes('application/json')) {
+        console.warn('Response is not JSON:', contentType);
+        // Don't try to parse non-JSON responses
+        throw new Error('Response is not valid JSON');
+      }
+      
+      // Safely try to parse the JSON
+      let data;
+      try {
+        data = await response.json();
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        throw new Error('Failed to parse response as JSON');
+      }
+      
       console.log(`Found ${data.videos?.length || 0} videos in JSON`);
       
       if (!data || !data.videos || !data.videos.length) {
@@ -72,13 +122,32 @@ class YouTubeService {
 
         return this.getUniqueVideosFromCache(maxResults);
       } else {
-        throw new Error('Failed to get videos from JSON');
+        console.log('Failed to get videos from JSON, using hardcoded videos');
+        // Use hardcoded fallback videos
+        const fallbackVideos = this.getFallbackVideos();
+        
+        // Also cache these for future use
+        this.cache = {
+          videos: fallbackVideos,
+          lastFetched: Date.now(),
+          shownVideos: new Set()
+        };
+        
+        return this.getUniqueVideosFromCache(maxResults);
       }
     } catch (error) {
       console.error('Error in getViralShorts:', error);
       console.log('Using fallback videos');
-      // Return fallback videos if cached videos aren't available
-      return this.getFallbackVideos();
+      
+      // Store fallback videos in cache for future use
+      const fallbackVideos = this.getFallbackVideos();
+      this.cache = {
+        videos: fallbackVideos,
+        lastFetched: Date.now(),
+        shownVideos: new Set()
+      };
+      
+      return fallbackVideos;
     }
   }
 
