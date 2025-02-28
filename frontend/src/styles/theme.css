@@ -1015,3 +1015,92 @@ button {
   animation: points-pop 1.5s ease-out forwards;
   z-index: 50;
 }
+/* Add these animations to the end of your theme.css file */
+
+/* Basic Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-25px); }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Explanation timer */
+.explanation-timer {
+  position: relative;
+  overflow: hidden;
+}
+
+.explanation-timer::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--primary-orange), var(--secondary-orange));
+  animation: timer-countdown 15s linear forwards;
+}
+
+@keyframes timer-countdown {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+/* Streak counter animation */
+@keyframes streakPulse {
+  0% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
+  }
+  50% { 
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+  }
+  100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+  }
+}
+
+.streak-pulse {
+  animation: streakPulse 0.6s ease-in-out;
+}
