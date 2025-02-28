@@ -12,8 +12,9 @@ import ScoreDisplay from './components/VQLN/ScoreDisplay';
 import MilestoneCelebration from './components/VQLN/MilestoneCelebration';
 import TimeModeIntro from './components/VQLN/TimeModeIntro';
 import SoundEffects from './utils/SoundEffects';
-import ClearCacheButton from './components/VQLN/ClearCacheButton';
-import YouTubeService from './utils/YouTubeService';
+import TutorialPopup from './components/VQLN/Tutorial/TutorialPopup';
+import GameModePopup from './components/VQLN/GameModePopup';
+import AllDoneMessage from './components/VQLN/AllDoneMessage';
 import './styles/theme.css';
 import './styles/GameStyles.css';
 
@@ -31,6 +32,7 @@ function App() {
   const [videos, setVideos] = useState([]);
   const [currentVideo, setCurrentVideo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
   const [youtubePersonalization, setYoutubePersonalization] = useState(false);
   const [personalizedVideos, setPersonalizedVideos] = useState([]);
@@ -50,7 +52,14 @@ function App() {
   const [tutorialMode, setTutorialMode] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
-
+  const [watchingAllRewards, setWatchingAllRewards] = useState(false);
+  const [rewardsToWatch, setRewardsToWatch] = useState([]);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [showExitConfirmation, setShowExitConfirmation] = useState(false);
+  const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
+  const [showGameModePopup, setShowGameModePopup] = useState(false);
+  const [showRewardPopup, setShowRewardPopup] = useState(false);
+  
   // Tutorial steps configuration
   const tutorialSteps = [
     {
@@ -60,28 +69,18 @@ function App() {
     },
     {
       title: "Answer Questions",
-      content: "Select the correct answer from the options. For each correct answer, you'll earn streak points.",
+      content: "Select the correct answer from the options. For each correct answer, you'll get to watch a fun video!",
       element: ".space-y-3"
     },
     {
       title: "Build Your Streak",
-      content: "Your streak counter shows how many questions you've answered correctly in a row.",
+      content: "Your streak shows how many questions you've answered correctly in a row.",
       element: ".streak-counter"
     },
     {
-      title: "Earn Rewards",
-      content: "Every 2 questions you answer correctly, you'll earn a video reward! Reach a streak of 5 to earn double rewards.",
-      element: ".fixed.top-4.left-4.z-50"
-    },
-    {
-      title: "Watch Rewards",
-      content: "Click the rewards button to watch fun short videos as your reward. You can exit rewards at any time.",
-      element: ".fixed.top-4.left-4.z-50"
-    },
-    {
-      title: "Time Mode",
-      content: "After you've mastered the basics, you'll enter Time Mode where you can earn points for answering quickly!",
-      element: ".score-display"
+      title: "Watch Videos",
+      content: "After each correct answer in tutorial mode, you'll get to watch a fun short video!",
+      element: ".video-container"
     },
     {
       title: "Ready to Start?",
@@ -94,6 +93,7 @@ function App() {
   const fetchQuestion = useCallback(async (retryCount = 0) => {
     try {
       setIsLoading(true);
+      setIsQuestionLoading(true);
       setError(null);
       
       const endpoint = selectedSection === 'funfacts' 
@@ -106,7 +106,7 @@ function App() {
         // Check if question has been used before
         if (usedQuestionIds.has(response.data.id)) {
           // If we've used all questions from the set (60 total), reset the used set
-          if (usedQuestionIds.size >= 60) {
+          if (usedQuestionIds.size >= 58) { // Leave a little buffer
             setUsedQuestionIds(new Set());
           } else {
             // Try getting another question
@@ -172,6 +172,7 @@ function App() {
       });
     } finally {
       setIsLoading(false);
+      setIsQuestionLoading(false);
     }
   }, [selectedSection, usedQuestionIds]);
 
@@ -209,6 +210,28 @@ function App() {
     }, 1500);
   }, []);
 
+  // Get a random video that hasn't been seen recently
+  const getRandomVideo = useCallback(() => {
+    if (!videos || videos.length === 0) return null;
+    
+    // Find videos that haven't been used recently
+    const unusedVideos = videos.filter(video => !usedVideoIds.has(video.id));
+    
+    // If we've used all videos or almost all, reset the used set
+    if (unusedVideos.length < 5) {
+      setUsedVideoIds(new Set());
+      return videos[Math.floor(Math.random() * videos.length)];
+    }
+    
+    // Otherwise pick from the unused videos
+    const randomVideo = unusedVideos[Math.floor(Math.random() * unusedVideos.length)];
+    
+    // Mark as used
+    setUsedVideoIds(prev => new Set([...prev, randomVideo.id]));
+    
+    return randomVideo;
+  }, [videos, usedVideoIds]);
+
   // Handle answer submission
   const handleAnswerSubmit = useCallback((isCorrect, answerTime = null) => {
     if (isCorrect) {
@@ -225,24 +248,17 @@ function App() {
       const newStreak = streak + 1;
       setStreak(newStreak);
       
-      // Check if we should reward videos based on tutorial or game mode
+      // Tutorial mode - show video immediately after each correct answer
       if (tutorialMode) {
-        // In tutorial mode, immediately play a video after each correct answer
-        if (videos.length > 0) {
-          // Select a random video that hasn't been used recently
-          const unusedVideos = videos.filter(v => !usedVideoIds.has(v.id));
-          const videoToPlay = unusedVideos.length > 0 
-            ? unusedVideos[Math.floor(Math.random() * unusedVideos.length)]
-            : videos[Math.floor(Math.random() * videos.length)];
-          
-          // Mark video as used
-          setUsedVideoIds(prev => new Set([...prev, videoToPlay.id]));
-          
-          // Show video after a delay to let user see the correct answer
+        // Get a random video
+        const videoToPlay = getRandomVideo();
+        
+        if (videoToPlay) {
+          // Show video after a small delay
           setTimeout(() => {
             setCurrentVideo(videoToPlay);
             setShowQuestion(false);
-          }, 3000);
+          }, 500);
         }
         
         // Exit tutorial mode after 5 correct answers
@@ -254,6 +270,11 @@ function App() {
             setTimeout(() => {
               setTimeMode(true);
               setShowTimeIntro(true);
+              
+              // Show game mode popup after intro closes
+              setTimeout(() => {
+                setShowGameModePopup(true);
+              }, 5000);
             }, 1000);
           }, 3000);
         }
@@ -262,6 +283,8 @@ function App() {
         if (newStreak % 2 === 0) {
           // Standard reward: 1 video every 2 questions
           setAvailableVideos(prev => prev + 1);
+          setShowRewardPopup(true);
+          setTimeout(() => setShowRewardPopup(false), 3000);
         }
         
         // Milestone rewards: extra video at streaks of 5, 10, 15, etc.
@@ -277,17 +300,14 @@ function App() {
           setTimeMode(true);
           setShowTimeIntro(true);
         }
+        
+        // Fetch next question after a delay (15s explanation time)
+        setTimeout(() => {
+          fetchQuestion();
+        }, 500);
       }
       
       SoundEffects.playCorrect();
-      
-      // Fetch next question after a delay to show explanation
-      // Only if not in tutorial mode - in tutorial we go to video first
-      if (!tutorialMode) {
-        setTimeout(() => {
-          fetchQuestion();
-        }, 3000);
-      }
     } else {
       setStreak(0);
       SoundEffects.playIncorrect();
@@ -295,47 +315,104 @@ function App() {
       // Fetch a new question after a delay
       setTimeout(() => {
         fetchQuestion();
-      }, 3000);
+      }, 500);
     }
-  }, [correctAnswers, fetchQuestion, streak, timeMode, tutorialMode, videos, usedVideoIds]);
+  }, [correctAnswers, fetchQuestion, streak, timeMode, tutorialMode, getRandomVideo]);
 
-  // Set random video
-  const setRandomVideo = useCallback(() => {
-    setVideoReady(false);
+  // Start watching all rewards
+  const startWatchingAllRewards = useCallback(() => {
+    if (availableVideos <= 0) return;
     
-    if (videos && videos.length > 0) {
-      // Select a random video that hasn't been used recently
-      const unusedVideos = videos.filter(v => !usedVideoIds.has(v.id));
-      const randomVideo = unusedVideos.length > 0 
-        ? unusedVideos[Math.floor(Math.random() * unusedVideos.length)]
-        : videos[Math.floor(Math.random() * videos.length)];
-      
-      // Mark video as used
-      setUsedVideoIds(prev => new Set([...prev, randomVideo.id]));
-      
-      setCurrentVideo(randomVideo);
+    // Get unique videos for all available rewards
+    const videosToWatch = [];
+    
+    for (let i = 0; i < availableVideos; i++) {
+      const video = getRandomVideo();
+      if (video) {
+        videosToWatch.push(video);
+      }
     }
-  }, [videos, usedVideoIds]);
+    
+    if (videosToWatch.length > 0) {
+      setRewardsToWatch(videosToWatch);
+      setCurrentVideoIndex(0);
+      setCurrentVideo(videosToWatch[0]);
+      setWatchingAllRewards(true);
+      setShowQuestion(false);
+      setAvailableVideos(0); // Reset available videos count
+    }
+  }, [availableVideos, getRandomVideo]);
 
   // Handle video ending
   const handleVideoEnd = useCallback(() => {
-    setShowQuestion(true);
-    
-    // In tutorial mode, fetch next question after video
-    if (tutorialMode) {
-      fetchQuestion();
+    if (watchingAllRewards) {
+      // Move to next video if available
+      if (currentVideoIndex < rewardsToWatch.length - 1) {
+        setCurrentVideoIndex(prev => prev + 1);
+        setCurrentVideo(rewardsToWatch[currentVideoIndex + 1]);
+      } else {
+        // No more videos
+        setWatchingAllRewards(false);
+        setShowQuestion(true);
+        setShowAllDoneMessage(true);
+        setTimeout(() => setShowAllDoneMessage(false), 3000);
+      }
+    } else {
+      // Single video mode - go back to questions
+      setShowQuestion(true);
+      
+      // In tutorial mode, fetch next question after video
+      if (tutorialMode) {
+        fetchQuestion();
+      }
     }
-  }, [tutorialMode, fetchQuestion]);
+  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch, tutorialMode, fetchQuestion]);
 
   // Handle video skip
   const handleVideoSkip = useCallback(() => {
-    setShowQuestion(true);
-    
-    // In tutorial mode, fetch next question after video
-    if (tutorialMode) {
-      fetchQuestion();
+    if (watchingAllRewards) {
+      // Move to next video if available
+      if (currentVideoIndex < rewardsToWatch.length - 1) {
+        setCurrentVideoIndex(prev => prev + 1);
+        setCurrentVideo(rewardsToWatch[currentVideoIndex + 1]);
+      } else {
+        // No more videos
+        setWatchingAllRewards(false);
+        setShowQuestion(true);
+        setShowAllDoneMessage(true);
+        setTimeout(() => setShowAllDoneMessage(false), 3000);
+      }
+    } else {
+      // Single video mode - go back to questions
+      setShowQuestion(true);
+      
+      // In tutorial mode, fetch next question after video
+      if (tutorialMode) {
+        fetchQuestion();
+      }
     }
-  }, [tutorialMode, fetchQuestion]);
+  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch, tutorialMode, fetchQuestion]);
+
+  // Handle exit from rewards section
+  const handleExitRewards = useCallback(() => {
+    if (watchingAllRewards) {
+      setShowExitConfirmation(true);
+    } else {
+      setShowQuestion(true);
+    }
+  }, [watchingAllRewards]);
+
+  // Confirm exit from rewards
+  const confirmExitRewards = useCallback(() => {
+    setShowExitConfirmation(false);
+    setWatchingAllRewards(false);
+    setShowQuestion(true);
+  }, []);
+
+  // Cancel exit from rewards
+  const cancelExitRewards = useCallback(() => {
+    setShowExitConfirmation(false);
+  }, []);
 
   // Handle video ready state
   const handleVideoReady = useCallback(() => {
@@ -375,15 +452,6 @@ function App() {
     }
   }, []);
 
-  // Watch reward video
-  const watchRewardVideo = useCallback(() => {
-    if (availableVideos > 0) {
-      setAvailableVideos(prev => prev - 1);
-      setRandomVideo();
-      setShowQuestion(false);
-    }
-  }, [availableVideos, setRandomVideo]);
-
   // Handle tutorial step navigation
   const handleNextTutorialStep = useCallback(() => {
     if (tutorialStep < tutorialSteps.length - 1) {
@@ -392,6 +460,11 @@ function App() {
       setShowTutorial(false);
     }
   }, [tutorialStep, tutorialSteps.length]);
+
+  // Handle game mode popup close
+  const handleGameModePopupClose = useCallback(() => {
+    setShowGameModePopup(false);
+  }, []);
 
   return (
     <div className="app">
@@ -402,7 +475,7 @@ function App() {
           {showQuestion && !isLoading && !tutorialMode && (
             <RewardsButton 
               availableVideos={availableVideos} 
-              onWatchVideo={watchRewardVideo} 
+              onWatchVideo={startWatchingAllRewards} 
             />
           )}
           
@@ -429,12 +502,12 @@ function App() {
               ) : (
                 <ProgressBar 
                   questionsAnswered={questionsAnswered}
-                  tutorialMode={tutorialMode}
+                  tutorialMode={false}
                 />
               )}
               
-              {isLoading ? (
-                <div className="flex items-center justify-center h-full">
+              {isQuestionLoading ? (
+                <div className="flex items-center justify-center h-full my-20">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
                 </div>
               ) : (
@@ -447,33 +520,58 @@ function App() {
               )}
             </div>
           ) : (
-            <VideoCard 
-              url={currentVideo?.url}
-              onEnd={handleVideoEnd}
-              onSkip={handleVideoSkip}
-              onReady={handleVideoReady}
-            />
+            <>
+              <VideoCard 
+                url={currentVideo?.url}
+                onEnd={handleVideoEnd}
+                onSkip={handleVideoSkip}
+                onReady={handleVideoReady}
+                onExit={handleExitRewards}
+                watchingAllRewards={watchingAllRewards}
+                currentIndex={currentVideoIndex + 1}
+                totalVideos={rewardsToWatch.length}
+              />
+              
+              {showExitConfirmation && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+                  <div className="bg-white rounded-xl p-6 max-w-md shadow-xl">
+                    <h3 className="text-xl font-bold mb-3">Exit Rewards?</h3>
+                    <p className="mb-4">You still have {rewardsToWatch.length - currentVideoIndex - 1} videos left to watch. Exit anyway?</p>
+                    <div className="flex justify-end gap-3">
+                      <button 
+                        onClick={cancelExitRewards} 
+                        className="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        onClick={confirmExitRewards} 
+                        className="px-4 py-2 bg-orange-500 text-white rounded-full hover:bg-orange-600"
+                      >
+                        Exit Anyway
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </>
       )}
 
       {/* Tutorial Popup */}
       {showTutorial && (
-        <div className="fixed bottom-0 inset-x-0 p-4 bg-white shadow-lg rounded-t-lg border border-gray-200 z-50">
-          <h3 className="text-lg font-bold mb-2">{tutorialSteps[tutorialStep].title}</h3>
-          <p className="mb-4">{tutorialSteps[tutorialStep].content}</p>
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-gray-500">
-              Step {tutorialStep + 1} of {tutorialSteps.length}
-            </div>
-            <button 
-              onClick={handleNextTutorialStep}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+        <TutorialPopup 
+          step={tutorialSteps[tutorialStep]} 
+          onNext={handleNextTutorialStep}
+          currentStep={tutorialStep + 1}
+          totalSteps={tutorialSteps.length}
+        />
+      )}
+
+      {/* Game Mode Popup */}
+      {showGameModePopup && (
+        <GameModePopup onClose={handleGameModePopupClose} />
       )}
 
       {/* Milestone Celebration */}
@@ -487,6 +585,27 @@ function App() {
       {/* Time Mode Intro */}
       {showTimeIntro && (
         <TimeModeIntro onClose={handleTimeIntroClose} />
+      )}
+      
+      {/* All Done Message */}
+      {showAllDoneMessage && (
+        <AllDoneMessage />
+      )}
+      
+      {/* Rewards earned popup */}
+      {showRewardPopup && (
+        <div className="fixed right-4 bottom-20 z-50 bg-orange-500 text-white px-4 py-3 rounded-lg shadow-lg animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="23 7 16 12 23 17 23 7"></polygon>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+            </svg>
+            <div>
+              <p className="font-bold">New Reward!</p>
+              <p className="text-sm">Video added to your rewards</p>
+            </div>
+          </div>
+        </div>
       )}
       
       {/* Error message */}
