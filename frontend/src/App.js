@@ -1,4 +1,4 @@
-// App.js
+// App.js update with API warmup integration
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import VideoCard from './components/VQLN/Video/VideoCard';
@@ -15,6 +15,8 @@ import SoundEffects from './utils/SoundEffects';
 import TutorialPopup from './components/VQLN/Tutorial/TutorialPopup';
 import GameModePopup from './components/VQLN/GameModePopup';
 import AllDoneMessage from './components/VQLN/AllDoneMessage';
+import YouTubeService from './utils/YouTubeService';
+import ApiService from './utils/ApiService';
 import './styles/theme.css';
 import './styles/GameStyles.css';
 
@@ -22,6 +24,9 @@ import './styles/GameStyles.css';
 const API_BASE_URL = 'https://brain-bites-api.onrender.com';
 const RETRY_ATTEMPTS = 3;
 const RETRY_DELAY = 1000; // 1 second
+
+// Initialize API service
+const apiService = new ApiService(API_BASE_URL);
 
 function App() {
   // State variables
@@ -59,6 +64,7 @@ function App() {
   const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
   const [showGameModePopup, setShowGameModePopup] = useState(false);
   const [showRewardPopup, setShowRewardPopup] = useState(false);
+  const [apiWarmedUp, setApiWarmedUp] = useState(false);
   
   // Tutorial steps configuration
   const tutorialSteps = [
@@ -89,12 +95,43 @@ function App() {
     }
   ];
 
+  // Initialize API warmup
+  useEffect(() => {
+    const warmupApi = async () => {
+      // Try to warm up the API
+      const isWarmedUp = await apiService.warmup();
+      setApiWarmedUp(isWarmedUp);
+      
+      // Start keeping the API warm with regular pings
+      apiService.startWarmupInterval(5); // Ping every 5 minutes
+    };
+    
+    warmupApi();
+    
+    // Clean up on unmount
+    return () => {
+      apiService.stopWarmupInterval();
+    };
+  }, []);
+
   // Fetch question with retry logic
   const fetchQuestion = useCallback(async (retryCount = 0) => {
     try {
       setIsLoading(true);
       setIsQuestionLoading(true);
       setError(null);
+      
+      // If API is not warmed up yet, try to warm it up first
+      if (!apiWarmedUp) {
+        const isWarmedUp = await apiService.warmup();
+        setApiWarmedUp(isWarmedUp);
+        
+        if (!isWarmedUp && retryCount < RETRY_ATTEMPTS) {
+          // Wait and retry
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+          return fetchQuestion(retryCount + 1);
+        }
+      }
       
       const endpoint = selectedSection === 'funfacts' 
         ? `${API_BASE_URL}/api/questions/random/funfacts`
@@ -174,17 +211,22 @@ function App() {
       setIsLoading(false);
       setIsQuestionLoading(false);
     }
-  }, [selectedSection, usedQuestionIds]);
+  }, [selectedSection, usedQuestionIds, apiWarmedUp]);
 
   // Load videos on initial mount
   useEffect(() => {
     const loadVideos = async () => {
       try {
-        const videos = await YouTubeService.getViralShorts();
+        // Use a more aggressive approach to get videos
+        console.log('Loading videos from YouTube service');
+        const videos = await YouTubeService.getViralShorts(50); // Try to get more videos
+        
+        console.log('Videos loaded:', videos?.length || 0);
+        
         if (videos && videos.length > 0) {
           setVideos(videos);
         } else {
-          throw new Error('No videos found');
+          throw new Error('No videos found or videos array is empty');
         }
       } catch (error) {
         console.error('Error loading videos:', error);
@@ -212,13 +254,21 @@ function App() {
 
   // Get a random video that hasn't been seen recently
   const getRandomVideo = useCallback(() => {
-    if (!videos || videos.length === 0) return null;
+    if (!videos || videos.length === 0) {
+      console.warn('No videos available for random selection');
+      return null;
+    }
+    
+    console.log(`Selecting random video from ${videos.length} videos`);
+    console.log('Used video IDs:', [...usedVideoIds]);
     
     // Find videos that haven't been used recently
     const unusedVideos = videos.filter(video => !usedVideoIds.has(video.id));
+    console.log(`${unusedVideos.length} unused videos available`);
     
     // If we've used all videos or almost all, reset the used set
     if (unusedVideos.length < 5) {
+      console.log('Resetting used videos set - most videos have been shown');
       setUsedVideoIds(new Set());
       return videos[Math.floor(Math.random() * videos.length)];
     }
@@ -228,6 +278,7 @@ function App() {
     
     // Mark as used
     setUsedVideoIds(prev => new Set([...prev, randomVideo.id]));
+    console.log(`Selected video: ${randomVideo.id} - ${randomVideo.title}`);
     
     return randomVideo;
   }, [videos, usedVideoIds]);
