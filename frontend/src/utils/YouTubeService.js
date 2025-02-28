@@ -1,7 +1,7 @@
-// YouTubeService.js
+// Fix for utils/YouTubeService.js
 class YouTubeService {
   constructor() {
-    this.dataUrl = 'https://raw.githubusercontent.com/knick011/Brain-Bites/main/public/youtube-videos.json';
+    this.videosJsonUrl = '/youtube-videos.json'; // Change this to use local path
     this.cache = {
       videos: [],
       lastFetched: null,
@@ -29,33 +29,54 @@ class YouTubeService {
     ];
   }
 
-  async getViralShorts(maxResults = 10) {
+  async getVideoData() {
     try {
-      if (this.isValidCache()) {
-        return this.getUniqueVideosFromCache(maxResults);
-      }
-
-      const response = await fetch(this.dataUrl);
+      console.log('Attempting to fetch YouTube videos JSON');
+      const response = await fetch(this.videosJsonUrl);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch videos: ${response.status}`);
       }
       
       const data = await response.json();
+      console.log(`Found ${data.videos?.length || 0} videos in JSON`);
       
       if (!data || !data.videos || !data.videos.length) {
         throw new Error('No videos found in response');
       }
 
-      this.cache = {
-        videos: data.videos,
-        lastFetched: Date.now(),
-        shownVideos: new Set()
-      };
-
-      return this.getUniqueVideosFromCache(maxResults);
+      return data.videos;
     } catch (error) {
-      console.error('Error fetching shorts:', error);
+      console.error('Error fetching video data:', error);
+      return null;
+    }
+  }
+
+  async getViralShorts(maxResults = 10) {
+    try {
+      // First check if we have valid cached videos
+      if (this.isValidCache()) {
+        console.log('Using cached videos');
+        return this.getUniqueVideosFromCache(maxResults);
+      }
+
+      // Try to fetch videos from the JSON file
+      const videos = await this.getVideoData();
+      
+      if (videos && videos.length > 0) {
+        this.cache = {
+          videos: videos,
+          lastFetched: Date.now(),
+          shownVideos: new Set()
+        };
+
+        return this.getUniqueVideosFromCache(maxResults);
+      } else {
+        throw new Error('Failed to get videos from JSON');
+      }
+    } catch (error) {
+      console.error('Error in getViralShorts:', error);
+      console.log('Using fallback videos');
       // Return fallback videos if cached videos aren't available
       return this.getFallbackVideos();
     }
