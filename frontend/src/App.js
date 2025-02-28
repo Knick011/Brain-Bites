@@ -14,9 +14,6 @@ import TimeModeIntro from './components/VQLN/TimeModeIntro';
 import SoundEffects from './utils/SoundEffects';
 import ClearCacheButton from './components/VQLN/ClearCacheButton';
 import YouTubeService from './utils/YouTubeService';
-import TutorialPopup from './components/VQLN/Tutorial/TutorialPopup';
-import RewardsConfirmation from './components/VQLN/RewardsConfirmation';
-import AllDoneMessage from './components/VQLN/AllDoneMessage';
 import './styles/theme.css';
 import './styles/GameStyles.css';
 
@@ -33,9 +30,7 @@ function App() {
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [videos, setVideos] = useState([]);
   const [currentVideo, setCurrentVideo] = useState(null);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
   const [youtubePersonalization, setYoutubePersonalization] = useState(false);
   const [personalizedVideos, setPersonalizedVideos] = useState([]);
@@ -55,100 +50,51 @@ function App() {
   const [tutorialMode, setTutorialMode] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
-  const [watchingAllRewards, setWatchingAllRewards] = useState(false);
-  const [rewardsToWatch, setRewardsToWatch] = useState([]);
-  const [showExitConfirmation, setShowExitConfirmation] = useState(false);
-  const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
-  const [gameMode, setGameMode] = useState(false);
-  const [showGameModePopup, setShowGameModePopup] = useState(false);
-  const [showRewardPopup, setShowRewardPopup] = useState(false);
-  const [showTimeModeEnhancedPopup, setShowTimeModeEnhancedPopup] = useState(false);
-  const [showSkipButton, setShowSkipButton] = useState(false);
-  
+
   // Tutorial steps configuration
   const tutorialSteps = [
     {
       title: "Welcome to Brain Bites!",
       content: "Let's learn how to use this app. First, you'll be answering trivia questions.",
-      element: ".question-container",
-      position: "bottom"
+      element: ".question-container"
     },
     {
       title: "Answer Questions",
-      content: "Select the correct answer from the options. For each correct answer, you'll earn video rewards!",
-      element: ".space-y-3",
-      position: "bottom"
+      content: "Select the correct answer from the options. For each correct answer, you'll earn streak points.",
+      element: ".space-y-3"
     },
     {
       title: "Build Your Streak",
       content: "Your streak counter shows how many questions you've answered correctly in a row.",
-      element: ".streak-counter",
-      position: "bottom"
+      element: ".streak-counter"
     },
     {
-      title: "Watch Videos",
-      content: "After each correct answer in tutorial mode, you'll get to watch a fun video!",
-      element: ".video-container",
-      position: "bottom"
+      title: "Earn Rewards",
+      content: "Every 2 questions you answer correctly, you'll earn a video reward! Reach a streak of 5 to earn double rewards.",
+      element: ".fixed.top-4.left-4.z-50"
+    },
+    {
+      title: "Watch Rewards",
+      content: "Click the rewards button to watch fun short videos as your reward. You can exit rewards at any time.",
+      element: ".fixed.top-4.left-4.z-50"
     },
     {
       title: "Time Mode",
       content: "After you've mastered the basics, you'll enter Time Mode where you can earn points for answering quickly!",
-      element: ".score-display",
-      position: "bottom"
+      element: ".score-display"
     },
     {
       title: "Ready to Start?",
       content: "You're all set! Let's begin with your first question.",
-      element: ".question-container",
-      position: "bottom"
+      element: ".question-container"
     }
   ];
 
-  // Get unique random videos
-  const getUniqueRandomVideos = useCallback((count) => {
-    const availableVideosList = youtubePersonalization && personalizedVideos.length > 0 
-      ? personalizedVideos 
-      : videos;
-    
-    if (!availableVideosList || availableVideosList.length === 0) return [];
-    
-    const unusedVideos = availableVideosList.filter(video => !usedVideoIds.has(video.id));
-    
-    // If we've used all videos, reset the used set
-    if (unusedVideos.length < count) {
-      setUsedVideoIds(new Set());
-      return getUniqueRandomVideos(count);
-    }
-    
-    // Select random unused videos
-    const selectedVideos = [];
-    const tempUnusedVideos = [...unusedVideos];
-    
-    while (selectedVideos.length < count && tempUnusedVideos.length > 0) {
-      const randomIndex = Math.floor(Math.random() * tempUnusedVideos.length);
-      const video = tempUnusedVideos[randomIndex];
-      
-      // Remove the selected video from the temp array
-      tempUnusedVideos.splice(randomIndex, 1);
-      
-      // Add to selected videos
-      selectedVideos.push(video);
-      
-      // Mark as used
-      setUsedVideoIds(prev => new Set([...prev, video.id]));
-    }
-    
-    return selectedVideos;
-  }, [personalizedVideos, videos, youtubePersonalization, usedVideoIds]);
-
-  // Fetch question with retry logic and ensuring no repeats
+  // Fetch question with retry logic
   const fetchQuestion = useCallback(async (retryCount = 0) => {
     try {
       setIsLoading(true);
-      setIsQuestionLoading(true);
       setError(null);
-      setShowSkipButton(false);
       
       const endpoint = selectedSection === 'funfacts' 
         ? `${API_BASE_URL}/api/questions/random/funfacts`
@@ -198,11 +144,6 @@ function App() {
         setCurrentQuestion(shuffledQuestion);
         setShowQuestion(true);
         setQuestionsAnswered(prev => prev + 1);
-        
-        // After 5 seconds, show skip button for explanation
-        setTimeout(() => {
-          setShowSkipButton(true);
-        }, 5000);
       } else {
         throw new Error('No question data received');
       }
@@ -231,7 +172,6 @@ function App() {
       });
     } finally {
       setIsLoading(false);
-      setIsQuestionLoading(false);
     }
   }, [selectedSection, usedQuestionIds]);
 
@@ -285,44 +225,43 @@ function App() {
       const newStreak = streak + 1;
       setStreak(newStreak);
       
-      SoundEffects.playCorrect();
-      
-      // Tutorial mode - show video immediately after each correct answer
+      // Check if we should reward videos based on tutorial or game mode
       if (tutorialMode) {
-        setTimeout(() => {
-          // Get a unique video for immediate viewing
-          const videoToWatch = getUniqueRandomVideos(1)[0];
-          if (videoToWatch) {
-            setCurrentVideo(videoToWatch);
-            setShowQuestion(false);
-          }
+        // In tutorial mode, immediately play a video after each correct answer
+        if (videos.length > 0) {
+          // Select a random video that hasn't been used recently
+          const unusedVideos = videos.filter(v => !usedVideoIds.has(v.id));
+          const videoToPlay = unusedVideos.length > 0 
+            ? unusedVideos[Math.floor(Math.random() * unusedVideos.length)]
+            : videos[Math.floor(Math.random() * videos.length)];
           
-          // Exit tutorial mode after 5 correct answers
-          if (correctAnswers + 1 >= 5) {
-            // Show transition to game mode pop-up
+          // Mark video as used
+          setUsedVideoIds(prev => new Set([...prev, videoToPlay.id]));
+          
+          // Show video after a delay to let user see the correct answer
+          setTimeout(() => {
+            setCurrentVideo(videoToPlay);
+            setShowQuestion(false);
+          }, 3000);
+        }
+        
+        // Exit tutorial mode after 5 correct answers
+        if (correctAnswers + 1 >= 5) {
+          setTimeout(() => {
             setTutorialMode(false);
-            setGameMode(true);
             
             // Show time mode intro after tutorial completion
             setTimeout(() => {
               setTimeMode(true);
               setShowTimeIntro(true);
-              
-              // Show pop-up explaining the change to game mode
-              setTimeout(() => {
-                setShowGameModePopup(true);
-              }, 3000);
             }, 1000);
-          }
-        }, 3000); // Wait 3 seconds to show explanation before video
+          }, 3000);
+        }
       } else {
         // Game mode reward logic
         if (newStreak % 2 === 0) {
           // Standard reward: 1 video every 2 questions
           setAvailableVideos(prev => prev + 1);
-          // Show reward notification
-          setShowRewardPopup(true);
-          setTimeout(() => setShowRewardPopup(false), 2000);
         }
         
         // Milestone rewards: extra video at streaks of 5, 10, 15, etc.
@@ -338,113 +277,65 @@ function App() {
           setTimeMode(true);
           setShowTimeIntro(true);
         }
-        
-        // Enhance time mode at streak of 15
-        if (newStreak === 15 && timeMode) {
-          // Show pop-up explaining time pressure increase
-          setShowTimeModeEnhancedPopup(true);
-          setTimeout(() => setShowTimeModeEnhancedPopup(false), 3000);
-        }
-        
-        // Fetch next question after a delay to show explanation
+      }
+      
+      SoundEffects.playCorrect();
+      
+      // Fetch next question after a delay to show explanation
+      // Only if not in tutorial mode - in tutorial we go to video first
+      if (!tutorialMode) {
         setTimeout(() => {
           fetchQuestion();
-        }, 15000); // 15-second delay to show explanation
+        }, 3000);
       }
     } else {
       setStreak(0);
       SoundEffects.playIncorrect();
       
-      // Even in failed answers, we should eventually move on
+      // Fetch a new question after a delay
       setTimeout(() => {
         fetchQuestion();
-      }, 5000);
+      }, 3000);
     }
-  }, [correctAnswers, fetchQuestion, streak, timeMode, tutorialMode, getUniqueRandomVideos]);
+  }, [correctAnswers, fetchQuestion, streak, timeMode, tutorialMode, videos, usedVideoIds]);
 
-  // Start watching all rewards
-  const startWatchingAllRewards = useCallback(() => {
-    if (availableVideos <= 0) return;
+  // Set random video
+  const setRandomVideo = useCallback(() => {
+    setVideoReady(false);
     
-    // Get unique videos for all available rewards
-    const videosToWatch = getUniqueRandomVideos(availableVideos);
-    
-    if (videosToWatch.length > 0) {
-      setRewardsToWatch(videosToWatch);
-      setCurrentVideoIndex(0);
-      setCurrentVideo(videosToWatch[0]);
-      setWatchingAllRewards(true);
-      setShowQuestion(false);
-      setAvailableVideos(0); // Reset available videos count
+    if (videos && videos.length > 0) {
+      // Select a random video that hasn't been used recently
+      const unusedVideos = videos.filter(v => !usedVideoIds.has(v.id));
+      const randomVideo = unusedVideos.length > 0 
+        ? unusedVideos[Math.floor(Math.random() * unusedVideos.length)]
+        : videos[Math.floor(Math.random() * videos.length)];
+      
+      // Mark video as used
+      setUsedVideoIds(prev => new Set([...prev, randomVideo.id]));
+      
+      setCurrentVideo(randomVideo);
     }
-  }, [availableVideos, getUniqueRandomVideos]);
+  }, [videos, usedVideoIds]);
 
   // Handle video ending
   const handleVideoEnd = useCallback(() => {
-    if (watchingAllRewards) {
-      // Move to next video if available
-      if (currentVideoIndex < rewardsToWatch.length - 1) {
-        setCurrentVideoIndex(prev => prev + 1);
-        setCurrentVideo(rewardsToWatch[currentVideoIndex + 1]);
-      } else {
-        // No more videos
-        setWatchingAllRewards(false);
-        setShowQuestion(true);
-        setShowAllDoneMessage(true);
-        setTimeout(() => setShowAllDoneMessage(false), 3000);
-      }
-    } else {
-      // Single video mode (tutorial mode)
-      setShowQuestion(true);
-      if (!tutorialMode) {
-        fetchQuestion();
-      }
+    setShowQuestion(true);
+    
+    // In tutorial mode, fetch next question after video
+    if (tutorialMode) {
+      fetchQuestion();
     }
-  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch, tutorialMode, fetchQuestion]);
+  }, [tutorialMode, fetchQuestion]);
 
   // Handle video skip
   const handleVideoSkip = useCallback(() => {
-    if (watchingAllRewards) {
-      // Move to next video if available
-      if (currentVideoIndex < rewardsToWatch.length - 1) {
-        setCurrentVideoIndex(prev => prev + 1);
-        setCurrentVideo(rewardsToWatch[currentVideoIndex + 1]);
-      } else {
-        // No more videos
-        setWatchingAllRewards(false);
-        setShowQuestion(true);
-        setShowAllDoneMessage(true);
-        setTimeout(() => setShowAllDoneMessage(false), 3000);
-      }
-    } else {
-      // Single video mode
-      setShowQuestion(true);
-      if (!tutorialMode) {
-        fetchQuestion();
-      }
-    }
-  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch, tutorialMode, fetchQuestion]);
-
-  // Handle exit from rewards section
-  const handleExitRewards = useCallback(() => {
-    if (watchingAllRewards) {
-      setShowExitConfirmation(true);
-    } else {
-      setShowQuestion(true);
-    }
-  }, [watchingAllRewards]);
-
-  // Confirm exit from rewards
-  const confirmExitRewards = useCallback(() => {
-    setShowExitConfirmation(false);
-    setWatchingAllRewards(false);
     setShowQuestion(true);
-  }, []);
-
-  // Cancel exit from rewards
-  const cancelExitRewards = useCallback(() => {
-    setShowExitConfirmation(false);
-  }, []);
+    
+    // In tutorial mode, fetch next question after video
+    if (tutorialMode) {
+      fetchQuestion();
+    }
+  }, [tutorialMode, fetchQuestion]);
 
   // Handle video ready state
   const handleVideoReady = useCallback(() => {
@@ -484,17 +375,14 @@ function App() {
     }
   }, []);
 
-  // Watch a single reward video (legacy support)
-  const watchSingleRewardVideo = useCallback(() => {
+  // Watch reward video
+  const watchRewardVideo = useCallback(() => {
     if (availableVideos > 0) {
-      const videoToWatch = getUniqueRandomVideos(1)[0];
-      if (videoToWatch) {
-        setCurrentVideo(videoToWatch);
-        setShowQuestion(false);
-        setAvailableVideos(prev => prev - 1);
-      }
+      setAvailableVideos(prev => prev - 1);
+      setRandomVideo();
+      setShowQuestion(false);
     }
-  }, [availableVideos, getUniqueRandomVideos]);
+  }, [availableVideos, setRandomVideo]);
 
   // Handle tutorial step navigation
   const handleNextTutorialStep = useCallback(() => {
@@ -507,68 +395,14 @@ function App() {
 
   return (
     <div className="app">
-      {!showWelcome && (
-        <ClearCacheButton />
-      )}
-      
       {!showWelcome && !showSection && (
         <>
-          {showGameModePopup && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
-              <div className="bg-white rounded-xl p-6 max-w-md text-center animate-scaleIn">
-                <h2 className="text-2xl font-bold mb-3 text-orange-500">Game Mode Activated!</h2>
-                <p className="mb-4">You've completed the tutorial. Now you'll earn rewards for answering correctly!</p>
-                <p className="mb-3">• Every 2 correct answers = 1 video</p>
-                <p className="mb-3">• Reach streak milestones (5, 10, 15...) for bonus videos</p>
-                <button 
-                  onClick={() => setShowGameModePopup(false)}
-                  className="bg-orange-500 text-white px-6 py-2 rounded-full font-medium"
-                >
-                  Let's Go!
-                </button>
-              </div>
-            </div>
-          )}
-          
-          {showRewardPopup && (
-            <div className="fixed right-4 bottom-20 z-50 bg-orange-500 text-white px-4 py-3 rounded-lg shadow-lg animate-slideIn">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white bg-opacity-20 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
-                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-bold">New Reward!</p>
-                  <p className="text-sm">Video added to your rewards</p>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {showTimeModeEnhancedPopup && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
-              <div className="bg-white rounded-xl p-6 max-w-md text-center animate-scaleIn">
-                <h2 className="text-2xl font-bold mb-3 text-blue-500">Time Challenge Increased!</h2>
-                <p className="mb-4">You've reached a streak of 15! The timer will now move faster.</p>
-                <p className="mb-3">Answer quickly for even more points!</p>
-                <button 
-                  onClick={() => setShowTimeModeEnhancedPopup(false)}
-                  className="bg-blue-500 text-white px-6 py-2 rounded-full font-medium"
-                >
-                  I'm Ready!
-                </button>
-              </div>
-            </div>
-          )}
-        
           <YouTubeLogin onLoginStatusChange={handleYouTubeLogin} />
           
           {showQuestion && !isLoading && !tutorialMode && (
             <RewardsButton 
               availableVideos={availableVideos} 
-              onWatchVideo={startWatchingAllRewards} 
+              onWatchVideo={watchRewardVideo} 
             />
           )}
           
@@ -595,60 +429,51 @@ function App() {
               ) : (
                 <ProgressBar 
                   questionsAnswered={questionsAnswered}
-                  tutorialMode={false}
+                  tutorialMode={tutorialMode}
                 />
               )}
               
-              {isQuestionLoading ? (
-                <div className="flex items-center justify-center h-full my-20">
+              {isLoading ? (
+                <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
                 </div>
               ) : (
-                <>
-                  <QuestionCard 
-                    question={currentQuestion}
-                    onAnswerSubmit={handleAnswerSubmit}
-                    timeMode={timeMode}
-                    streak={streak}
-                    showSkipButton={showSkipButton}
-                    onSkip={() => fetchQuestion()}
-                  />
-                </>
+                <QuestionCard 
+                  question={currentQuestion}
+                  onAnswerSubmit={handleAnswerSubmit}
+                  timeMode={timeMode}
+                  streak={streak}
+                />
               )}
             </div>
           ) : (
-            <>
-              <VideoCard 
-                url={currentVideo?.url}
-                onEnd={handleVideoEnd}
-                onSkip={handleVideoSkip}
-                onReady={handleVideoReady}
-                onExit={handleExitRewards}
-                watchingAllRewards={watchingAllRewards}
-                currentIndex={currentVideoIndex + 1}
-                totalVideos={rewardsToWatch.length}
-              />
-              
-              {showExitConfirmation && (
-                <RewardsConfirmation 
-                  onConfirm={confirmExitRewards}
-                  onCancel={cancelExitRewards}
-                  remainingVideos={rewardsToWatch.length - currentVideoIndex - 1}
-                />
-              )}
-            </>
+            <VideoCard 
+              url={currentVideo?.url}
+              onEnd={handleVideoEnd}
+              onSkip={handleVideoSkip}
+              onReady={handleVideoReady}
+            />
           )}
         </>
       )}
 
       {/* Tutorial Popup */}
       {showTutorial && (
-        <TutorialPopup 
-          step={tutorialSteps[tutorialStep]} 
-          onNext={handleNextTutorialStep}
-          currentStep={tutorialStep + 1}
-          totalSteps={tutorialSteps.length}
-        />
+        <div className="fixed bottom-0 inset-x-0 p-4 bg-white shadow-lg rounded-t-lg border border-gray-200 z-50">
+          <h3 className="text-lg font-bold mb-2">{tutorialSteps[tutorialStep].title}</h3>
+          <p className="mb-4">{tutorialSteps[tutorialStep].content}</p>
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-500">
+              Step {tutorialStep + 1} of {tutorialSteps.length}
+            </div>
+            <button 
+              onClick={handleNextTutorialStep}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Milestone Celebration */}
@@ -662,11 +487,6 @@ function App() {
       {/* Time Mode Intro */}
       {showTimeIntro && (
         <TimeModeIntro onClose={handleTimeIntroClose} />
-      )}
-      
-      {/* All Done Message */}
-      {showAllDoneMessage && (
-        <AllDoneMessage />
       )}
       
       {/* Error message */}
