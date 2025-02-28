@@ -1,16 +1,9 @@
 // components/VQLN/Question/QuestionCard.js
 import React, { useState, useEffect } from 'react';
 import SoundEffects from '../../../utils/SoundEffects';
-import { Clock, ChevronDown, AlertTriangle } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
-const QuestionCard = ({ 
-  question, 
-  onAnswerSubmit, 
-  timeMode = false, 
-  streak = 0,
-  showSkipButton = false,
-  onSkip
-}) => {
+const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [canProceed, setCanProceed] = useState(false);
@@ -19,7 +12,7 @@ const QuestionCard = ({
   const [timerActive, setTimerActive] = useState(true);
   const [pointsEarned, setPointsEarned] = useState(0);
   const [showPoints, setShowPoints] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(15); // For explanation countdown
+  const [explanationTimeLeft, setExplanationTimeLeft] = useState(15);
 
   useEffect(() => {
     // Reset states when a new question is loaded
@@ -27,47 +20,61 @@ const QuestionCard = ({
     setShowExplanation(false);
     setCanProceed(false);
     setShowResult(false);
+    setExplanationTimeLeft(15);
     
     if (timeMode) {
       setAnswerTime(10);
       setTimerActive(true);
     }
   }, [question, timeMode]);
-  
-  // Skip button timer
+
+  // Timer for question timeout
   useEffect(() => {
     let timer;
-    
-    if (showExplanation && !canProceed) {
+    if (timerActive && timeMode) {
       timer = setInterval(() => {
-        setTimeLeft(prev => {
+        setAnswerTime(prev => {
           if (prev <= 1) {
             clearInterval(timer);
-            onAnswerSubmit(false);
+            handleTimeUp();
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
     }
-    
     return () => clearInterval(timer);
-  }, [showExplanation, canProceed, onAnswerSubmit]);
+  }, [timerActive, timeMode]);
+
+  // Timer for explanation auto-proceed
+  useEffect(() => {
+    let timer;
+    if (showExplanation) {
+      timer = setInterval(() => {
+        setExplanationTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            onAnswerSubmit(selectedAnswer === question.correctAnswer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [showExplanation, onAnswerSubmit, selectedAnswer, question]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'ArrowDown') {
-        if (showExplanation) {
-          onSkip();
-        } else if (canProceed) {
-          onAnswerSubmit(true);
-        }
+      if (event.key === 'ArrowDown' && showExplanation) {
+        // Skip explanation and proceed to next question
+        onAnswerSubmit(selectedAnswer === question.correctAnswer);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [canProceed, onAnswerSubmit, showExplanation, onSkip]);
+  }, [showExplanation, onAnswerSubmit, selectedAnswer, question]);
 
   if (!question) {
     return <div className="w-full h-full bg-white p-4">Loading question...</div>;
@@ -80,7 +87,7 @@ const QuestionCard = ({
       setSelectedAnswer('TIMEOUT');
       setShowExplanation(true);
       setShowResult(true);
-      onAnswerSubmit(false);
+      setExplanationTimeLeft(15);
     }
   };
 
@@ -103,11 +110,11 @@ const QuestionCard = ({
     SoundEffects.playButtonPress();
     
     setSelectedAnswer(option);
-    setTimeLeft(15); // Start 15s countdown for explanation
     
     setTimeout(() => {
       setShowResult(true);
       setShowExplanation(true);
+      setExplanationTimeLeft(15);
       
       const isCorrect = option === question.correctAnswer;
       
@@ -119,56 +126,32 @@ const QuestionCard = ({
           setShowPoints(true);
           setTimeout(() => setShowPoints(false), 1500);
         }
-        
-        onAnswerSubmit(true, remainingTime);
-      } else {
-        onAnswerSubmit(false);
       }
     }, 500);
   };
 
-  // Render Skip button
-  const renderSkipButton = () => {
-    if (showSkipButton && showExplanation) {
-      return (
-        <button
-          onClick={onSkip}
-          className="fixed bottom-4 right-4 bg-orange-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-pulse-slow"
-        >
-          <ChevronDown size={20} />
-          <span>Next Question ({timeLeft}s)</span>
-        </button>
-      );
-    }
-    return null;
-  };
-
   return (
-    <div className="w-full min-h-full bg-white p-6 rounded-lg shadow-lg">
-      {/* Streak and Timer Display */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2 bg-orange-100 text-orange-700 px-3 py-1 rounded-full">
-          <span className="font-bold">Streak:</span>
-          <span className="bg-orange-500 text-white px-2 py-0.5 rounded-full">{streak}</span>
+    <div className="w-full h-full bg-white rounded-lg shadow-md p-6">
+      {/* Streak Display */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-gray-700 font-medium">Streak:</span>
+          <span className="bg-orange-500 text-white px-3 py-1 rounded-full">{streak}</span>
         </div>
         
         {timeMode && (
           <div className="w-2/3">
-            {/* Improved timer with seconds display */}
-            <div className="flex items-center justify-end gap-2 mb-1">
-              <Clock size={16} className="text-gray-600" />
+            <div className="flex justify-end mb-1">
               <span className="text-gray-700 font-medium">{answerTime}s</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
               <div 
-                className={`h-full transition-all duration-1000 ease-linear flex items-center justify-center text-xs text-white font-bold ${
+                className={`h-2.5 rounded-full transition-all duration-1000 ease-linear ${
                   answerTime > 6 ? 'bg-green-500' : 
                   answerTime > 3 ? 'bg-yellow-500' : 'bg-red-500'
                 }`}
                 style={{ width: `${(answerTime / 10) * 100}%` }}
-              >
-                {answerTime <= 3 && answerTime}
-              </div>
+              ></div>
             </div>
           </div>
         )}
@@ -181,25 +164,23 @@ const QuestionCard = ({
         </div>
       )}
       
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800 leading-tight">
-          {question.question}
-        </h2>
+      <div className="mb-6">
+        <h2 className="text-xl font-bold mb-4">{question.question}</h2>
         
-        <div className="space-y-4">
+        <div className="space-y-3">
           {Object.entries(question.options).map(([key, value]) => (
             <button
               key={key}
               onClick={() => handleAnswerClick(key)}
-              className={`w-full p-4 text-center rounded-full transition-all ${
+              className={`w-full p-3 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-center rounded-full transition-colors ${
                 selectedAnswer === key && showResult
                   ? key === question.correctAnswer
-                    ? 'bg-green-500 text-white transform scale-105'
-                    : 'bg-red-500 text-white'
+                    ? 'from-green-400 to-green-500'
+                    : 'from-red-400 to-red-500'
                   : selectedAnswer === key
-                    ? 'bg-gray-200 border-gray-400 border'  // Selected but waiting for result
-                    : 'bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white shadow-md hover:shadow-lg transform hover:-translate-y-1'
-              } ${selectedAnswer !== null ? 'cursor-not-allowed' : 'cursor-pointer'} transition-all duration-200`}
+                    ? 'bg-gray-200 text-gray-800'  // Selected but waiting for result
+                    : 'hover:from-orange-500 hover:to-orange-600'
+              } ${selectedAnswer !== null ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               disabled={selectedAnswer !== null}
             >
               {value}
@@ -209,14 +190,14 @@ const QuestionCard = ({
       </div>
 
       {showExplanation && (
-        <div className={`mt-6 p-5 rounded-lg ${
+        <div className={`relative mt-4 p-4 rounded ${
           selectedAnswer === question.correctAnswer 
-            ? 'bg-green-100 border-green-300 border explanation-timer' 
+            ? 'bg-green-100 border-green-300 border' 
             : selectedAnswer === 'TIMEOUT'
-              ? 'bg-yellow-100 border-yellow-300 border explanation-timer'
-              : 'bg-red-100 border-red-300 border explanation-timer'
+              ? 'bg-yellow-100 border-yellow-300 border'
+              : 'bg-red-100 border-red-300 border'
         }`}>
-          <p className="font-bold text-xl mb-3">
+          <p className="font-bold mb-2">
             {selectedAnswer === question.correctAnswer 
               ? '✓ Correct!' 
               : selectedAnswer === 'TIMEOUT'
@@ -225,23 +206,43 @@ const QuestionCard = ({
           </p>
           
           {selectedAnswer === question.correctAnswer && (
-            <p className="text-lg">{question.explanation}</p>
+            <p>{question.explanation}</p>
           )}
           
           {selectedAnswer === 'TIMEOUT' && (
-            <p className="text-lg">The correct answer was: {question.options[question.correctAnswer]}</p>
+            <p>The correct answer was: {question.options[question.correctAnswer]}</p>
           )}
           
           {selectedAnswer !== question.correctAnswer && selectedAnswer !== 'TIMEOUT' && (
             <div>
-              <p className="text-lg mb-2">The correct answer was: <span className="font-semibold">{question.options[question.correctAnswer]}</span></p>
-              <p className="text-lg">{question.explanation}</p>
+              <p className="mb-2">The correct answer was: {question.options[question.correctAnswer]}</p>
+              <p>{question.explanation}</p>
             </div>
           )}
+          
+          {/* Skip and timer display */}
+          <div className="flex justify-between items-center mt-4">
+            <div className="text-sm text-gray-600">
+              Next question in {explanationTimeLeft}s
+            </div>
+            <button 
+              onClick={() => onAnswerSubmit(selectedAnswer === question.correctAnswer)}
+              className="flex items-center gap-1 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors"
+            >
+              <span>Skip</span>
+              <ChevronDown size={16} />
+            </button>
+          </div>
+          
+          {/* Progress bar for explanation timer */}
+          <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-200">
+            <div 
+              className="h-1 bg-orange-500 transition-all duration-1000 ease-linear" 
+              style={{ width: `${(explanationTimeLeft / 15) * 100}%` }}
+            ></div>
+          </div>
         </div>
       )}
-      
-      {renderSkipButton()}
     </div>
   );
 };
