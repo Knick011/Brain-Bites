@@ -1,4 +1,4 @@
-// App.js update with API warmup integration
+// App.js - complete updated file
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import VideoCard from './components/VQLN/Video/VideoCard';
@@ -15,6 +15,8 @@ import SoundEffects from './utils/SoundEffects';
 import TutorialPopup from './components/VQLN/Tutorial/TutorialPopup';
 import GameModePopup from './components/VQLN/GameModePopup';
 import AllDoneMessage from './components/VQLN/AllDoneMessage';
+import RewardsConfirmation from './components/VQLN/RewardsConfirmation';
+import RewardNotification from './components/VQLN/RewardNotification';
 import YouTubeService from './utils/YouTubeService';
 import ApiService from './utils/ApiService';
 import './styles/theme.css';
@@ -582,29 +584,6 @@ function App() {
                 currentIndex={currentVideoIndex + 1}
                 totalVideos={rewardsToWatch.length}
               />
-              
-              {showExitConfirmation && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-                  <div className="bg-white rounded-xl p-6 max-w-md shadow-xl">
-                    <h3 className="text-xl font-bold mb-3">Exit Rewards?</h3>
-                    <p className="mb-4">You still have {rewardsToWatch.length - currentVideoIndex - 1} videos left to watch. Exit anyway?</p>
-                    <div className="flex justify-end gap-3">
-                      <button 
-                        onClick={cancelExitRewards} 
-                        className="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300"
-                      >
-                        Cancel
-                      </button>
-                      <button 
-                        onClick={confirmExitRewards} 
-                        className="px-4 py-2 bg-orange-500 text-white rounded-full hover:bg-orange-600"
-                      >
-                        Exit Anyway
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </>
           )}
         </>
@@ -643,20 +622,22 @@ function App() {
         <AllDoneMessage />
       )}
       
+      {/* Exit confirmation for rewards */}
+      {showExitConfirmation && (
+        <RewardsConfirmation
+          onConfirm={confirmExitRewards}
+          onCancel={cancelExitRewards}
+          remainingVideos={rewardsToWatch.length - currentVideoIndex - 1}
+        />
+      )}
+      
       {/* Rewards earned popup */}
       {showRewardPopup && (
-        <div className="fixed right-4 bottom-20 z-50 bg-orange-500 text-white px-4 py-3 rounded-lg shadow-lg animate-fadeIn">
-          <div className="flex items-center gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="23 7 16 12 23 17 23 7"></polygon>
-              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-            </svg>
-            <div>
-              <p className="font-bold">New Reward!</p>
-              <p className="text-sm">Video added to your rewards</p>
-            </div>
-          </div>
-        </div>
+        <RewardNotification 
+          isVisible={showRewardPopup}
+          onClose={() => setShowRewardPopup(false)}
+          rewardCount={1}
+        />
       )}
       
       {/* Error message */}
