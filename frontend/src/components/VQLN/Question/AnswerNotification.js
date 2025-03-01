@@ -5,14 +5,6 @@ import StandardPopup from '../Common/StandardPopup';
 
 /**
  * Answer Notification Popup
- * 
- * @param {Object} props
- * @param {boolean} props.isCorrect - Whether the answer was correct
- * @param {boolean} props.isTimeout - Whether the answer timed out
- * @param {string} props.explanation - Explanation text
- * @param {string} props.correctAnswer - The text of the correct answer
- * @param {function} props.onContinue - Function to call when continuing to next question
- * @param {number} props.timeLeft - Seconds until auto-continuation
  */
 const AnswerNotification = ({ 
   isCorrect, 
@@ -23,9 +15,9 @@ const AnswerNotification = ({
   timeLeft = 15
 }) => {
   const getIcon = () => {
-    if (isCorrect) return <CheckCircle size={32} className="text-green-500" />;
-    if (isTimeout) return <AlertCircle size={32} className="text-yellow-500" />;
-    return <XCircle size={32} className="text-red-500" />;
+    if (isCorrect) return <CheckCircle size={32} className="text-green-500" style={{ color: '#22c55e' }} />;
+    if (isTimeout) return <AlertCircle size={32} className="text-yellow-500" style={{ color: '#eab308' }} />;
+    return <XCircle size={32} className="text-red-500" style={{ color: '#ef4444' }} />;
   };
   
   const getTitle = () => {
@@ -35,9 +27,15 @@ const AnswerNotification = ({
   };
   
   const getBackgroundColor = () => {
-    if (isCorrect) return "bg-green-50";
-    if (isTimeout) return "bg-yellow-50";
-    return "bg-red-50";
+    if (isCorrect) return "#f0fdf4"; // Light green
+    if (isTimeout) return "#fefce8"; // Light yellow
+    return "#fef2f2"; // Light red
+  };
+  
+  const getTextColor = () => {
+    if (isCorrect) return "#166534"; // Dark green
+    if (isTimeout) return "#854d0e"; // Dark yellow
+    return "#991b1b"; // Dark red
   };
   
   return (
@@ -47,31 +45,53 @@ const AnswerNotification = ({
       showCloseButton={false}
       size="md"
     >
-      <div className={`rounded-lg p-5 ${getBackgroundColor()}`}>
-        <div className="flex items-center gap-3 mb-3">
+      <div 
+        style={{ 
+          borderRadius: '0.5rem', 
+          padding: '1.25rem', 
+          backgroundColor: getBackgroundColor(),
+          color: getTextColor()
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
           {getIcon()}
-          <h3 className="text-xl font-bold">{getTitle()}</h3>
+          <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{getTitle()}</h3>
         </div>
         
         {!isCorrect && !isTimeout && (
-          <div className="mb-4">
-            <p className="font-medium mb-1">The correct answer was:</p>
-            <p className="text-gray-800 font-bold">{correctAnswer}</p>
+          <div style={{ marginBottom: '1rem' }}>
+            <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>The correct answer was:</p>
+            <p style={{ fontWeight: 'bold', color: '#1f2937' }}>{correctAnswer}</p>
           </div>
         )}
         
-        <div className="mb-6">
-          <p className="text-gray-700">{explanation}</p>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <p style={{ color: '#4b5563' }}>{explanation}</p>
         </div>
         
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-600">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
             Next question in {timeLeft}s
           </div>
           
           <button 
             onClick={onContinue}
-            className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium transition-colors"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              backgroundColor: '#f3f4f6',
+              color: '#374151',
+              padding: '0.5rem 1rem',
+              borderRadius: '9999px',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e5e7eb'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
           >
             <span>Continue</span>
             <ChevronDown size={16} />
@@ -79,10 +99,22 @@ const AnswerNotification = ({
         </div>
         
         {/* Progress bar */}
-        <div className="w-full bg-gray-200 h-1 mt-4 rounded-full overflow-hidden">
+        <div style={{ 
+          width: '100%', 
+          height: '0.25rem', 
+          backgroundColor: '#e5e7eb', 
+          borderRadius: '9999px', 
+          marginTop: '1rem',
+          overflow: 'hidden'
+        }}>
           <div 
-            className="h-1 bg-orange-500 transition-all duration-1000 ease-linear" 
-            style={{ width: `${(timeLeft / 15) * 100}%` }}
+            style={{ 
+              height: '100%', 
+              backgroundColor: '#f97316', // Orange
+              borderRadius: '9999px', 
+              width: `${(timeLeft / 15) * 100}%`,
+              transition: 'width 1s linear'
+            }}
           ></div>
         </div>
       </div>
