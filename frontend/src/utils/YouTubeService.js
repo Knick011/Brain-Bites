@@ -1,13 +1,8 @@
 // utils/YouTubeService.js
 class YouTubeService {
   constructor() {
-    // Try different possible paths to handle both development and production
-    this.videosJsonUrl = './youtube-videos.json'; // Try relative path
-    this.fallbackUrls = [
-      '/youtube-videos.json',
-      './public/youtube-videos.json',
-      'youtube-videos.json'
-    ];
+    // We're not going to try fetching from a JSON file since that's causing errors
+    // Instead, we'll use hardcoded videos directly
     this.cache = {
       videos: [],
       lastFetched: null,
@@ -33,7 +28,55 @@ class YouTubeService {
         channelTitle: "Zach King",
         channelHandle: "ZachKing"
       },
-      
+      {
+        id: "ZNgKin-PpZA",
+        url: "https://www.youtube.com/shorts/ZNgKin-PpZA",
+        title: "I spell, therefore it is.",
+        channelTitle: "Zach King",
+        channelHandle: "ZachKing"
+      },
+      {
+        id: "QBKR12mIdso",
+        url: "https://www.youtube.com/shorts/QBKR12mIdso",
+        title: "BUZZER BEATER!!! 🚨",
+        channelTitle: "Dude Perfect",
+        channelHandle: "DudePerfectShorts"
+      },
+      {
+        id: "MlPAmRN-uwg",
+        url: "https://www.youtube.com/shorts/MlPAmRN-uwg",
+        title: "Well that escalated QUICKLY 😳🎱",
+        channelTitle: "Dude Perfect",
+        channelHandle: "DudePerfectShorts"
+      },
+      {
+        id: "LhjrX9FoXn0",
+        url: "https://www.youtube.com/shorts/LhjrX9FoXn0",
+        title: "EPIC Basketball Race!!",
+        channelTitle: "How Ridiculous",
+        channelHandle: "HowRidiculousShorts"
+      },
+      {
+        id: "SIyvhq3zWLg",
+        url: "https://www.youtube.com/shorts/SIyvhq3zWLg",
+        title: "The Big Secret to Finding Lasting Love | Bela Gandhi | TEDxChicago",
+        channelTitle: "TEDx Talks",
+        channelHandle: "LOLClipsShorts"
+      },
+      {
+        id: "IdxH_wTobaE",
+        url: "https://www.youtube.com/shorts/IdxH_wTobaE",
+        title: "Markiplier Animated | BEAR SIMULATOR",
+        channelTitle: "Markiplier",
+        channelHandle: "QuickMemeShorts"
+      },
+      {
+        id: "YKmhF5rxjJ4",
+        url: "https://www.youtube.com/shorts/YKmhF5rxjJ4",
+        title: "OLED Steam Deck vs LCD. What are the key differences?",
+        channelTitle: "ShortCircuit",
+        channelHandle: "ShortCircuit"
+      },
       {
         id: "J3AAvZjmeI8",
         url: "https://www.youtube.com/shorts/J3AAvZjmeI8",
@@ -44,64 +87,6 @@ class YouTubeService {
     ];
   }
 
-  async getVideoData() {
-    try {
-      console.log('Attempting to fetch YouTube videos from primary JSON path');
-      let response = await fetch(this.videosJsonUrl);
-      
-      // If the primary path fails, try the fallback paths
-      if (!response.ok) {
-        console.log('Primary JSON path failed, trying fallback paths');
-        
-        for (const fallbackUrl of this.fallbackUrls) {
-          console.log('Trying fallback URL:', fallbackUrl);
-          try {
-            response = await fetch(fallbackUrl);
-            
-            if (response.ok) {
-              console.log('Successfully fetched videos from fallback URL:', fallbackUrl);
-              break;
-            }
-          } catch (err) {
-            console.log(`Fetch failed for ${fallbackUrl}:`, err.message);
-          }
-        }
-      }
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch videos: ${response.status}`);
-      }
-      
-      // Check content type to avoid parsing HTML as JSON
-      const contentType = response.headers.get('content-type');
-      if (contentType && !contentType.includes('application/json')) {
-        console.warn('Response is not JSON:', contentType);
-        // Don't try to parse non-JSON responses
-        throw new Error('Response is not valid JSON');
-      }
-      
-      // Safely try to parse the JSON
-      let data;
-      try {
-        data = await response.json();
-      } catch (error) {
-        console.error('Error parsing JSON:', error);
-        throw new Error('Failed to parse response as JSON');
-      }
-      
-      console.log(`Found ${data.videos?.length || 0} videos in JSON`);
-      
-      if (!data || !data.videos || !data.videos.length) {
-        throw new Error('No videos found in response');
-      }
-
-      return data.videos;
-    } catch (error) {
-      console.error('Error fetching video data:', error);
-      return null;
-    }
-  }
-
   async getViralShorts(maxResults = 10) {
     try {
       // First check if we have valid cached videos
@@ -110,44 +95,24 @@ class YouTubeService {
         return this.getUniqueVideosFromCache(maxResults);
       }
 
-      // Try to fetch videos from the JSON file
-      const videos = await this.getVideoData();
-      
-      if (videos && videos.length > 0) {
-        this.cache = {
-          videos: videos,
-          lastFetched: Date.now(),
-          shownVideos: new Set()
-        };
-
-        return this.getUniqueVideosFromCache(maxResults);
-      } else {
-        console.log('Failed to get videos from JSON, using hardcoded videos');
-        // Use hardcoded fallback videos
-        const fallbackVideos = this.getFallbackVideos();
-        
-        // Also cache these for future use
-        this.cache = {
-          videos: fallbackVideos,
-          lastFetched: Date.now(),
-          shownVideos: new Set()
-        };
-        
-        return this.getUniqueVideosFromCache(maxResults);
-      }
-    } catch (error) {
-      console.error('Error in getViralShorts:', error);
-      console.log('Using fallback videos');
-      
-      // Store fallback videos in cache for future use
+      // Skip trying to fetch from JSON and use hardcoded videos directly
+      console.log('Using hardcoded videos');
       const fallbackVideos = this.getFallbackVideos();
+      
+      // Store in cache for future use
       this.cache = {
         videos: fallbackVideos,
         lastFetched: Date.now(),
         shownVideos: new Set()
       };
       
-      return fallbackVideos;
+      return this.getUniqueVideosFromCache(maxResults);
+    } catch (error) {
+      console.error('Error in getViralShorts:', error);
+      console.log('Using fallback videos');
+      
+      // Use fallback videos and don't even try to cache them if there's an error
+      return this.getFallbackVideos();
     }
   }
 
@@ -161,28 +126,36 @@ class YouTubeService {
   }
 
   getUniqueVideosFromCache(count = 10) {
-    const availableVideos = this.cache.videos.filter(video => 
-      !this.cache.shownVideos.has(video.id)
-    );
-    
-    if (availableVideos.length < count) {
-      this.cache.shownVideos.clear();
-      return this.getUniqueVideosFromCache(count);
-    }
-    
-    const results = [];
-    const tempAvailable = [...availableVideos];
-    
-    while (results.length < count && tempAvailable.length > 0) {
-      const randomIndex = Math.floor(Math.random() * tempAvailable.length);
-      const video = tempAvailable[randomIndex];
+    try {
+      const availableVideos = this.cache.videos.filter(video => 
+        !this.cache.shownVideos.has(video.id)
+      );
       
-      tempAvailable.splice(randomIndex, 1);
-      this.cache.shownVideos.add(video.id);
-      results.push(video);
+      // If we don't have enough unique videos, reset the shown videos set
+      if (availableVideos.length < count) {
+        console.log('Not enough unique videos left, resetting shown videos');
+        this.cache.shownVideos.clear();
+        return this.getUniqueVideosFromCache(count);
+      }
+      
+      const results = [];
+      const tempAvailable = [...availableVideos];
+      
+      while (results.length < count && tempAvailable.length > 0) {
+        const randomIndex = Math.floor(Math.random() * tempAvailable.length);
+        const video = tempAvailable[randomIndex];
+        
+        tempAvailable.splice(randomIndex, 1);
+        this.cache.shownVideos.add(video.id);
+        results.push(video);
+      }
+      
+      return results;
+    } catch (error) {
+      console.error('Error getting unique videos from cache:', error);
+      // Just return some fallback videos directly if there's an error
+      return this.getFallbackVideos().slice(0, count);
     }
-    
-    return results;
   }
 
   clearCache() {
