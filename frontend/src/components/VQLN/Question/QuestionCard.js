@@ -1,6 +1,7 @@
 // components/VQLN/Question/QuestionCard.js
 import React, { useState, useEffect } from 'react';
 import SoundEffects from '../../../utils/SoundEffects';
+// Fix the import path - importing from the same directory
 import AnswerNotification from './AnswerNotification';
 
 const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }) => {
