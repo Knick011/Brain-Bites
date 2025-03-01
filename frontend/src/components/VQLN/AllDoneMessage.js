@@ -1,24 +1,30 @@
 // components/VQLN/AllDoneMessage.js
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, Video } from 'lucide-react';
+import StandardPopup from './Common/StandardPopup';
 
 const AllDoneMessage = () => {
-  const [visible, setVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
   
   useEffect(() => {
     // Auto-hide after 3 seconds
     const timer = setTimeout(() => {
-      setVisible(false);
+      setIsVisible(false);
     }, 3000);
     
     return () => clearTimeout(timer);
   }, []);
   
-  if (!visible) return null;
+  if (!isVisible) return null;
   
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-      <div className="bg-white rounded-xl p-6 max-w-sm text-center animate-scaleIn shadow-xl">
+    <StandardPopup 
+      isOpen={true} 
+      onClose={() => setIsVisible(false)}
+      showCloseButton={false}
+      size="sm"
+    >
+      <div className="text-center">
         <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="text-green-500" size={32} />
         </div>
@@ -34,7 +40,7 @@ const AllDoneMessage = () => {
           <span className="font-medium">Keep learning to earn more</span>
         </div>
       </div>
-    </div>
+    </StandardPopup>
   );
 };
 
