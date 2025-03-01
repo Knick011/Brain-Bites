@@ -21,6 +21,7 @@ import YouTubeService from './utils/YouTubeService';
 import ApiService from './utils/ApiService';
 import './styles/theme.css';
 import './styles/GameStyles.css';
+import './styles/popup-animations.css';
 
 // API Configuration
 const API_BASE_URL = 'https://brain-bites-api.onrender.com';
