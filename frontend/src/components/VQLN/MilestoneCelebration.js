@@ -1,10 +1,9 @@
 // components/VQLN/MilestoneCelebration.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Award, ChevronUp, Video } from 'lucide-react';
+import StandardPopup from './Common/StandardPopup';
 
 const MilestoneCelebration = ({ milestone, onClose }) => {
-  const [visible, setVisible] = useState(true);
-  
   useEffect(() => {
     // Try to load confetti if available
     const tryConfetti = () => {
@@ -21,17 +20,21 @@ const MilestoneCelebration = ({ milestone, onClose }) => {
     
     // Auto-hide after 3 seconds
     const timer = setTimeout(() => {
-      setVisible(false);
-      setTimeout(onClose, 500); // Allow for fade-out animation
+      onClose();
     }, 3000);
     
     return () => clearTimeout(timer);
   }, [onClose]);
   
   return (
-    <div className={`fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70 transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="bg-white rounded-xl p-6 text-center max-w-sm mx-4 transform transition-transform duration-500 scale-110">
-        <div className="mb-4 flex justify-center">
+    <StandardPopup 
+      isOpen={true} 
+      onClose={onClose}
+      showCloseButton={false}
+      size="sm"
+    >
+      <div className="text-center">
+        <div className="mb-4 inline-flex justify-center">
           <div className="bg-orange-500 text-white rounded-full p-4">
             <Award size={40} />
           </div>
@@ -40,7 +43,7 @@ const MilestoneCelebration = ({ milestone, onClose }) => {
         <h2 className="text-2xl font-bold mb-2">Streak Milestone!</h2>
         <p className="text-lg mb-4">You've answered {milestone} questions correctly in a row!</p>
         
-        <div className="flex items-center justify-center gap-2 mb-4">
+        <div className="flex items-center justify-center gap-2 mb-5 p-3 bg-orange-50 rounded-lg">
           <Video size={24} className="text-orange-500" />
           <ChevronUp size={24} className="text-green-500" />
           <span className="text-xl font-bold">+1 Video Reward</span>
@@ -48,12 +51,12 @@ const MilestoneCelebration = ({ milestone, onClose }) => {
         
         <button 
           onClick={onClose}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+          className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition-colors w-full"
         >
           Continue
         </button>
       </div>
-    </div>
+    </StandardPopup>
   );
 };
 
