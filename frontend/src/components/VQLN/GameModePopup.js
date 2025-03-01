@@ -12,42 +12,95 @@ const GameModePopup = ({ onClose }) => {
       size="md"
       showCloseButton={false}
     >
-      <div className="text-center mb-5">
-        <div className="inline-flex mb-4 p-4 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-full">
+      <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+        <div style={{ 
+          display: 'inline-flex', 
+          marginBottom: '1rem', 
+          padding: '1rem',
+          background: 'linear-gradient(to right, #f97316, #facc15)',
+          color: 'white',
+          borderRadius: '9999px'
+        }}>
           <Zap size={36} />
         </div>
         
-        <p className="mb-6 text-gray-700 text-base">
+        <p style={{ 
+          marginBottom: '1.5rem', 
+          color: '#4b5563', 
+          fontSize: '1rem', 
+          lineHeight: '1.5'
+        }}>
           You've completed the tutorial. Now you'll earn rewards for answering correctly!
         </p>
       </div>
       
-      <div className="grid grid-cols-1 gap-4 mb-6">
-        <div className="bg-orange-50 rounded-lg p-4 flex items-center gap-3">
-          <div className="p-2 bg-orange-100 rounded-full">
-            <Video size={20} className="text-orange-500" />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ 
+          backgroundColor: '#fff7ed', 
+          borderRadius: '0.5rem', 
+          padding: '1rem', 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '0.75rem' 
+        }}>
+          <div style={{ 
+            padding: '0.5rem', 
+            backgroundColor: '#ffedd5', 
+            borderRadius: '9999px' 
+          }}>
+            <Video size={20} style={{ color: '#f97316' }} />
           </div>
-          <div className="text-left">
-            <p className="font-semibold text-gray-800">Every 2 correct answers</p>
-            <p className="text-gray-600">Earn 1 video reward</p>
+          <div style={{ textAlign: 'left' }}>
+            <p style={{ fontWeight: '600', color: '#1f2937' }}>Every 2 correct answers</p>
+            <p style={{ color: '#4b5563' }}>Earn 1 video reward</p>
           </div>
         </div>
         
-        <div className="bg-yellow-50 rounded-lg p-4 flex items-center gap-3">
-          <div className="p-2 bg-yellow-100 rounded-full">
-            <Award size={20} className="text-yellow-500" />
+        <div style={{ 
+          backgroundColor: '#fefce8', 
+          borderRadius: '0.5rem', 
+          padding: '1rem', 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '0.75rem' 
+        }}>
+          <div style={{ 
+            padding: '0.5rem', 
+            backgroundColor: '#fef9c3', 
+            borderRadius: '9999px' 
+          }}>
+            <Award size={20} style={{ color: '#eab308' }} />
           </div>
-          <div className="text-left">
-            <p className="font-semibold text-gray-800">Streak milestones (5, 10, 15...)</p>
-            <p className="text-gray-600">Earn bonus videos!</p>
+          <div style={{ textAlign: 'left' }}>
+            <p style={{ fontWeight: '600', color: '#1f2937' }}>Streak milestones (5, 10, 15...)</p>
+            <p style={{ color: '#4b5563' }}>Earn bonus videos!</p>
           </div>
         </div>
       </div>
       
-      <div className="flex justify-center">
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
         <button 
           onClick={onClose}
-          className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-8 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
+          style={{
+            background: 'linear-gradient(to right, #f97316, #facc15)',
+            color: 'white',
+            padding: '0.75rem 2rem',
+            borderRadius: '9999px',
+            fontWeight: '500',
+            boxShadow: '0 10px 15px -3px rgba(249, 115, 22, 0.2)',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            transform: 'translateY(0)'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(249, 115, 22, 0.3)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(249, 115, 22, 0.2)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
         >
           Let's Go!
         </button>
