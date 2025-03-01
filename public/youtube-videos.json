@@ -1,6 +1,42 @@
 {
   "videos": [
     {
+      "id": "xz4FzvsyMN4",
+      "url": "https://www.youtube.com/shorts/xz4FzvsyMN4",
+      "title": "Transportation secretary says pilots should lose license if at fault in incidents",
+      "channelTitle": "NBC News",
+      "channelHandle": "TrendTideShorts",
+      "publishedAt": "2025-02-27T23:32:12Z",
+      "addedAt": "2025-03-01T05:19:45.893Z"
+    },
+    {
+      "id": "-EkdcnRzjbg",
+      "url": "https://www.youtube.com/shorts/-EkdcnRzjbg",
+      "title": "5 Smartphone Life Hacks!",
+      "channelTitle": "Austin Evans",
+      "channelHandle": "QuickGagsShorts",
+      "publishedAt": "2016-03-23T20:59:57Z",
+      "addedAt": "2025-03-01T05:19:47.472Z"
+    },
+    {
+      "id": "aAk3ORDr63U",
+      "url": "https://www.youtube.com/shorts/aAk3ORDr63U",
+      "title": "TTKBootstrap: Easiest Way To Build Modern GUIs in Python",
+      "channelTitle": "NeuralNine",
+      "channelHandle": "DailyShorts",
+      "publishedAt": "2025-02-28T17:00:00Z",
+      "addedAt": "2025-03-01T05:19:50.284Z"
+    },
+    {
+      "id": "jC878J-QGXM",
+      "url": "https://www.youtube.com/shorts/jC878J-QGXM",
+      "title": "Let’s talk about the parachuting beavers #shorts",
+      "channelTitle": "Vox",
+      "channelHandle": "ByteSizedFunShorts",
+      "publishedAt": "2023-01-24T16:14:18Z",
+      "addedAt": "2025-03-01T05:19:58.462Z"
+    },
+    {
       "id": "BWMoIJeCurY",
       "url": "https://www.youtube.com/shorts/BWMoIJeCurY",
       "title": "RESUMO HISTÓRIA - ILUMINISMO",
@@ -991,6 +1027,6 @@
       "addedAt": "2025-02-25T05:43:16.627Z"
     }
   ],
-  "lastUpdated": "2025-02-28T05:22:28.799Z",
-  "count": 110
+  "lastUpdated": "2025-03-01T05:19:59.785Z",
+  "count": 114
 }
