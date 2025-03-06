@@ -1,6 +1,51 @@
 {
   "videos": [
     {
+      "id": "KRrNST9OAcA",
+      "url": "https://www.youtube.com/shorts/KRrNST9OAcA",
+      "title": "The Beautiful Awful | Alyssa Monks | TEDxIndianaUniversity",
+      "channelTitle": "TEDx Talks",
+      "channelHandle": "LOLClipsShorts",
+      "publishedAt": "2015-12-24T19:09:14Z",
+      "addedAt": "2025-03-06T05:20:55.270Z"
+    },
+    {
+      "id": "BeVtvoYzmRc",
+      "url": "https://www.youtube.com/shorts/BeVtvoYzmRc",
+      "title": "California woman battling cancer speaks to KNBC after ICE detains mother and brother",
+      "channelTitle": "NBC News",
+      "channelHandle": "TrendTideShorts",
+      "publishedAt": "2025-03-01T20:57:18Z",
+      "addedAt": "2025-03-06T05:21:02.191Z"
+    },
+    {
+      "id": "-R4tG_Go_TM",
+      "url": "https://www.youtube.com/shorts/-R4tG_Go_TM",
+      "title": "Sen. Chris Murphy on working to &#39;raise the alarm&#39; on threats to democracy",
+      "channelTitle": "NBC News",
+      "channelHandle": "TrendTideShorts",
+      "publishedAt": "2025-03-03T16:02:47Z",
+      "addedAt": "2025-03-06T05:21:02.191Z"
+    },
+    {
+      "id": "gWkHI1BazdA",
+      "url": "https://www.youtube.com/shorts/gWkHI1BazdA",
+      "title": "Virginia Black, Please Take Me Back",
+      "channelTitle": "Drake",
+      "channelHandle": "RapidVidsShorts",
+      "publishedAt": "2017-11-15T00:38:05Z",
+      "addedAt": "2025-03-06T05:21:10.818Z"
+    },
+    {
+      "id": "Ltgk2SS2zqE",
+      "url": "https://www.youtube.com/shorts/Ltgk2SS2zqE",
+      "title": "OVO x Roots - Made In Canada",
+      "channelTitle": "Drake",
+      "channelHandle": "RapidVidsShorts",
+      "publishedAt": "2017-06-22T10:01:47Z",
+      "addedAt": "2025-03-06T05:21:10.818Z"
+    },
+    {
       "id": "d_3mokUQcrk",
       "url": "https://www.youtube.com/shorts/d_3mokUQcrk",
       "title": "Mailbag - Is Power-Worship Intrinsic to Superhero Stories?",
@@ -1288,6 +1333,6 @@
       "addedAt": "2025-02-25T05:43:16.627Z"
     }
   ],
-  "lastUpdated": "2025-03-05T05:21:42.021Z",
-  "count": 143
+  "lastUpdated": "2025-03-06T05:21:16.182Z",
+  "count": 148
 }
