@@ -1,6 +1,51 @@
 {
   "videos": [
     {
+      "id": "dP88AplsvE8",
+      "url": "https://www.youtube.com/shorts/dP88AplsvE8",
+      "title": "Retailers warm prices may go up because of tariffs",
+      "channelTitle": "NBC News",
+      "channelHandle": "TrendTideShorts",
+      "publishedAt": "2025-03-04T22:06:27Z",
+      "addedAt": "2025-03-07T05:21:12.326Z"
+    },
+    {
+      "id": "vMGpBAOD2CI",
+      "url": "https://www.youtube.com/shorts/vMGpBAOD2CI",
+      "title": "Drake - Trust Issues",
+      "channelTitle": "Drake",
+      "channelHandle": "RapidVidsShorts",
+      "publishedAt": "2016-05-04T17:07:48Z",
+      "addedAt": "2025-03-07T05:21:21.076Z"
+    },
+    {
+      "id": "XP0fdtXn49s",
+      "url": "https://www.youtube.com/shorts/XP0fdtXn49s",
+      "title": "Roy Woods - Drama feat. Drake (Audio) @RoyWoods",
+      "channelTitle": "Drake",
+      "channelHandle": "RapidVidsShorts",
+      "publishedAt": "2016-10-18T23:38:44Z",
+      "addedAt": "2025-03-07T05:21:21.076Z"
+    },
+    {
+      "id": "N4fExd4bTN4",
+      "url": "https://www.youtube.com/shorts/N4fExd4bTN4",
+      "title": "Drake - Girls Love Beyonce ft. James Fauntleroy (Official Audio)",
+      "channelTitle": "Drake",
+      "channelHandle": "RapidVidsShorts",
+      "publishedAt": "2016-05-07T00:06:59Z",
+      "addedAt": "2025-03-07T05:21:21.076Z"
+    },
+    {
+      "id": "hj6tyG0DZWo",
+      "url": "https://www.youtube.com/shorts/hj6tyG0DZWo",
+      "title": "Markiplier Animated | GETTING OVER IT",
+      "channelTitle": "Markiplier",
+      "channelHandle": "QuickMemeShorts",
+      "publishedAt": "2018-08-07T20:55:08Z",
+      "addedAt": "2025-03-07T05:21:21.791Z"
+    },
+    {
       "id": "KRrNST9OAcA",
       "url": "https://www.youtube.com/shorts/KRrNST9OAcA",
       "title": "The Beautiful Awful | Alyssa Monks | TEDxIndianaUniversity",
@@ -1333,6 +1378,6 @@
       "addedAt": "2025-02-25T05:43:16.627Z"
     }
   ],
-  "lastUpdated": "2025-03-06T05:21:16.182Z",
-  "count": 148
+  "lastUpdated": "2025-03-07T05:21:26.314Z",
+  "count": 153
 }
