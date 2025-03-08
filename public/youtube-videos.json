@@ -1,6 +1,60 @@
 {
   "videos": [
     {
+      "id": "EK7SthdWV2w",
+      "url": "https://www.youtube.com/shorts/EK7SthdWV2w",
+      "title": "SwiftUI Data Flow in iOS 17 - Observation &amp; @Observable",
+      "channelTitle": "Sean Allen",
+      "channelHandle": "StyleSnippetsShorts",
+      "publishedAt": "2023-06-26T12:35:39Z",
+      "addedAt": "2025-03-08T05:17:34.793Z"
+    },
+    {
+      "id": "3Fd14Ju10a4",
+      "url": "https://www.youtube.com/shorts/3Fd14Ju10a4",
+      "title": "USAID workers given 15 minutes to clear out desks",
+      "channelTitle": "NBC News",
+      "channelHandle": "TrendTideShorts",
+      "publishedAt": "2025-02-27T23:28:26Z",
+      "addedAt": "2025-03-08T05:17:44.779Z"
+    },
+    {
+      "id": "I5S9uC07mUg",
+      "url": "https://www.youtube.com/shorts/I5S9uC07mUg",
+      "title": "Chinese delegate says the country is &#39;not worried&#39; about Trump tarrifs",
+      "channelTitle": "NBC News",
+      "channelHandle": "TrendTideShorts",
+      "publishedAt": "2025-03-06T16:29:23Z",
+      "addedAt": "2025-03-08T05:17:44.779Z"
+    },
+    {
+      "id": "hAOI-4Lf7NQ",
+      "url": "https://www.youtube.com/shorts/hAOI-4Lf7NQ",
+      "title": "Chicago&#39;s Lost Castle | The First Regiment Armory",
+      "channelTitle": "IT'S HISTORY",
+      "channelHandle": "FastFlicksShorts",
+      "publishedAt": "2023-10-21T20:00:07Z",
+      "addedAt": "2025-03-08T05:17:53.111Z"
+    },
+    {
+      "id": "GbTY7cSs_Oc",
+      "url": "https://www.youtube.com/shorts/GbTY7cSs_Oc",
+      "title": "Why Amateur Submarines are so Dangerous | New York&#39;s Forgotten Submarine Wreck",
+      "channelTitle": "IT'S HISTORY",
+      "channelHandle": "FastFlicksShorts",
+      "publishedAt": "2023-07-15T20:00:03Z",
+      "addedAt": "2025-03-08T05:17:53.111Z"
+    },
+    {
+      "id": "fLFfXqAO2C4",
+      "url": "https://www.youtube.com/shorts/fLFfXqAO2C4",
+      "title": "Why Illinois Built a Leaning Tower | The Leaning Tower of Niles",
+      "channelTitle": "IT'S HISTORY",
+      "channelHandle": "FastFlicksShorts",
+      "publishedAt": "2023-04-22T20:00:15Z",
+      "addedAt": "2025-03-08T05:17:53.111Z"
+    },
+    {
       "id": "dP88AplsvE8",
       "url": "https://www.youtube.com/shorts/dP88AplsvE8",
       "title": "Retailers warm prices may go up because of tariffs",
@@ -1378,6 +1432,6 @@
       "addedAt": "2025-02-25T05:43:16.627Z"
     }
   ],
-  "lastUpdated": "2025-03-07T05:21:26.314Z",
-  "count": 153
+  "lastUpdated": "2025-03-08T05:17:59.642Z",
+  "count": 159
 }
