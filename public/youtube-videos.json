@@ -1,6 +1,87 @@
 {
   "videos": [
     {
+      "id": "WYsINZ-dOdc",
+      "url": "https://www.youtube.com/shorts/WYsINZ-dOdc",
+      "title": "Will Amazon Help or Hurt its Next Hometown? | AJ+",
+      "channelTitle": "AJ+",
+      "channelHandle": "TrendSpotterShorts",
+      "publishedAt": "2018-07-29T13:00:02Z",
+      "addedAt": "2025-03-09T05:16:38.794Z"
+    },
+    {
+      "id": "vRoUcawPZxE",
+      "url": "https://www.youtube.com/shorts/vRoUcawPZxE",
+      "title": "A customer&#39;s puking from their food! 🤢 Watch new #KitchenNightmares on FOX, next day on @hulu",
+      "channelTitle": "Gordon Ramsay",
+      "channelHandle": "GamerByteShorts",
+      "publishedAt": "2025-02-11T17:01:05Z",
+      "addedAt": "2025-03-09T05:16:45.211Z"
+    },
+    {
+      "id": "CyYQIcZacvA",
+      "url": "https://www.youtube.com/shorts/CyYQIcZacvA",
+      "title": "Alternate Realities from Relativity | Jason Padgett | TEDxTacoma",
+      "channelTitle": "TEDx Talks",
+      "channelHandle": "LOLClipsShorts",
+      "publishedAt": "2016-05-12T14:30:20Z",
+      "addedAt": "2025-03-09T05:16:48.295Z"
+    },
+    {
+      "id": "5pYeoZaoWrA",
+      "url": "https://www.youtube.com/shorts/5pYeoZaoWrA",
+      "title": "This is Financial Advice",
+      "channelTitle": "Folding Ideas",
+      "channelHandle": "CampusCapersShorts",
+      "publishedAt": "2023-10-01T00:02:11Z",
+      "addedAt": "2025-03-09T05:16:52.044Z"
+    },
+    {
+      "id": "89NGwzrZvfs",
+      "url": "https://www.youtube.com/shorts/89NGwzrZvfs",
+      "title": "She Wants To Dance With Me live from Hampton Court Palace back in June 2014 🕺 - Team Rick",
+      "channelTitle": "Rick Astley",
+      "channelHandle": "ShortsCentral",
+      "publishedAt": "2025-01-29T17:20:14Z",
+      "addedAt": "2025-03-09T05:16:54.363Z"
+    },
+    {
+      "id": "_bNs7ueAqTM",
+      "url": "https://www.youtube.com/shorts/_bNs7ueAqTM",
+      "title": "Some Texas measles patients are seeking vitamins over vaccines for treatment",
+      "channelTitle": "NBC News",
+      "channelHandle": "TrendTideShorts",
+      "publishedAt": "2025-03-08T00:08:07Z",
+      "addedAt": "2025-03-09T05:16:55.912Z"
+    },
+    {
+      "id": "yCaAMS0EXfI",
+      "url": "https://www.youtube.com/shorts/yCaAMS0EXfI",
+      "title": "Doctor explains hantavirus after Gene Hackman and wife&#39;s death",
+      "channelTitle": "NBC News",
+      "channelHandle": "TrendTideShorts",
+      "publishedAt": "2025-03-08T02:52:30Z",
+      "addedAt": "2025-03-09T05:16:55.912Z"
+    },
+    {
+      "id": "y6TAIXHkO-A",
+      "url": "https://www.youtube.com/shorts/y6TAIXHkO-A",
+      "title": "ChatGPT Getting Worse: What You Can Do About It",
+      "channelTitle": "NeuralNine",
+      "channelHandle": "DailyShorts",
+      "publishedAt": "2024-01-03T12:53:53Z",
+      "addedAt": "2025-03-09T05:17:00.447Z"
+    },
+    {
+      "id": "UWxuGRtNgM0",
+      "url": "https://www.youtube.com/shorts/UWxuGRtNgM0",
+      "title": "Oregon City&#39;s Weird Municipal Elevator Explained",
+      "channelTitle": "IT'S HISTORY",
+      "channelHandle": "FastFlicksShorts",
+      "publishedAt": "2024-01-27T21:00:13Z",
+      "addedAt": "2025-03-09T05:17:04.071Z"
+    },
+    {
       "id": "EK7SthdWV2w",
       "url": "https://www.youtube.com/shorts/EK7SthdWV2w",
       "title": "SwiftUI Data Flow in iOS 17 - Observation &amp; @Observable",
@@ -1432,6 +1513,6 @@
       "addedAt": "2025-02-25T05:43:16.627Z"
     }
   ],
-  "lastUpdated": "2025-03-08T05:17:59.642Z",
-  "count": 159
+  "lastUpdated": "2025-03-09T05:17:10.607Z",
+  "count": 168
 }
