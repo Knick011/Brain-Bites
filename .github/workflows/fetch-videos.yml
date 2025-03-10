@@ -2,7 +2,7 @@ name: Fetch YouTube Videos
 
 on:
   schedule:
-    - cron: '1 5 * * *'  # Runs at 12:01 AM UTC daily
+    - cron: '0 */12 * * *'  # Run every 12 hours instead of just once daily
   workflow_dispatch:     # Also allows manual trigger
 
 jobs:
@@ -11,25 +11,43 @@ jobs:
     permissions:
       contents: write  # Add explicit permission
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           persist-credentials: true  # Ensure proper credentials
+          fetch-depth: 0  # Fetch all history for proper git operations
       
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '16'
           
       - name: Install dependencies
         run: npm install axios
         
+      - name: Add timestamp to logs
+        run: echo "Starting fetch at $(date)"
+        
       - name: Fetch YouTube videos
         run: node .github/scripts/fetch-videos.js
         env:
-           REACT_APP_YOUTUBE_API_KEY: ${{ secrets.REACT_APP_YOUTUBE_API_KEY}}
-          
-      - name: Commit and push if changed
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Update YouTube videos
-          file_pattern: public/youtube-videos.json
+           REACT_APP_YOUTUBE_API_KEY: ${{ secrets.REACT_APP_YOUTUBE_API_KEY }}
+        
+      - name: Verify output file
+        run: |
+          if [ ! -f public/youtube-videos.json ]; then
+            echo "Error: output file not created"
+            exit 1
+          fi
+          echo "JSON file stats:"
+          ls -la public/youtube-videos.json
+          echo "JSON file content preview:"
+          head -n 20 public/youtube-videos.json
+          echo "Video count:"
+          grep -o '"id":' public/youtube-videos.json | wc -l
+      
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add public/youtube-videos.json
+          git diff --staged --quiet || (git commit -m "Update YouTube videos - $(date)" && git push)
