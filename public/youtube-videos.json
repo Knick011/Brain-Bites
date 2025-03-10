@@ -1,1 +1,23 @@
-
+{
+  "videos": [
+    {
+      "id": "8_gdcaX9Xqk",
+      "url": "https://www.youtube.com/shorts/8_gdcaX9Xqk",
+      "title": "Would You Split Or Steal $250,000?",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "addedAt": "2025-03-10T22:29:22.413Z"
+    },
+    {
+      "id": "c0YNnrHBARc",
+      "url": "https://www.youtube.com/shorts/c0YNnrHBARc",
+      "title": "How I Start My Mornings - Harvest Edition",
+      "channelTitle": "Zach King",
+      "channelHandle": "ZachKing",
+      "addedAt": "2025-03-10T22:29:22.414Z"
+    }
+  ],
+  "lastUpdated": "2025-03-10T22:29:22.414Z",
+  "count": 2,
+  "note": "EMERGENCY FALLBACK VIDEOS - API fetch failed"
+}
