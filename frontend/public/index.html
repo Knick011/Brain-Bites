@@ -24,5 +24,103 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+ <script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Create debugging UI
+  const debugDiv = document.createElement('div');
+  debugDiv.style.position = 'fixed';
+  debugDiv.style.bottom = '10px';
+  debugDiv.style.left = '10px';
+  debugDiv.style.zIndex = '9999';
+  debugDiv.style.background = 'rgba(0,0,0,0.7)';
+  debugDiv.style.color = 'white';
+  debugDiv.style.padding = '10px';
+  debugDiv.style.borderRadius = '5px';
+  debugDiv.style.maxWidth = '80%';
+  debugDiv.style.maxHeight = '300px';
+  debugDiv.style.overflow = 'auto';
+  debugDiv.style.display = 'none';
+  
+  const toggleButton = document.createElement('button');
+  toggleButton.innerText = '🐞 Debug';
+  toggleButton.style.position = 'fixed';
+  toggleButton.style.bottom = '10px';
+  toggleButton.style.left = '10px';
+  toggleButton.style.zIndex = '10000';
+  toggleButton.style.background = '#f44336';
+  toggleButton.style.color = 'white';
+  toggleButton.style.border = 'none';
+  toggleButton.style.borderRadius = '5px';
+  toggleButton.style.padding = '5px 10px';
+  
+  document.body.appendChild(debugDiv);
+  document.body.appendChild(toggleButton);
+  
+  toggleButton.addEventListener('click', function() {
+    if (debugDiv.style.display === 'none') {
+      debugDiv.style.display = 'block';
+      runJSONPathTests();
+    } else {
+      debugDiv.style.display = 'none';
+    }
+  });
+  
+  async function runJSONPathTests() {
+    debugDiv.innerHTML = '<h3>Testing JSON Paths</h3>';
+    
+    const possiblePaths = [
+      '/youtube-videos.json',
+      './youtube-videos.json',
+      '../youtube-videos.json',
+      'youtube-videos.json',
+      '/public/youtube-videos.json',
+      `${window.location.origin}/youtube-videos.json`,
+      `${window.location.origin}/public/youtube-videos.json`
+    ];
+    
+    debugDiv.innerHTML += `<p>Current URL: ${window.location.href}</p>`;
+    debugDiv.innerHTML += `<p>Base URL: ${window.location.origin}</p>`;
+    
+    for (const path of possiblePaths) {
+      try {
+        debugDiv.innerHTML += `<p>Trying: ${path}...</p>`;
+        const response = await fetch(path, { 
+          cache: 'no-store',
+          headers: { 'Accept': 'application/json' }
+        });
+        
+        const statusInfo = `Status: ${response.status} ${response.statusText}`;
+        
+        if (response.ok) {
+          const text = await response.text();
+          const isJSON = text.trim().startsWith('{');
+          const preview = text.substring(0, 50);
+          
+          debugDiv.innerHTML += `
+            <p style="color: #4caf50">✅ ${path} - ${statusInfo}</p>
+            <p>Content-Type: ${response.headers.get('content-type')}</p>
+            <p>Is JSON: ${isJSON}</p>
+            <p>Preview: ${preview}</p>
+            <hr>
+          `;
+        } else {
+          debugDiv.innerHTML += `
+            <p style="color: #ff9800">⚠️ ${path} - ${statusInfo}</p>
+            <hr>
+          `;
+        }
+      } catch (error) {
+        debugDiv.innerHTML += `
+          <p style="color: #f44336">❌ ${path} - Error: ${error.message}</p>
+          <hr>
+        `;
+      }
+    }
+    
+    debugDiv.innerHTML += '<button id="refresh-tests">Refresh Tests</button>';
+    document.getElementById('refresh-tests').addEventListener('click', runJSONPathTests);
+  }
+});
+</script>
   </body>
 </html>
