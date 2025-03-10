@@ -10,7 +10,7 @@ if (!API_KEY) {
 }
 
 // Your list of channel IDs
-const CHANNELS = [
+
 const CHANNELS = [
   { handle: 'MrBeast', id: 'UCX6OQ3DkcsbYNE6H8uQQuVA' },
   { handle: 'ZachChoi', id: 'UCI78AdiI6f7VKhqW1i4B3Rw' },
@@ -54,7 +54,7 @@ const CHANNELS = [
   { handle: 'Veritasium', id: 'UCHnyfMqiRRG1u-2MsSQLbXA' }
 ];
 
-];
+
 
 // Output path
 const OUTPUT_DIR = 'public';
