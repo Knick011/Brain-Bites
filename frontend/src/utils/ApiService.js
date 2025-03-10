@@ -7,39 +7,86 @@ class ApiService {
     this.baseUrl = baseUrl;
     this.warmedUp = false;
     this.warmupInterval = null;
+    this.retryAttempts = 3;
+    this.retryDelay = 2000; // 2 seconds
+    this.isRetrying = false;
+    this.lastError = null;
   }
 
   /**
-   * Ping the API to keep it warm
+   * Ping the API to keep it warm with better error handling
    */
   async ping() {
     try {
-      const response = await fetch(`${this.baseUrl}/`);
-      return response.ok;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
+      const response = await fetch(`${this.baseUrl}/`, {
+        signal: controller.signal,
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        this.lastError = null;
+        return true;
+      } else {
+        this.lastError = `API returned ${response.status}: ${response.statusText}`;
+        console.error(`API ping failed with status ${response.status}: ${response.statusText}`);
+        return false;
+      }
     } catch (error) {
+      this.lastError = error.message;
       console.error('API ping failed:', error);
       return false;
     }
   }
 
   /**
-   * Warm up the API by making a request
+   * Warm up the API by making a request with retry
    */
-  async warmup() {
+  async warmup(attemptNum = 1) {
+    if (this.isRetrying) {
+      console.log('Already retrying, skipping this warmup attempt');
+      return this.warmedUp;
+    }
+    
     try {
-      console.log('Warming up API...');
+      this.isRetrying = true;
+      console.log(`Warming up API, attempt ${attemptNum}...`);
+      
       const isAlive = await this.ping();
       
       if (isAlive) {
         console.log('API is warm and responding');
         this.warmedUp = true;
+        this.isRetrying = false;
         return true;
       } else {
-        console.log('API not responding, will retry');
-        return false;
+        console.log(`API not responding on attempt ${attemptNum}`);
+        
+        if (attemptNum < this.retryAttempts) {
+          // Add exponential backoff
+          const delay = this.retryDelay * Math.pow(2, attemptNum - 1);
+          console.log(`Will retry in ${delay}ms...`);
+          
+          await new Promise(resolve => setTimeout(resolve, delay));
+          this.isRetrying = false;
+          return this.warmup(attemptNum + 1);
+        } else {
+          console.error(`API warmup failed after ${this.retryAttempts} attempts.`);
+          this.isRetrying = false;
+          return false;
+        }
       }
     } catch (error) {
-      console.error('API warmup failed:', error);
+      console.error('API warmup error:', error);
+      this.lastError = error.message;
+      this.isRetrying = false;
       return false;
     }
   }
@@ -61,7 +108,14 @@ class ApiService {
     
     // Set interval for regular pings
     this.warmupInterval = setInterval(() => {
-      this.ping();
+      console.log('Executing periodic API ping...');
+      this.ping().then(isAlive => {
+        if (!isAlive && !this.isRetrying) {
+          // If ping fails, try warming up again
+          console.log('Periodic ping failed, attempting to warmup again');
+          this.warmup();
+        }
+      });
     }, interval);
     
     console.log(`API warmup interval set for every ${minutes} minutes`);
@@ -76,6 +130,69 @@ class ApiService {
       this.warmupInterval = null;
       console.log('API warmup interval stopped');
     }
+  }
+
+  /**
+   * Get API status information
+   */
+  getStatus() {
+    return {
+      warmedUp: this.warmedUp,
+      baseUrl: this.baseUrl,
+      lastError: this.lastError,
+      isRetrying: this.isRetrying
+    };
+  }
+
+  /**
+   * Generic method to make API requests with retry logic
+   */
+  async fetchWithRetry(endpoint, options = {}, retries = this.retryAttempts) {
+    const url = `${this.baseUrl}${endpoint}`;
+    
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+      
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+        headers: {
+          ...options.headers,
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      if (retries > 0) {
+        const delay = this.retryDelay * Math.pow(2, this.retryAttempts - retries);
+        console.log(`API request to ${endpoint} failed. Retrying in ${delay}ms...`, error);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return this.fetchWithRetry(endpoint, options, retries - 1);
+      } else {
+        console.error(`API request to ${endpoint} failed after ${this.retryAttempts} attempts.`, error);
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Get a random question with retry logic
+   */
+  async getRandomQuestion(category) {
+    const endpoint = category ? 
+      `/api/questions/random/${category}` : 
+      `/api/questions/random`;
+    
+    return this.fetchWithRetry(endpoint);
   }
 }
 
