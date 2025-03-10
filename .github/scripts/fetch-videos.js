@@ -1,9 +1,17 @@
 const axios = require('axios');
 const fs = require('fs');
+const path = require('path');
+
+// Ensure the API key is available
+const API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
+if (!API_KEY) {
+  console.error('ERROR: YouTube API key is missing. Set REACT_APP_YOUTUBE_API_KEY environment variable.');
+  process.exit(1);
+}
 
 // Your list of channel IDs
 const CHANNELS = [
-{ handle: 'MrBeastShorts', id: 'UCj0O6W8yDuLg3iraAXKgCrQ' },
+ { handle: 'MrBeastShorts', id: 'UCj0O6W8yDuLg3iraAXKgCrQ' },
 { handle: 'ZachKingShorts', id: 'UCq8DICunczvLuJJq414DOyA' },
 { handle: '5MinCraftsShorts', id: 'UC295-Dw_tDNtZXFeAPAW6Aw' },
 { handle: 'DudePerfectShorts', id: 'UCRijo3ddMTht_IHyNSNXpNQ' },
@@ -56,11 +64,12 @@ const CHANNELS = [
 ];
 
 // Output path
-const OUTPUT_FILE = 'public/youtube-videos.json';
+const OUTPUT_DIR = 'public';
+const OUTPUT_FILE = path.join(OUTPUT_DIR, 'youtube-videos.json');
 
 // Make sure the output directory exists
-if (!fs.existsSync('public')) {
-  fs.mkdirSync('public', { recursive: true });
+if (!fs.existsSync(OUTPUT_DIR)) {
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
 // Load existing videos if any
@@ -69,6 +78,7 @@ if (fs.existsSync(OUTPUT_FILE)) {
   try {
     const data = fs.readFileSync(OUTPUT_FILE, 'utf8');
     existingVideos = JSON.parse(data).videos || [];
+    console.log(`Loaded ${existingVideos.length} existing videos from file`);
   } catch (error) {
     console.error('Error reading existing file:', error);
   }
@@ -76,17 +86,31 @@ if (fs.existsSync(OUTPUT_FILE)) {
 
 async function fetchVideosFromChannel(channel) {
   try {
+    // Add timestamp and random param to avoid caching issues
+    const timestamp = Date.now();
+    const randomParam = Math.floor(Math.random() * 1000000);
+    
     // Simpler request - just get videos from the channel without extra filters
     const url = `https://youtube.googleapis.com/youtube/v3/search?` +
       `part=snippet` +
       `&channelId=${channel.id}` +
-      `&maxResults=3` +
+      `&maxResults=5` +  // Increase from 3 to 5 for more videos
       `&type=video` +
-      `&key=${process.env.REACT_APP_YOUTUBE_API_KEY}`;
+      `&videoDuration=short` + // Specifically request short videos
+      `&key=${API_KEY}` +
+      `&_t=${timestamp}` + // Add timestamp to avoid caching
+      `&_r=${randomParam}`; // Add random param to avoid caching
     
     console.log(`Making request for ${channel.handle}...`);
     
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
+      },
+      timeout: 10000 // 10 second timeout
+    });
+    
     console.log(`Got response for ${channel.handle}: ${response.status}`);
 
     if (!response.data.items?.length) {
@@ -114,18 +138,24 @@ async function fetchVideosFromChannel(channel) {
     return [];
   }
 }
+
 // Main function
 async function main() {
   console.log('Starting to fetch videos...');
+  console.log(`Using API key: ${API_KEY.substring(0, 3)}...${API_KEY.substring(API_KEY.length - 3)}`);
+  
   const newVideos = [];
   
-  for (const channel of CHANNELS) {
+  // Add random ordering to avoid the same channels always failing
+  const shuffledChannels = [...CHANNELS].sort(() => Math.random() - 0.5);
+  
+  for (const channel of shuffledChannels) {
     console.log(`Fetching videos for ${channel.handle}...`);
     const videos = await fetchVideosFromChannel(channel);
     newVideos.push(...videos);
     
-    // Small delay to avoid rate limits
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Larger delay between requests to avoid rate limits
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
   
   console.log(`Fetched ${newVideos.length} new videos`);
@@ -133,6 +163,43 @@ async function main() {
   // Filter out duplicates
   const existingIds = new Set(existingVideos.map(v => v.id));
   const uniqueNewVideos = newVideos.filter(v => !existingIds.has(v.id));
+  
+  console.log(`${uniqueNewVideos.length} unique new videos after filtering duplicates`);
+  
+  if (uniqueNewVideos.length === 0 && existingVideos.length === 0) {
+    console.error('ERROR: No videos found and no existing videos available!');
+    // Don't exit - instead create a file with emergency fallback videos
+    const fallbackVideos = [
+      {
+        id: "8_gdcaX9Xqk",
+        url: "https://www.youtube.com/shorts/8_gdcaX9Xqk",
+        title: "Would You Split Or Steal $250,000?",
+        channelTitle: "MrBeast",
+        channelHandle: "MrBeast",
+        addedAt: new Date().toISOString()
+      },
+      {
+        id: "c0YNnrHBARc",
+        url: "https://www.youtube.com/shorts/c0YNnrHBARc",
+        title: "How I Start My Mornings - Harvest Edition",
+        channelTitle: "Zach King",
+        channelHandle: "ZachKing",
+        addedAt: new Date().toISOString()
+      },
+      // Add more emergency fallback videos here
+    ];
+    
+    const output = {
+      videos: fallbackVideos,
+      lastUpdated: new Date().toISOString(),
+      count: fallbackVideos.length,
+      note: "EMERGENCY FALLBACK VIDEOS - API fetch failed"
+    };
+    
+    fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2));
+    console.log(`Saved ${fallbackVideos.length} emergency fallback videos to ${OUTPUT_FILE}`);
+    return;
+  }
   
   // Combine and limit to 1000 videos
   let allVideos = [...uniqueNewVideos, ...existingVideos];
@@ -151,6 +218,7 @@ async function main() {
   console.log(`Saved ${allVideos.length} videos to ${OUTPUT_FILE}`);
 }
 
+// Execute with error handling
 main().catch(error => {
   console.error('Error in main process:', error);
   process.exit(1);
