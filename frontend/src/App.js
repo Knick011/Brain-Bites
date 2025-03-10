@@ -1,5 +1,5 @@
 // App.js - complete updated file
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -25,8 +25,6 @@ import './styles/popup-animations.css';
 
 // API Configuration
 const API_BASE_URL = 'https://brain-bites-api.onrender.com';
-const RETRY_ATTEMPTS = 3;
-const RETRY_DELAY = 1000; // 1 second
 
 // Initialize API service
 const apiService = new ApiService(API_BASE_URL);
@@ -68,6 +66,33 @@ function App() {
   const [showGameModePopup, setShowGameModePopup] = useState(false);
   const [showRewardPopup, setShowRewardPopup] = useState(false);
   const [apiWarmedUp, setApiWarmedUp] = useState(false);
+  const [networkStatus, setNetworkStatus] = useState(navigator.onLine);
+
+  // Refs to avoid closure issues with state
+  const videoLockRef = useRef(false);
+  const loadingVideosRef = useRef(false);
+  
+  // Monitor network status
+  useEffect(() => {
+    const handleOnline = () => {
+      setNetworkStatus(true);
+      // Try to reconnect when network comes back
+      apiService.warmup();
+    };
+    
+    const handleOffline = () => {
+      setNetworkStatus(false);
+      setError("Network connection lost. Some features may not work properly.");
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
   
   // Tutorial steps configuration
   const tutorialSteps = [
@@ -98,15 +123,15 @@ function App() {
     }
   ];
 
-  // Initialize API warmup
+  // Initialize API warmup with more frequent checks
   useEffect(() => {
     const warmupApi = async () => {
       // Try to warm up the API
       const isWarmedUp = await apiService.warmup();
       setApiWarmedUp(isWarmedUp);
       
-      // Start keeping the API warm with regular pings
-      apiService.startWarmupInterval(5); // Ping every 5 minutes
+      // Start keeping the API warm with more frequent pings (every 3 minutes)
+      apiService.startWarmupInterval(3);
     };
     
     warmupApi();
@@ -117,45 +142,36 @@ function App() {
     };
   }, []);
 
-  // Fetch question with retry logic
-  const fetchQuestion = useCallback(async (retryCount = 0) => {
+  // Fetch question with improved error handling using ApiService
+  const fetchQuestion = useCallback(async () => {
     try {
       setIsLoading(true);
       setIsQuestionLoading(true);
       setError(null);
       
-      // If API is not warmed up yet, try to warm it up first
-      if (!apiWarmedUp) {
-        const isWarmedUp = await apiService.warmup();
-        setApiWarmedUp(isWarmedUp);
-        
-        if (!isWarmedUp && retryCount < RETRY_ATTEMPTS) {
-          // Wait and retry
-          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-          return fetchQuestion(retryCount + 1);
-        }
+      // Use the ApiService instead of direct axios calls
+      if (!selectedSection) {
+        throw new Error('No section selected');
       }
       
-      const endpoint = selectedSection === 'funfacts' 
-        ? `${API_BASE_URL}/api/questions/random/funfacts`
-        : `${API_BASE_URL}/api/questions/random/psychology`;
-        
-      const response = await axios.get(endpoint);
+      const question = await apiService.getRandomQuestion(selectedSection);
       
-      if (response.data) {
+      if (question) {
         // Check if question has been used before
-        if (usedQuestionIds.has(response.data.id)) {
+        if (usedQuestionIds.has(question.id)) {
           // If we've used all questions from the set (60 total), reset the used set
           if (usedQuestionIds.size >= 58) { // Leave a little buffer
             setUsedQuestionIds(new Set());
           } else {
             // Try getting another question
-            return fetchQuestion(retryCount);
+            setIsLoading(false);
+            setIsQuestionLoading(false);
+            return fetchQuestion();
           }
         }
         
         // Shuffle answer options
-        const shuffledQuestion = {...response.data};
+        const shuffledQuestion = {...question};
         const optionKeys = Object.keys(shuffledQuestion.options);
         const optionValues = Object.values(shuffledQuestion.options);
         
@@ -179,7 +195,7 @@ function App() {
         shuffledQuestion.correctAnswer = newCorrectAnswer;
         
         // Add to used questions set
-        setUsedQuestionIds(prev => new Set([...prev, response.data.id]));
+        setUsedQuestionIds(prev => new Set([...prev, question.id]));
         
         setCurrentQuestion(shuffledQuestion);
         setShowQuestion(true);
@@ -190,14 +206,12 @@ function App() {
     } catch (error) {
       console.error('Error fetching question:', error);
       
-      if (retryCount < RETRY_ATTEMPTS) {
-        // Wait before retrying
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-        return fetchQuestion(retryCount + 1);
-      }
+      // Get API status to provide better error messages
+      const apiStatus = apiService.getStatus();
       
-      // If all retries failed, set fallback question
-      setError('Failed to fetch question. Using fallback question.');
+      setError(`Failed to fetch question: ${apiStatus.lastError || error.message}. Using fallback question.`);
+      
+      // Use a fallback question if needed
       setCurrentQuestion({
         id: Math.floor(Math.random() * 1000),
         question: "What is the only mammal capable of true flight?",
@@ -210,19 +224,28 @@ function App() {
         correctAnswer: "A",
         explanation: "Bats are the only mammals that can truly fly, as opposed to gliding which some other mammals can do."
       });
+      
+      // Try warming up the API for next time
+      if (networkStatus) {
+        apiService.warmup();
+      }
     } finally {
       setIsLoading(false);
       setIsQuestionLoading(false);
     }
-  }, [selectedSection, usedQuestionIds, apiWarmedUp]);
+  }, [selectedSection, usedQuestionIds, networkStatus]);
 
-  // Load videos on initial mount
+  // Load videos on initial mount with improved error handling
   useEffect(() => {
     const loadVideos = async () => {
+      if (loadingVideosRef.current) return;
+      
       try {
-        // Use a more aggressive approach to get videos
+        loadingVideosRef.current = true;
         console.log('Loading videos from YouTube service');
-        const videos = await YouTubeService.getViralShorts(50); // Try to get more videos
+        
+        // Try with a larger number of videos
+        const videos = await YouTubeService.getViralShorts(50);
         
         console.log('Videos loaded:', videos?.length || 0);
         
@@ -233,14 +256,27 @@ function App() {
         }
       } catch (error) {
         console.error('Error loading videos:', error);
-        // Set fallback video
-        setVideos([{
-          id: 'dummyId',
-          url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
-          title: 'Sample Video'
-        }]);
+        // Set fallback videos with more options
+        setVideos([
+          {
+            id: 'dummyId1',
+            url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
+            title: 'Sample Video 1'
+          },
+          {
+            id: 'dummyId2',
+            url: 'https://www.youtube.com/shorts/8_gdcaX9Xqk',
+            title: 'Sample Video 2'
+          },
+          {
+            id: 'dummyId3',
+            url: 'https://www.youtube.com/shorts/c0YNnrHBARc',
+            title: 'Sample Video 3'
+          }
+        ]);
       } finally {
         setIsLoading(false);
+        loadingVideosRef.current = false;
       }
     };
 
@@ -253,37 +289,102 @@ function App() {
         setShowTutorial(true);
       }
     }, 1500);
-  }, []);
+    
+    // Retry loading videos if they fail
+    const retryTimer = setInterval(() => {
+      if (videos.length === 0 && networkStatus) {
+        console.log('Retrying video load...');
+        loadVideos();
+      } else {
+        clearInterval(retryTimer);
+      }
+    }, 30000); // Retry every 30 seconds
+    
+    return () => clearInterval(retryTimer);
+  }, [networkStatus]);
+  
+  // Refresh videos periodically to avoid staleness
+  useEffect(() => {
+    const refreshTimer = setInterval(() => {
+      if (!loadingVideosRef.current && networkStatus) {
+        console.log('Refreshing video cache...');
+        YouTubeService.clearCache();
+        
+        const refreshVideos = async () => {
+          try {
+            loadingVideosRef.current = true;
+            const newVideos = await YouTubeService.getViralShorts(30);
+            if (newVideos && newVideos.length > 0) {
+              setVideos(prevVideos => [...newVideos, ...prevVideos]);
+              console.log(`Refreshed with ${newVideos.length} new videos`);
+            }
+          } catch (error) {
+            console.error('Error refreshing videos:', error);
+          } finally {
+            loadingVideosRef.current = false;
+          }
+        };
+        
+        refreshVideos();
+      }
+    }, 3600000); // Refresh every hour
+    
+    return () => clearInterval(refreshTimer);
+  }, [networkStatus]);
 
-  // Get a random video that hasn't been seen recently
+  // Get a random video that hasn't been seen recently with retry logic
   const getRandomVideo = useCallback(() => {
-    if (!videos || videos.length === 0) {
-      console.warn('No videos available for random selection');
+    if (videoLockRef.current) {
+      console.warn('Video selection is locked, waiting for previous operation to complete');
       return null;
     }
     
-    console.log(`Selecting random video from ${videos.length} videos`);
-    console.log('Used video IDs:', [...usedVideoIds]);
+    videoLockRef.current = true;
     
-    // Find videos that haven't been used recently
-    const unusedVideos = videos.filter(video => !usedVideoIds.has(video.id));
-    console.log(`${unusedVideos.length} unused videos available`);
-    
-    // If we've used all videos or almost all, reset the used set
-    if (unusedVideos.length < 5) {
-      console.log('Resetting used videos set - most videos have been shown');
-      setUsedVideoIds(new Set());
-      return videos[Math.floor(Math.random() * videos.length)];
+    try {
+      if (!videos || videos.length === 0) {
+        console.warn('No videos available for random selection');
+        videoLockRef.current = false;
+        return null;
+      }
+      
+      console.log(`Selecting random video from ${videos.length} videos`);
+      console.log('Used video IDs:', [...usedVideoIds]);
+      
+      // Find videos that haven't been used recently
+      const unusedVideos = videos.filter(video => !usedVideoIds.has(video.id));
+      console.log(`${unusedVideos.length} unused videos available`);
+      
+      // If we've used all videos or almost all, reset the used set
+      if (unusedVideos.length < 5) {
+        console.log('Resetting used videos set - most videos have been shown');
+        setUsedVideoIds(new Set());
+        const randomVideo = videos[Math.floor(Math.random() * videos.length)];
+        setUsedVideoIds(new Set([randomVideo.id]));
+        videoLockRef.current = false;
+        return randomVideo;
+      }
+      
+      // Otherwise pick from the unused videos
+      const randomVideo = unusedVideos[Math.floor(Math.random() * unusedVideos.length)];
+      
+      // Mark as used
+      setUsedVideoIds(prev => new Set([...prev, randomVideo.id]));
+      console.log(`Selected video: ${randomVideo.id} - ${randomVideo.title}`);
+      
+      videoLockRef.current = false;
+      return randomVideo;
+    } catch (error) {
+      console.error('Error selecting random video:', error);
+      videoLockRef.current = false;
+      
+      // Return fallback in case of error
+      return {
+        id: 'emergencyFallback',
+        url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
+        title: 'Emergency Fallback Video'
+      };
     }
-    
-    // Otherwise pick from the unused videos
-    const randomVideo = unusedVideos[Math.floor(Math.random() * unusedVideos.length)];
-    
-    // Mark as used
-    setUsedVideoIds(prev => new Set([...prev, randomVideo.id]));
-    console.log(`Selected video: ${randomVideo.id} - ${randomVideo.title}`);
-    
-    return randomVideo;
   }, [videos, usedVideoIds]);
 
   // Handle answer submission
@@ -355,7 +456,7 @@ function App() {
           setShowTimeIntro(true);
         }
         
-        // Fetch next question after a delay (15s explanation time)
+        // Fetch next question after a delay
         setTimeout(() => {
           fetchQuestion();
         }, 500);
@@ -373,27 +474,44 @@ function App() {
     }
   }, [correctAnswers, fetchQuestion, streak, timeMode, tutorialMode, getRandomVideo]);
 
-  // Start watching all rewards
+  // Start watching all rewards with error handling and retry
   const startWatchingAllRewards = useCallback(() => {
     if (availableVideos <= 0) return;
     
-    // Get unique videos for all available rewards
-    const videosToWatch = [];
-    
-    for (let i = 0; i < availableVideos; i++) {
-      const video = getRandomVideo();
-      if (video) {
-        videosToWatch.push(video);
+    try {
+      // Get unique videos for all available rewards
+      const videosToWatch = [];
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      for (let i = 0; i < availableVideos; i++) {
+        let video = getRandomVideo();
+        
+        // Retry getting a video if it failed
+        while (!video && retryCount < maxRetries) {
+          retryCount++;
+          console.log(`Retrying video selection, attempt ${retryCount}`);
+          video = getRandomVideo();
+        }
+        
+        if (video) {
+          videosToWatch.push(video);
+        }
       }
-    }
-    
-    if (videosToWatch.length > 0) {
-      setRewardsToWatch(videosToWatch);
-      setCurrentVideoIndex(0);
-      setCurrentVideo(videosToWatch[0]);
-      setWatchingAllRewards(true);
-      setShowQuestion(false);
-      setAvailableVideos(0); // Reset available videos count
+      
+      if (videosToWatch.length > 0) {
+        setRewardsToWatch(videosToWatch);
+        setCurrentVideoIndex(0);
+        setCurrentVideo(videosToWatch[0]);
+        setWatchingAllRewards(true);
+        setShowQuestion(false);
+        setAvailableVideos(0); // Reset available videos count
+      } else {
+        setError("Couldn't load videos. Please try again later.");
+      }
+    } catch (error) {
+      console.error('Error starting videos:', error);
+      setError("Error loading videos: " + error.message);
     }
   }, [availableVideos, getRandomVideo]);
 
@@ -520,6 +638,17 @@ function App() {
     setShowGameModePopup(false);
   }, []);
 
+  // Auto-dismiss the error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   return (
     <div className="app">
       {!showWelcome && !showSection && (
@@ -641,9 +770,16 @@ function App() {
         />
       )}
       
+      {/* Network status indicator */}
+      {!networkStatus && (
+        <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          You're offline. Some features may not work.
+        </div>
+      )}
+      
       {/* Error message */}
       {error && (
-        <div className="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg">
+        <div className="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg animate-fadeIn z-50">
           {error}
         </div>
       )}
