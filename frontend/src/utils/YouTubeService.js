@@ -7,28 +7,13 @@ class YouTubeService {
       shownVideos: new Set()
     };
     this.cacheExpiry = 6 * 60 * 60 * 1000; // 6 hours
-    this.jsonUrl = '/youtube-videos.json'; // Path to the locally stored JSON file
+    
+    // Fix the path - must use absolute path
+    this.jsonUrl = `${window.location.origin}/youtube-videos.json`;
   }
 
   getFallbackVideos() {
-    // Extended fallback videos to ensure content is always available
-    return [
-      {
-        id: "8_gdcaX9Xqk",
-        url: "https://www.youtube.com/shorts/8_gdcaX9Xqk",
-        title: "Would You Split Or Steal $250,000?",
-        channelTitle: "MrBeast",
-        channelHandle: "MrBeast"
-      },
-      {
-        id: "c0YNnrHBARc",
-        url: "https://www.youtube.com/shorts/c0YNnrHBARc",
-        title: "How I Start My Mornings - Harvest Edition",
-        channelTitle: "Zach King",
-        channelHandle: "ZachKing"
-      },
-      // More fallback videos...
-    ];
+    return [];  // Return empty array since we don't want hardcoded videos
   }
 
   async getViralShorts(maxResults = 10) {
@@ -39,15 +24,24 @@ class YouTubeService {
         return this.getUniqueVideosFromCache(maxResults);
       }
 
-      // Try to load videos from the locally stored JSON file
-      console.log('Fetching videos from JSON file');
-      const response = await fetch(this.jsonUrl);
+      // Try to load videos from the JSON file
+      console.log(`Fetching videos from JSON file: ${this.jsonUrl}`);
+      const response = await fetch(this.jsonUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
+        },
+        cache: 'no-store'
+      });
       
       if (!response.ok) {
         throw new Error(`Failed to fetch videos JSON: ${response.status}`);
       }
       
       const data = await response.json();
+      console.log("JSON data successfully loaded:", data);
       
       if (!data.videos || !Array.isArray(data.videos) || data.videos.length === 0) {
         throw new Error('No videos found in JSON or invalid format');
@@ -65,19 +59,63 @@ class YouTubeService {
       return this.getUniqueVideosFromCache(maxResults);
     } catch (error) {
       console.error('Error in getViralShorts:', error);
-      console.log('Using fallback videos due to error:', error.message);
+      console.log('Failed to load videos from JSON, trying to fix URL...');
       
-      // Use fallback videos
-      const fallbackVideos = this.getFallbackVideos();
+      // Try alternative paths as fallback
+      try {
+        // Try other possible paths
+        const alternativePaths = [
+          `/youtube-videos.json`,
+          `./youtube-videos.json`,
+          `../youtube-videos.json`,
+          `${window.location.origin}/public/youtube-videos.json`
+        ];
+        
+        let data = null;
+        
+        for (const path of alternativePaths) {
+          console.log(`Trying alternative path: ${path}`);
+          
+          try {
+            const altResponse = await fetch(path, {
+              method: 'GET',
+              headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+              },
+              cache: 'no-store'
+            });
+            
+            if (altResponse.ok) {
+              data = await altResponse.json();
+              console.log(`Success with path: ${path}`);
+              // Update the correct path for future use
+              this.jsonUrl = path;
+              break;
+            }
+          } catch (altError) {
+            console.log(`Failed with path: ${path}`);
+          }
+        }
+        
+        if (data && data.videos && Array.isArray(data.videos) && data.videos.length > 0) {
+          console.log(`Recovered with ${data.videos.length} videos`);
+          
+          this.cache = {
+            videos: data.videos,
+            lastFetched: Date.now(),
+            shownVideos: new Set()
+          };
+          
+          return this.getUniqueVideosFromCache(maxResults);
+        }
+      } catch (recoveryError) {
+        console.error('Recovery attempt failed:', recoveryError);
+      }
       
-      // Store fallbacks in cache to avoid repeated errors
-      this.cache = {
-        videos: fallbackVideos,
-        lastFetched: Date.now(),
-        shownVideos: new Set()
-      };
-      
-      return fallbackVideos.slice(0, maxResults);
+      // If we get here, all attempts failed
+      console.error('All attempts to load videos failed, returning empty array');
+      return [];
     }
   }
 
@@ -120,8 +158,8 @@ class YouTubeService {
       return results;
     } catch (error) {
       console.error('Error getting unique videos from cache:', error);
-      // Just return some fallback videos directly if there's an error
-      return this.getFallbackVideos().slice(0, count);
+      // Return an empty array instead of hardcoded fallbacks
+      return [];
     }
   }
 
@@ -133,6 +171,60 @@ class YouTubeService {
     };
     console.log('Cache cleared successfully');
     return true;
+  }
+  
+  // New debug method to help diagnose issues
+  async debugFetchJSON() {
+    try {
+      const paths = [
+        `${window.location.origin}/youtube-videos.json`,
+        `/youtube-videos.json`,
+        `./youtube-videos.json`,
+        `../youtube-videos.json`,
+        `${window.location.origin}/public/youtube-videos.json`
+      ];
+      
+      console.log("Attempting to debug JSON fetching...");
+      console.log("Current location:", window.location.href);
+      
+      const results = {};
+      
+      for (const path of paths) {
+        try {
+          console.log(`Trying path: ${path}`);
+          const response = await fetch(path, { 
+            cache: 'no-store',
+            headers: { 'Accept': 'application/json' }
+          });
+          
+          results[path] = {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries()),
+            contentType: response.headers.get('content-type')
+          };
+          
+          if (response.ok) {
+            try {
+              const text = await response.text();
+              console.log(`First 100 chars: ${text.substring(0, 100)}`);
+              results[path].preview = text.substring(0, 100);
+              results[path].isJson = text.trim().startsWith('{');
+            } catch (e) {
+              results[path].textError = e.message;
+            }
+          }
+        } catch (error) {
+          results[path] = { error: error.message };
+        }
+      }
+      
+      console.log("Debug results:", results);
+      return results;
+    } catch (error) {
+      console.error("Debug failed:", error);
+      return { error: error.message };
+    }
   }
 }
 
