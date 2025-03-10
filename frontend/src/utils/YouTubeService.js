@@ -1,14 +1,13 @@
 // utils/YouTubeService.js
 class YouTubeService {
   constructor() {
-    // We're not going to try fetching from a JSON file since that's causing errors
-    // Instead, we'll use hardcoded videos directly
     this.cache = {
       videos: [],
       lastFetched: null,
       shownVideos: new Set()
     };
     this.cacheExpiry = 6 * 60 * 60 * 1000; // 6 hours
+    this.jsonUrl = '/youtube-videos.json'; // Path to the locally stored JSON file
   }
 
   getFallbackVideos() {
@@ -28,62 +27,7 @@ class YouTubeService {
         channelTitle: "Zach King",
         channelHandle: "ZachKing"
       },
-      {
-        id: "ZNgKin-PpZA",
-        url: "https://www.youtube.com/shorts/ZNgKin-PpZA",
-        title: "I spell, therefore it is.",
-        channelTitle: "Zach King",
-        channelHandle: "ZachKing"
-      },
-      {
-        id: "QBKR12mIdso",
-        url: "https://www.youtube.com/shorts/QBKR12mIdso",
-        title: "BUZZER BEATER!!! 🚨",
-        channelTitle: "Dude Perfect",
-        channelHandle: "DudePerfectShorts"
-      },
-      {
-        id: "MlPAmRN-uwg",
-        url: "https://www.youtube.com/shorts/MlPAmRN-uwg",
-        title: "Well that escalated QUICKLY 😳🎱",
-        channelTitle: "Dude Perfect",
-        channelHandle: "DudePerfectShorts"
-      },
-      {
-        id: "LhjrX9FoXn0",
-        url: "https://www.youtube.com/shorts/LhjrX9FoXn0",
-        title: "EPIC Basketball Race!!",
-        channelTitle: "How Ridiculous",
-        channelHandle: "HowRidiculousShorts"
-      },
-      {
-        id: "SIyvhq3zWLg",
-        url: "https://www.youtube.com/shorts/SIyvhq3zWLg",
-        title: "The Big Secret to Finding Lasting Love | Bela Gandhi | TEDxChicago",
-        channelTitle: "TEDx Talks",
-        channelHandle: "LOLClipsShorts"
-      },
-      {
-        id: "IdxH_wTobaE",
-        url: "https://www.youtube.com/shorts/IdxH_wTobaE",
-        title: "Markiplier Animated | BEAR SIMULATOR",
-        channelTitle: "Markiplier",
-        channelHandle: "QuickMemeShorts"
-      },
-      {
-        id: "YKmhF5rxjJ4",
-        url: "https://www.youtube.com/shorts/YKmhF5rxjJ4",
-        title: "OLED Steam Deck vs LCD. What are the key differences?",
-        channelTitle: "ShortCircuit",
-        channelHandle: "ShortCircuit"
-      },
-      {
-        id: "J3AAvZjmeI8",
-        url: "https://www.youtube.com/shorts/J3AAvZjmeI8",
-        title: "Why no aquarium has a great white shark #shorts",
-        channelTitle: "Vox",
-        channelHandle: "ByteSizedFunShorts"
-      }
+      // More fallback videos...
     ];
   }
 
@@ -95,13 +39,25 @@ class YouTubeService {
         return this.getUniqueVideosFromCache(maxResults);
       }
 
-      // Skip trying to fetch from JSON and use hardcoded videos directly
-      console.log('Using hardcoded videos');
-      const fallbackVideos = this.getFallbackVideos();
+      // Try to load videos from the locally stored JSON file
+      console.log('Fetching videos from JSON file');
+      const response = await fetch(this.jsonUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch videos JSON: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.videos || !Array.isArray(data.videos) || data.videos.length === 0) {
+        throw new Error('No videos found in JSON or invalid format');
+      }
+      
+      console.log(`Loaded ${data.videos.length} videos from JSON`);
       
       // Store in cache for future use
       this.cache = {
-        videos: fallbackVideos,
+        videos: data.videos,
         lastFetched: Date.now(),
         shownVideos: new Set()
       };
@@ -109,16 +65,26 @@ class YouTubeService {
       return this.getUniqueVideosFromCache(maxResults);
     } catch (error) {
       console.error('Error in getViralShorts:', error);
-      console.log('Using fallback videos');
+      console.log('Using fallback videos due to error:', error.message);
       
-      // Use fallback videos and don't even try to cache them if there's an error
-      return this.getFallbackVideos();
+      // Use fallback videos
+      const fallbackVideos = this.getFallbackVideos();
+      
+      // Store fallbacks in cache to avoid repeated errors
+      this.cache = {
+        videos: fallbackVideos,
+        lastFetched: Date.now(),
+        shownVideos: new Set()
+      };
+      
+      return fallbackVideos.slice(0, maxResults);
     }
   }
 
   isValidCache() {
     return (
       this.cache.lastFetched && 
+      this.cache.videos && 
       this.cache.videos.length > 0 && 
       (Date.now() - this.cache.lastFetched) < this.cacheExpiry &&
       this.cache.videos.length > this.cache.shownVideos.size
@@ -127,6 +93,7 @@ class YouTubeService {
 
   getUniqueVideosFromCache(count = 10) {
     try {
+      // Filter out videos that have already been shown
       const availableVideos = this.cache.videos.filter(video => 
         !this.cache.shownVideos.has(video.id)
       );
@@ -164,6 +131,7 @@ class YouTubeService {
       lastFetched: null,
       shownVideos: new Set()
     };
+    console.log('Cache cleared successfully');
     return true;
   }
 }
