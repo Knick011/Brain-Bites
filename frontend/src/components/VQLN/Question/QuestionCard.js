@@ -1,24 +1,23 @@
-// components/VQLN/Question/QuestionCard.js
 import React, { useState, useEffect } from 'react';
 import SoundEffects from '../../../utils/SoundEffects';
-// Fix the import path - importing from the same directory
 import AnswerNotification from './AnswerNotification';
 
+/**
+ * Question display card component
+ */
 const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const [canProceed, setCanProceed] = useState(false);
   const [answerTime, setAnswerTime] = useState(10);
   const [timerActive, setTimerActive] = useState(true);
   const [pointsEarned, setPointsEarned] = useState(0);
   const [showPoints, setShowPoints] = useState(false);
   const [explanationTimeLeft, setExplanationTimeLeft] = useState(15);
 
+  // Reset states when a new question is loaded
   useEffect(() => {
-    // Reset states when a new question is loaded
     setSelectedAnswer(null);
     setShowExplanation(false);
-    setCanProceed(false);
     setExplanationTimeLeft(15);
     
     if (timeMode) {
@@ -63,10 +62,10 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
     return () => clearInterval(timer);
   }, [showExplanation, onAnswerSubmit, selectedAnswer, question]);
 
+  // Keyboard shortcut for skipping explanation
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'ArrowDown' && showExplanation) {
-        // Skip explanation and proceed to next question
         onAnswerSubmit(selectedAnswer === question.correctAnswer);
       }
     };
@@ -81,7 +80,6 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
 
   const handleTimeUp = () => {
     if (!selectedAnswer) {
-      // Time's up without an answer
       SoundEffects.playIncorrect();
       setSelectedAnswer('TIMEOUT');
       setShowExplanation(true);
@@ -113,16 +111,16 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
       setShowExplanation(true);
       setExplanationTimeLeft(15);
       
-      const isCorrect = option === question.correctAnswer;
-      
-      if (isCorrect) {
-        setCanProceed(true);
+      if (option === question.correctAnswer) {
+        SoundEffects.playCorrect();
         
         // Show points animation if in time mode
         if (timeMode) {
           setShowPoints(true);
           setTimeout(() => setShowPoints(false), 1500);
         }
+      } else {
+        SoundEffects.playIncorrect();
       }
     }, 500);
   };
