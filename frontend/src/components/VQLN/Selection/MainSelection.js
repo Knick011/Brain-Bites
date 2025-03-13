@@ -1,7 +1,9 @@
-// components/VQLN/Selection/MainSelection.js
 import React from 'react';
 import { Brain, Sparkles } from 'lucide-react';
 
+/**
+ * Category selection screen
+ */
 const MainSelection = ({ onSelect }) => {
   return (
     <div className="selection-screen">
@@ -17,7 +19,7 @@ const MainSelection = ({ onSelect }) => {
           </div>
           <div className="selection-text">
             <h3>Fun Facts</h3>
-            <p>Discover fascinating psychological facts</p>
+            <p>Discover fascinating trivia and knowledge</p>
           </div>
         </button>
 
@@ -30,7 +32,7 @@ const MainSelection = ({ onSelect }) => {
           </div>
           <div className="selection-text">
             <h3>Psychology</h3>
-            <p>Test your course knowledge</p>
+            <p>Test your understanding of the mind</p>
           </div>
         </button>
       </div>
