@@ -1,7 +1,9 @@
-// components/VQLN/Welcome/InitialWelcome.js
 import React from 'react';
 import { Brain } from 'lucide-react';
 
+/**
+ * Initial welcome screen component
+ */
 const InitialWelcome = ({ onStart, isLoading }) => {
   return (
     <div className="initial-welcome">
