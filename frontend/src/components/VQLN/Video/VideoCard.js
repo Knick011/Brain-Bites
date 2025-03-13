@@ -1,8 +1,10 @@
-// components/VQLN/Video/VideoCard.js
 import React, { useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import { ChevronDown, X } from 'lucide-react';
 
+/**
+ * Video player component
+ */
 const VideoCard = ({ 
   url, 
   onEnd, 
@@ -16,14 +18,15 @@ const VideoCard = ({
   // Validate URL
   if (!url || !url.includes('youtube.com/shorts/')) {
     console.error('Invalid YouTube Shorts URL:', url);
-    onSkip();
+    onSkip && onSkip();
     return null;
   }
 
+  // Setup keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'ArrowDown') {
-        onSkip();
+        onSkip && onSkip();
       } else if (event.key === 'Escape') {
         onExit && onExit();
       }
@@ -69,7 +72,7 @@ const VideoCard = ({
             onReady={onReady}
             onError={(e) => {
               console.error('Video playback error:', e);
-              onSkip();
+              onSkip && onSkip();
             }}
             config={{
               youtube: {
