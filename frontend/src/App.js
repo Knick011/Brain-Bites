@@ -1,4 +1,4 @@
-// App.js - complete updated file
+// App.js - updated version
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import VideoCard from './components/VQLN/Video/VideoCard';
@@ -70,7 +70,6 @@ function App() {
 
   // Refs to avoid closure issues with state
   const videoLockRef = useRef(false);
-  const loadingVideosRef = useRef(false);
   
   // Monitor network status
   useEffect(() => {
@@ -209,21 +208,7 @@ function App() {
       // Get API status to provide better error messages
       const apiStatus = apiService.getStatus();
       
-      setError(`Failed to fetch question: ${apiStatus.lastError || error.message}. Using fallback question.`);
-      
-      // Use a fallback question if needed
-      setCurrentQuestion({
-        id: Math.floor(Math.random() * 1000),
-        question: "What is the only mammal capable of true flight?",
-        options: {
-          A: "Bat",
-          B: "Flying squirrel",
-          C: "Flying fox",
-          D: "Sugar glider"
-        },
-        correctAnswer: "A",
-        explanation: "Bats are the only mammals that can truly fly, as opposed to gliding which some other mammals can do."
-      });
+      setError(`Failed to fetch question: ${apiStatus.lastError || error.message}.`);
       
       // Try warming up the API for next time
       if (networkStatus) {
@@ -235,30 +220,24 @@ function App() {
     }
   }, [selectedSection, usedQuestionIds, networkStatus]);
 
-  // Load videos on initial mount with improved error handling
+  // SIMPLIFIED: Load videos on initial mount
   useEffect(() => {
     const loadVideos = async () => {
-      if (loadingVideosRef.current) return;
-      
       try {
-        loadingVideosRef.current = true;
         console.log('Loading videos from YouTube service');
-        
         const videos = await YouTubeService.getViralShorts(30);
-        console.log('Videos loaded:', videos?.length || 0);
+        console.log(`Loaded ${videos.length} videos`);
         
         if (videos && videos.length > 0) {
           setVideos(videos);
         } else {
-          console.warn('No videos were loaded from service');
+          console.warn('No videos were loaded');
         }
       } catch (error) {
         console.error('Error loading videos:', error);
-        // Start with empty videos - no fallbacks
         setVideos([]);
       } finally {
         setIsLoading(false);
-        loadingVideosRef.current = false;
       }
     };
 
@@ -271,71 +250,16 @@ function App() {
         setShowTutorial(true);
       }
     }, 1500);
-    
-    // Retry loading videos if they fail
-    const retryTimer = setInterval(() => {
-      if (videos.length === 0 && networkStatus) {
-        console.log('Retrying video load...');
-        loadVideos();
-      } else {
-        clearInterval(retryTimer);
-      }
-    }, 30000); // Retry every 30 seconds
-    
-    return () => clearInterval(retryTimer);
-  }, [networkStatus, tutorialMode]);
-  
-  // Refresh videos periodically to avoid staleness
-  useEffect(() => {
-    const refreshTimer = setInterval(() => {
-      if (!loadingVideosRef.current && networkStatus) {
-        console.log('Refreshing video cache...');
-        YouTubeService.clearCache();
-        
-        const refreshVideos = async () => {
-          try {
-            loadingVideosRef.current = true;
-            const newVideos = await YouTubeService.getViralShorts(30);
-            if (newVideos && newVideos.length > 0) {
-              setVideos(prevVideos => [...newVideos, ...prevVideos]);
-              console.log(`Refreshed with ${newVideos.length} new videos`);
-            }
-          } catch (error) {
-            console.error('Error refreshing videos:', error);
-          } finally {
-            loadingVideosRef.current = false;
-          }
-        };
-        
-        refreshVideos();
-      }
-    }, 3600000); // Refresh every hour
-    
-    return () => clearInterval(refreshTimer);
-  }, [networkStatus]);
+  }, [tutorialMode]);
 
-  // Get a random video that hasn't been seen recently with retry logic
+  // SIMPLIFIED: Get a random video
   const getRandomVideo = useCallback(() => {
-    if (videoLockRef.current || !videos || videos.length === 0) {
+    if (!videos || videos.length === 0) {
       return null;
     }
     
-    videoLockRef.current = true;
-    
-    try {
-      // Get a random video
-      const randomIndex = Math.floor(Math.random() * videos.length);
-      const randomVideo = videos[randomIndex];
-      
-      // Add to used videos set
-      setUsedVideoIds(prev => new Set([...prev, randomVideo.id]));
-      
-      videoLockRef.current = false;
-      return randomVideo;
-    } catch (error) {
-      videoLockRef.current = false;
-      return null;
-    }
+    const randomIndex = Math.floor(Math.random() * videos.length);
+    return videos[randomIndex];
   }, [videos]);
 
   // Handle answer submission
