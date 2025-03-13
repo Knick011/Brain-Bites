@@ -1,166 +1,80 @@
-// utils/ApiService.js
 /**
- * Service to handle API warming and health checks
+ * Service for API interactions
  */
 class ApiService {
   constructor(baseUrl) {
-    this.baseUrl = baseUrl;
-    this.warmedUp = false;
-    this.warmupInterval = null;
+    this.baseUrl = baseUrl || 'https://brain-bites-api.onrender.com';
+    this.isReady = false;
     this.retryAttempts = 3;
     this.retryDelay = 2000; // 2 seconds
-    this.isRetrying = false;
-    this.lastError = null;
+    this.questionCache = {
+      psychology: [],
+      funfacts: []
+    };
   }
 
   /**
-   * Ping the API to keep it warm with better error handling
+   * Check if the API is available
    */
-  async ping() {
+  async checkAvailability() {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
       
       const response = await fetch(`${this.baseUrl}/`, {
         signal: controller.signal,
         headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+          'Cache-Control': 'no-cache'
         }
       });
       
       clearTimeout(timeoutId);
       
       if (response.ok) {
-        this.lastError = null;
+        console.log('API is available');
+        this.isReady = true;
         return true;
       } else {
-        this.lastError = `API returned ${response.status}: ${response.statusText}`;
-        console.error(`API ping failed with status ${response.status}: ${response.statusText}`);
+        console.warn(`API returned ${response.status}: ${response.statusText}`);
         return false;
       }
     } catch (error) {
-      this.lastError = error.message;
-      console.error('API ping failed:', error);
+      console.error('API check failed:', error);
       return false;
     }
   }
 
   /**
-   * Warm up the API by making a request with retry
+   * Get a random question
    */
-  async warmup(attemptNum = 1) {
-    if (this.isRetrying) {
-      console.log('Already retrying, skipping this warmup attempt');
-      return this.warmedUp;
+  async getRandomQuestion(category) {
+    if (!category) {
+      throw new Error('Category is required');
     }
     
     try {
-      this.isRetrying = true;
-      console.log(`Warming up API, attempt ${attemptNum}...`);
-      
-      const isAlive = await this.ping();
-      
-      if (isAlive) {
-        console.log('API is warm and responding');
-        this.warmedUp = true;
-        this.isRetrying = false;
-        return true;
-      } else {
-        console.log(`API not responding on attempt ${attemptNum}`);
+      // Use cached questions if available
+      if (this.questionCache[category] && this.questionCache[category].length > 0) {
+        const randomIndex = Math.floor(Math.random() * this.questionCache[category].length);
+        const question = this.questionCache[category][randomIndex];
         
-        if (attemptNum < this.retryAttempts) {
-          // Add exponential backoff
-          const delay = this.retryDelay * Math.pow(2, attemptNum - 1);
-          console.log(`Will retry in ${delay}ms...`);
-          
-          await new Promise(resolve => setTimeout(resolve, delay));
-          this.isRetrying = false;
-          return this.warmup(attemptNum + 1);
-        } else {
-          console.error(`API warmup failed after ${this.retryAttempts} attempts.`);
-          this.isRetrying = false;
-          return false;
-        }
+        // Remove the used question from cache
+        this.questionCache[category] = this.questionCache[category].filter((_, index) => index !== randomIndex);
+        
+        return question;
       }
-    } catch (error) {
-      console.error('API warmup error:', error);
-      this.lastError = error.message;
-      this.isRetrying = false;
-      return false;
-    }
-  }
-
-  /**
-   * Start keeping the API warm with periodic pings
-   */
-  startWarmupInterval(minutes = 10) {
-    // Clear any existing interval
-    if (this.warmupInterval) {
-      clearInterval(this.warmupInterval);
-    }
-
-    // Convert minutes to milliseconds
-    const interval = minutes * 60 * 1000;
-    
-    // Initial warmup
-    this.warmup();
-    
-    // Set interval for regular pings
-    this.warmupInterval = setInterval(() => {
-      console.log('Executing periodic API ping...');
-      this.ping().then(isAlive => {
-        if (!isAlive && !this.isRetrying) {
-          // If ping fails, try warming up again
-          console.log('Periodic ping failed, attempting to warmup again');
-          this.warmup();
-        }
-      });
-    }, interval);
-    
-    console.log(`API warmup interval set for every ${minutes} minutes`);
-  }
-
-  /**
-   * Stop the warmup interval
-   */
-  stopWarmupInterval() {
-    if (this.warmupInterval) {
-      clearInterval(this.warmupInterval);
-      this.warmupInterval = null;
-      console.log('API warmup interval stopped');
-    }
-  }
-
-  /**
-   * Get API status information
-   */
-  getStatus() {
-    return {
-      warmedUp: this.warmedUp,
-      baseUrl: this.baseUrl,
-      lastError: this.lastError,
-      isRetrying: this.isRetrying
-    };
-  }
-
-  /**
-   * Generic method to make API requests with retry logic
-   */
-  async fetchWithRetry(endpoint, options = {}, retries = this.retryAttempts) {
-    const url = `${this.baseUrl}${endpoint}`;
-    
-    try {
+      
+      // No cached questions, fetch from API
+      const endpoint = `/api/questions/random/${category}`;
+      const url = `${this.baseUrl}${endpoint}`;
+      
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
       
       const response = await fetch(url, {
-        ...options,
         signal: controller.signal,
         headers: {
-          ...options.headers,
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+          'Cache-Control': 'no-cache'
         }
       });
       
@@ -170,29 +84,114 @@ class ApiService {
         throw new Error(`API request failed: ${response.status} ${response.statusText}`);
       }
       
-      return await response.json();
+      const question = await response.json();
+      return question;
     } catch (error) {
-      if (retries > 0) {
-        const delay = this.retryDelay * Math.pow(2, this.retryAttempts - retries);
-        console.log(`API request to ${endpoint} failed. Retrying in ${delay}ms...`, error);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return this.fetchWithRetry(endpoint, options, retries - 1);
-      } else {
-        console.error(`API request to ${endpoint} failed after ${this.retryAttempts} attempts.`, error);
-        throw error;
-      }
+      console.error(`Error fetching question for ${category}:`, error);
+      
+      // Return a fallback question if all else fails
+      return this.getFallbackQuestion(category);
     }
   }
 
   /**
-   * Get a random question with retry logic
+   * Fetch and cache multiple questions in the background
    */
-  async getRandomQuestion(category) {
-    const endpoint = category ? 
-      `/api/questions/random/${category}` : 
-      `/api/questions/random`;
+  async prefetchQuestions(category, count = 5) {
+    try {
+      if (!this.questionCache[category]) {
+        this.questionCache[category] = [];
+      }
+      
+      console.log(`Prefetching ${count} ${category} questions...`);
+      
+      const endpoint = `/api/questions/random/${category}`;
+      const promises = [];
+      
+      for (let i = 0; i < count; i++) {
+        promises.push(
+          fetch(`${this.baseUrl}${endpoint}`)
+            .then(response => {
+              if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+              return response.json();
+            })
+            .then(question => this.questionCache[category].push(question))
+            .catch(err => console.warn(`Failed to prefetch question ${i}:`, err))
+        );
+        
+        // Add a small delay between requests
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+      
+      await Promise.allSettled(promises);
+      console.log(`Cached ${this.questionCache[category].length} ${category} questions`);
+    } catch (error) {
+      console.error(`Error prefetching ${category} questions:`, error);
+    }
+  }
+
+  /**
+   * Get a fallback question when API fails
+   */
+  getFallbackQuestion(category) {
+    const fallbackQuestions = {
+      psychology: [
+        {
+          id: 1,
+          question: "What is the definition of psychology?",
+          options: {
+            A: "The study of human culture",
+            B: "The scientific study of behavior and mental processes",
+            C: "The study of historical events",
+            D: "The study of chemical reactions in the brain"
+          },
+          correctAnswer: "B",
+          explanation: "Psychology is defined as the scientific study of behavior and mental processes."
+        },
+        {
+          id: 2,
+          question: "Who is considered the father of modern psychology?",
+          options: {
+            A: "Sigmund Freud",
+            B: "Wilhelm Wundt",
+            C: "B.F. Skinner",
+            D: "Carl Jung"
+          },
+          correctAnswer: "B",
+          explanation: "Wilhelm Wundt is often regarded as the father of modern psychology because he established the first psychology laboratory."
+        }
+      ],
+      funfacts: [
+        {
+          id: 31,
+          question: "What is the only mammal capable of true flight?",
+          options: {
+            A: "Bat",
+            B: "Squirrel",
+            C: "Flying squirrel",
+            D: "Ostrich"
+          },
+          correctAnswer: "A",
+          explanation: "Bats are the only mammals that can truly fly."
+        },
+        {
+          id: 32,
+          question: "Which animal is known to have the longest migration route?",
+          options: {
+            A: "Monarch butterfly",
+            B: "Arctic tern",
+            C: "Humpback whale",
+            D: "Caribou"
+          },
+          correctAnswer: "B",
+          explanation: "The Arctic tern migrates from the Arctic to the Antarctic and back each year, making it the longest migration of any known animal."
+        }
+      ]
+    };
     
-    return this.fetchWithRetry(endpoint);
+    const categoryQuestions = fallbackQuestions[category] || fallbackQuestions.funfacts;
+    const randomIndex = Math.floor(Math.random() * categoryQuestions.length);
+    return categoryQuestions[randomIndex];
   }
 }
 
