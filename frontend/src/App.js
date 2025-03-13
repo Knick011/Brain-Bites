@@ -197,15 +197,25 @@ function App() {
   }, [videos]);
 
   // Handle answer submission
+// Handle answer submission
   const handleAnswerSubmit = useCallback((isCorrect, answerTime = null) => {
     if (isCorrect) {
       // Update correct answers count
       setCorrectAnswers(prev => prev + 1);
       
       // Calculate score if in time mode
-      if (timeMode && answerTime !== null) {
-        const timeScore = Math.max(10, Math.floor(100 - (answerTime * 9)));
-        setScore(prevScore => prevScore + timeScore);
+      if (timeMode) {
+        // Default time score if not provided
+        const timeScore = (answerTime !== null) 
+          ? Math.max(10, Math.floor(100 - (answerTime * 9)))
+          : 50; // Default score
+        
+        console.log(`Adding ${timeScore} points to score`);
+        setScore(prevScore => {
+          const newScore = prevScore + timeScore;
+          console.log(`New score: ${newScore}`);
+          return newScore;
+        });
       }
       
       // Update streak
