@@ -18,6 +18,7 @@ class ApiService {
    */
   async checkAvailability() {
     try {
+      console.log(`Checking API availability at ${this.baseUrl}`);
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       
@@ -53,8 +54,9 @@ class ApiService {
     }
     
     try {
-      // Use cached questions if available
+      // Check if we have cached questions
       if (this.questionCache[category] && this.questionCache[category].length > 0) {
+        console.log(`Using cached ${category} question`);
         const randomIndex = Math.floor(Math.random() * this.questionCache[category].length);
         const question = this.questionCache[category][randomIndex];
         
@@ -65,8 +67,11 @@ class ApiService {
       }
       
       // No cached questions, fetch from API
+      console.log(`Fetching ${category} question from API`);
       const endpoint = `/api/questions/random/${category}`;
       const url = `${this.baseUrl}${endpoint}`;
+      
+      console.log(`Request URL: ${url}`);
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
@@ -81,6 +86,21 @@ class ApiService {
       clearTimeout(timeoutId);
       
       if (!response.ok) {
+        console.error(`API request failed: ${response.status} ${response.statusText}`);
+        
+        // Try a backup endpoint without category if needed
+        if (response.status === 404) {
+          console.log("Trying fallback endpoint without category");
+          const fallbackResponse = await fetch(`${this.baseUrl}/api/questions/random`, {
+            headers: { 'Cache-Control': 'no-cache' }
+          });
+          
+          if (fallbackResponse.ok) {
+            const question = await fallbackResponse.json();
+            return question;
+          }
+        }
+        
         throw new Error(`API request failed: ${response.status} ${response.statusText}`);
       }
       
@@ -134,6 +154,8 @@ class ApiService {
    * Get a fallback question when API fails
    */
   getFallbackQuestion(category) {
+    console.log(`Using fallback question for ${category}`);
+    
     const fallbackQuestions = {
       psychology: [
         {
