@@ -15,13 +15,6 @@ const VideoCard = ({
   currentIndex = 1,
   totalVideos = 1
 }) => {
-  // Validate URL
-  if (!url || !url.includes('youtube.com/shorts/')) {
-    console.error('Invalid YouTube Shorts URL:', url);
-    onSkip && onSkip();
-    return null;
-  }
-
   // Setup keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -35,6 +28,27 @@ const VideoCard = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onSkip, onExit]);
+
+  // Early return for invalid URL
+  if (!url || !url.includes('youtube.com/shorts/')) {
+    console.error('Invalid YouTube Shorts URL:', url);
+    if (onSkip) {
+      setTimeout(() => onSkip(), 0);
+    }
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-black">
+        <div className="text-white text-center p-4">
+          <p>Invalid video URL.</p>
+          <button 
+            onClick={onSkip}
+            className="mt-4 bg-white text-black px-4 py-2 rounded-lg"
+          >
+            Skip
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-black">
