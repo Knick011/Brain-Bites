@@ -3,6 +3,7 @@ import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
 import MainSelection from './components/VQLN/Welcome/MainSelection';
+import RewardsButton from './components/VQLN/RewardsButton';
 import SoundEffects from './utils/SoundEffects';
 import YouTubeService from './utils/YouTubeService';
 import ApiService from './utils/ApiService';
@@ -54,12 +55,16 @@ function App() {
   // Initialize API availability check
   useEffect(() => {
     const checkApi = async () => {
+      console.log("Checking API availability...");
       const isAvailable = await apiService.checkAvailability();
+      console.log("API available:", isAvailable);
+      
       if (!isAvailable && networkStatus) {
         console.warn('API not available, prefetching questions for offline use');
         try {
-          await apiService.prefetchQuestions('psychology', 5);
-          await apiService.prefetchQuestions('funfacts', 5);
+          // Prefetch some fallback questions
+          await apiService.prefetchQuestions('psychology', 3);
+          await apiService.prefetchQuestions('funfacts', 3);
         } catch (err) {
           console.error('Failed to prefetch questions:', err);
         }
@@ -81,7 +86,13 @@ function App() {
       setIsQuestionLoading(true);
       setError(null);
       
+      console.log(`Fetching ${selectedSection} question...`);
       const question = await apiService.getRandomQuestion(selectedSection);
+      console.log("Received question:", question);
+      
+      if (!question) {
+        throw new Error("No question data received");
+      }
       
       // Check if question has been used before
       if (usedQuestionIds.has(question.id)) {
@@ -99,36 +110,52 @@ function App() {
         setUsedQuestionIds(prev => new Set([...prev, question.id]));
       }
       
-      // Shuffle answer options
-      const shuffledQuestion = {...question};
-      const optionKeys = Object.keys(shuffledQuestion.options);
-      const optionValues = Object.values(shuffledQuestion.options);
+      // Shuffle answer options (if they exist)
+      if (question.options) {
+        const shuffledQuestion = {...question};
+        const optionKeys = Object.keys(shuffledQuestion.options);
+        const optionValues = Object.values(shuffledQuestion.options);
+        
+        // Create a mapping of old positions to new positions
+        const newPositions = [...optionKeys].sort(() => Math.random() - 0.5);
+        const oldToNewMap = {};
+        optionKeys.forEach((key, index) => {
+          oldToNewMap[key] = newPositions[index];
+        });
+        
+        // Create shuffled options object
+        const shuffledOptions = {};
+        optionKeys.forEach((key, index) => {
+          shuffledOptions[newPositions[index]] = optionValues[index];
+        });
+        
+        // Update correct answer based on the new positions
+        const newCorrectAnswer = oldToNewMap[shuffledQuestion.correctAnswer];
+        
+        shuffledQuestion.options = shuffledOptions;
+        shuffledQuestion.correctAnswer = newCorrectAnswer;
+        
+        setCurrentQuestion(shuffledQuestion);
+      } else {
+        setCurrentQuestion(question);
+      }
       
-      // Create a mapping of old positions to new positions
-      const newPositions = [...optionKeys].sort(() => Math.random() - 0.5);
-      const oldToNewMap = {};
-      optionKeys.forEach((key, index) => {
-        oldToNewMap[key] = newPositions[index];
-      });
-      
-      // Create shuffled options object
-      const shuffledOptions = {};
-      optionKeys.forEach((key, index) => {
-        shuffledOptions[newPositions[index]] = optionValues[index];
-      });
-      
-      // Update correct answer based on the new positions
-      const newCorrectAnswer = oldToNewMap[shuffledQuestion.correctAnswer];
-      
-      shuffledQuestion.options = shuffledOptions;
-      shuffledQuestion.correctAnswer = newCorrectAnswer;
-      
-      setCurrentQuestion(shuffledQuestion);
       setShowQuestion(true);
       setQuestionsAnswered(prev => prev + 1);
     } catch (error) {
       console.error('Error fetching question:', error);
       setError(`Failed to fetch question: ${error.message}`);
+      
+      // If we have a section but no question, try using a fallback
+      if (selectedSection) {
+        try {
+          const fallbackQuestion = apiService.getFallbackQuestion(selectedSection);
+          setCurrentQuestion(fallbackQuestion);
+          setShowQuestion(true);
+        } catch (fallbackError) {
+          console.error('Error getting fallback question:', fallbackError);
+        }
+      }
     } finally {
       setIsLoading(false);
       setIsQuestionLoading(false);
@@ -140,7 +167,7 @@ function App() {
     const loadVideos = async () => {
       try {
         console.log('Loading videos from YouTube service');
-        const loadedVideos = await YouTubeService.getViralShorts(20);
+        const loadedVideos = await YouTubeService.getViralShorts(10);
         console.log(`Loaded ${loadedVideos.length} videos`);
         
         if (loadedVideos && loadedVideos.length > 0) {
@@ -315,13 +342,10 @@ function App() {
       {!showWelcome && !showSection && (
         <>
           {showQuestion && !isLoading && !tutorialMode && (
-            <button 
-              className="fixed top-4 left-4 z-50 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full flex items-center gap-2 transition-colors shadow-md"
-              onClick={watchVideo}
-              disabled={availableVideos <= 0}
-            >
-              <span className="font-medium">Rewards: {availableVideos}</span>
-            </button>
+            <RewardsButton 
+              availableVideos={availableVideos} 
+              onWatchVideo={watchVideo} 
+            />
           )}
           
           {timeMode && (
@@ -363,13 +387,23 @@ function App() {
                 <div className="flex items-center justify-center h-full my-20">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
                 </div>
-              ) : (
+              ) : currentQuestion ? (
                 <QuestionCard 
                   question={currentQuestion}
                   onAnswerSubmit={handleAnswerSubmit}
                   timeMode={timeMode}
                   streak={streak}
                 />
+              ) : (
+                <div className="w-full h-full bg-white p-4 rounded-lg text-center my-20">
+                  <p>No question available. Please try a different category or check your connection.</p>
+                  <button
+                    onClick={() => setShowSection(true)}
+                    className="mt-4 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full transition-colors"
+                  >
+                    Go Back To Categories
+                  </button>
+                </div>
               )}
             </div>
           ) : (
