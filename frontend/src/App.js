@@ -197,7 +197,6 @@ function App() {
   }, [videos]);
 
   // Handle answer submission
-// Handle answer submission
   const handleAnswerSubmit = useCallback((isCorrect, answerTime = null) => {
     if (isCorrect) {
       // Update correct answers count
