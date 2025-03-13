@@ -17,7 +17,7 @@ class YouTubeService {
       }
 
       // FIXED: Use the correct path to the JSON file
-      const response = await fetch('/public/youtube-videos.json');
+      const response = await fetch('/youtube-videos.json');
       
       if (!response.ok) {
         throw new Error(`Failed to fetch videos: ${response.status}`);
