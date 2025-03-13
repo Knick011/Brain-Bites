@@ -107,11 +107,13 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
     
     setSelectedAnswer(option);
     
+    // Always show explanation
     setTimeout(() => {
       setShowExplanation(true);
       setExplanationTimeLeft(15);
       
-      if (option === question.correctAnswer) {
+      const isCorrect = option === question.correctAnswer;
+      if (isCorrect) {
         SoundEffects.playCorrect();
         
         // Show points animation if in time mode
