@@ -244,36 +244,18 @@ function App() {
         loadingVideosRef.current = true;
         console.log('Loading videos from YouTube service');
         
-        // Try with a larger number of videos
-        const videos = await YouTubeService.getViralShorts(50);
-        
+        const videos = await YouTubeService.getViralShorts(30);
         console.log('Videos loaded:', videos?.length || 0);
         
         if (videos && videos.length > 0) {
           setVideos(videos);
         } else {
-          throw new Error('No videos found or videos array is empty');
+          console.warn('No videos were loaded from service');
         }
       } catch (error) {
         console.error('Error loading videos:', error);
-        // Set fallback videos with more options
-        setVideos([
-          {
-            id: 'dummyId1',
-            url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
-            title: 'Sample Video 1'
-          },
-          {
-            id: 'dummyId2',
-            url: 'https://www.youtube.com/shorts/8_gdcaX9Xqk',
-            title: 'Sample Video 2'
-          },
-          {
-            id: 'dummyId3',
-            url: 'https://www.youtube.com/shorts/c0YNnrHBARc',
-            title: 'Sample Video 3'
-          }
-        ]);
+        // Start with empty videos - no fallbacks
+        setVideos([]);
       } finally {
         setIsLoading(false);
         loadingVideosRef.current = false;
@@ -301,7 +283,7 @@ function App() {
     }, 30000); // Retry every 30 seconds
     
     return () => clearInterval(retryTimer);
-  }, [networkStatus]);
+  }, [networkStatus, tutorialMode]);
   
   // Refresh videos periodically to avoid staleness
   useEffect(() => {
@@ -334,58 +316,27 @@ function App() {
 
   // Get a random video that hasn't been seen recently with retry logic
   const getRandomVideo = useCallback(() => {
-    if (videoLockRef.current) {
-      console.warn('Video selection is locked, waiting for previous operation to complete');
+    if (videoLockRef.current || !videos || videos.length === 0) {
       return null;
     }
     
     videoLockRef.current = true;
     
     try {
-      if (!videos || videos.length === 0) {
-        console.warn('No videos available for random selection');
-        videoLockRef.current = false;
-        return null;
-      }
+      // Get a random video
+      const randomIndex = Math.floor(Math.random() * videos.length);
+      const randomVideo = videos[randomIndex];
       
-      console.log(`Selecting random video from ${videos.length} videos`);
-      console.log('Used video IDs:', [...usedVideoIds]);
-      
-      // Find videos that haven't been used recently
-      const unusedVideos = videos.filter(video => !usedVideoIds.has(video.id));
-      console.log(`${unusedVideos.length} unused videos available`);
-      
-      // If we've used all videos or almost all, reset the used set
-      if (unusedVideos.length < 5) {
-        console.log('Resetting used videos set - most videos have been shown');
-        setUsedVideoIds(new Set());
-        const randomVideo = videos[Math.floor(Math.random() * videos.length)];
-        setUsedVideoIds(new Set([randomVideo.id]));
-        videoLockRef.current = false;
-        return randomVideo;
-      }
-      
-      // Otherwise pick from the unused videos
-      const randomVideo = unusedVideos[Math.floor(Math.random() * unusedVideos.length)];
-      
-      // Mark as used
+      // Add to used videos set
       setUsedVideoIds(prev => new Set([...prev, randomVideo.id]));
-      console.log(`Selected video: ${randomVideo.id} - ${randomVideo.title}`);
       
       videoLockRef.current = false;
       return randomVideo;
     } catch (error) {
-      console.error('Error selecting random video:', error);
       videoLockRef.current = false;
-      
-      // Return fallback in case of error
-      return {
-        id: 'emergencyFallback',
-        url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
-        title: 'Emergency Fallback Video'
-      };
+      return null;
     }
-  }, [videos, usedVideoIds]);
+  }, [videos]);
 
   // Handle answer submission
   const handleAnswerSubmit = useCallback((isCorrect, answerTime = null) => {
@@ -481,18 +432,9 @@ function App() {
     try {
       // Get unique videos for all available rewards
       const videosToWatch = [];
-      let retryCount = 0;
-      const maxRetries = 3;
       
       for (let i = 0; i < availableVideos; i++) {
         let video = getRandomVideo();
-        
-        // Retry getting a video if it failed
-        while (!video && retryCount < maxRetries) {
-          retryCount++;
-          console.log(`Retrying video selection, attempt ${retryCount}`);
-          video = getRandomVideo();
-        }
         
         if (video) {
           videosToWatch.push(video);
