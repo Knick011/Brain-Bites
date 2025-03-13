@@ -68,7 +68,8 @@ class YouTubeService {
       }
       
       if (!response || !response.ok) {
-        throw new Error(`Failed to fetch videos from any path`);
+        console.log('No successful response, using fallback videos');
+        return this.fallbackVideos;
       }
       
       // Parse the response as text first to verify it's valid JSON
@@ -80,11 +81,12 @@ class YouTubeService {
       } catch (err) {
         console.error(`Invalid JSON from ${successPath}:`, err);
         console.error('First 100 chars of response:', text.substring(0, 100));
-        throw new Error('Invalid JSON response');
+        return this.fallbackVideos;
       }
       
       if (!data.videos || !Array.isArray(data.videos) || data.videos.length === 0) {
-        throw new Error('No videos found in response');
+        console.error('No videos found in response');
+        return this.fallbackVideos;
       }
       
       // Update cache
@@ -144,24 +146,40 @@ class YouTubeService {
       !this.cache.shownVideos.has(video.id)
     );
     
-    // Reset if needed
+    // If we don't have enough videos, reset the shown videos tracker
     if (availableVideos.length < count) {
-      console.log('Resetting shown videos cache');
+      console.log('Not enough videos available, resetting shown videos cache');
       this.cache.shownVideos.clear();
-      return this.getUniqueVideosFromCache(count);
+      
+      // Return fallback videos if we don't have enough even after reset
+      if (this.cache.videos.length < count) {
+        return this.fallbackVideos.slice(0, count);
+      }
+      
+      // Return random videos from the full cache
+      return this.getRandomVideos(this.cache.videos, count);
     }
     
-    // Get random videos
+    // Get random videos from available ones
+    return this.getRandomVideos(availableVideos, count);
+  }
+  
+  /**
+   * Select random videos from an array
+   */
+  getRandomVideos(videoArray, count) {
     const results = [];
-    const tempAvailable = [...availableVideos];
+    const tempAvailable = [...videoArray];
     
     while (results.length < count && tempAvailable.length > 0) {
       const randomIndex = Math.floor(Math.random() * tempAvailable.length);
       const video = tempAvailable[randomIndex];
       
       tempAvailable.splice(randomIndex, 1);
-      this.cache.shownVideos.add(video.id);
-      results.push(video);
+      if (video && video.id) {
+        this.cache.shownVideos.add(video.id);
+        results.push(video);
+      }
     }
     
     return results;
