@@ -1,4 +1,6 @@
-// utils/SoundEffects.js
+/**
+ * Service for managing sound effects
+ */
 class SoundEffects {
   static sounds = {
     correct: null,
@@ -10,7 +12,7 @@ class SoundEffects {
 
   static preloadSounds() {
     try {
-      // Only load sounds if we're in a browser environment
+      // Only load sounds if we're in a browser environment with Audio support
       if (typeof Audio !== 'undefined') {
         this.sounds.correct = new Audio('/sounds/correct.mp3');
         this.sounds.incorrect = new Audio('/sounds/incorrect.mp3');
@@ -24,9 +26,11 @@ class SoundEffects {
             sound.load();
           }
         });
+
+        console.log('Sound effects preloaded');
       }
     } catch (error) {
-      console.error('Error preloading sounds:', error);
+      console.warn('Error preloading sounds:', error);
     }
   }
 
@@ -36,10 +40,10 @@ class SoundEffects {
         // Create a clone to allow overlapping sounds
         const soundClone = this.sounds[sound].cloneNode();
         soundClone.volume = 0.7;
-        soundClone.play().catch(err => console.error('Error playing sound:', err));
+        soundClone.play().catch(err => console.warn('Error playing sound:', err));
       }
     } catch (error) {
-      console.error(`Error playing ${sound} sound:`, error);
+      console.warn(`Error playing ${sound} sound:`, error);
     }
   }
 
