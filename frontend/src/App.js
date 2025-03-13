@@ -1,33 +1,16 @@
-// App.js - updated version
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
-import MainSelection from './components/VQLN/Selection/MainSelection';
-import YouTubeLogin from './components/VQLN/YouTubeLogin';
-import RewardsButton from './components/VQLN/RewardsButton';
-import ProgressBar from './components/VQLN/ProgressBar';
-import ScoreDisplay from './components/VQLN/ScoreDisplay';
-import MilestoneCelebration from './components/VQLN/MilestoneCelebration';
-import TimeModeIntro from './components/VQLN/TimeModeIntro';
+import MainSelection from './components/VQLN/Welcome/MainSelection';
 import SoundEffects from './utils/SoundEffects';
-import TutorialPopup from './components/VQLN/Tutorial/TutorialPopup';
-import GameModePopup from './components/VQLN/GameModePopup';
-import AllDoneMessage from './components/VQLN/AllDoneMessage';
-import RewardsConfirmation from './components/VQLN/RewardsConfirmation';
-import RewardNotification from './components/VQLN/RewardNotification';
 import YouTubeService from './utils/YouTubeService';
 import ApiService from './utils/ApiService';
 import './styles/theme.css';
 import './styles/GameStyles.css';
-import './styles/popup-animations.css';
 
-// API Configuration
-const API_BASE_URL = 'https://brain-bites-api.onrender.com';
-
-// Initialize API service
-const apiService = new ApiService(API_BASE_URL);
+// Initialize services
+const apiService = new ApiService();
 
 function App() {
   // State variables
@@ -40,45 +23,20 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isQuestionLoading, setIsQuestionLoading] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
-  const [youtubePersonalization, setYoutubePersonalization] = useState(false);
-  const [personalizedVideos, setPersonalizedVideos] = useState([]);
-  const [videoReady, setVideoReady] = useState(false);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [streak, setStreak] = useState(0);
   const [availableVideos, setAvailableVideos] = useState(0);
   const [timeMode, setTimeMode] = useState(false);
   const [score, setScore] = useState(0);
-  const [showMilestone, setShowMilestone] = useState(false);
-  const [currentMilestone, setCurrentMilestone] = useState(0);
-  const [showTimeIntro, setShowTimeIntro] = useState(false);
   const [error, setError] = useState(null);
   const [usedQuestionIds, setUsedQuestionIds] = useState(new Set());
-  const [usedVideoIds, setUsedVideoIds] = useState(new Set());
   const [tutorialMode, setTutorialMode] = useState(true);
-  const [showTutorial, setShowTutorial] = useState(false);
-  const [tutorialStep, setTutorialStep] = useState(0);
-  const [watchingAllRewards, setWatchingAllRewards] = useState(false);
-  const [rewardsToWatch, setRewardsToWatch] = useState([]);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [showExitConfirmation, setShowExitConfirmation] = useState(false);
-  const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
-  const [showGameModePopup, setShowGameModePopup] = useState(false);
-  const [showRewardPopup, setShowRewardPopup] = useState(false);
-  const [apiWarmedUp, setApiWarmedUp] = useState(false);
   const [networkStatus, setNetworkStatus] = useState(navigator.onLine);
 
-  // Refs to avoid closure issues with state
-  const videoLockRef = useRef(false);
-  
   // Monitor network status
   useEffect(() => {
-    const handleOnline = () => {
-      setNetworkStatus(true);
-      // Try to reconnect when network comes back
-      apiService.warmup();
-    };
-    
+    const handleOnline = () => setNetworkStatus(true);
     const handleOffline = () => {
       setNetworkStatus(false);
       setError("Network connection lost. Some features may not work properly.");
@@ -93,149 +51,105 @@ function App() {
     };
   }, []);
   
-  // Tutorial steps configuration
-  const tutorialSteps = [
-    {
-      title: "Welcome to Brain Bites!",
-      content: "Let's learn how to use this app. First, you'll be answering trivia questions.",
-      element: ".question-container"
-    },
-    {
-      title: "Answer Questions",
-      content: "Select the correct answer from the options. For each correct answer, you'll get to watch a fun video!",
-      element: ".space-y-3"
-    },
-    {
-      title: "Build Your Streak",
-      content: "Your streak shows how many questions you've answered correctly in a row.",
-      element: ".streak-counter"
-    },
-    {
-      title: "Watch Videos",
-      content: "After each correct answer in tutorial mode, you'll get to watch a fun short video!",
-      element: ".video-container"
-    },
-    {
-      title: "Ready to Start?",
-      content: "You're all set! Let's begin with your first question.",
-      element: ".question-container"
-    }
-  ];
-
-  // Initialize API warmup with more frequent checks
+  // Initialize API availability check
   useEffect(() => {
-    const warmupApi = async () => {
-      // Try to warm up the API
-      const isWarmedUp = await apiService.warmup();
-      setApiWarmedUp(isWarmedUp);
-      
-      // Start keeping the API warm with more frequent pings (every 3 minutes)
-      apiService.startWarmupInterval(3);
+    const checkApi = async () => {
+      const isAvailable = await apiService.checkAvailability();
+      if (!isAvailable && networkStatus) {
+        console.warn('API not available, prefetching questions for offline use');
+        try {
+          await apiService.prefetchQuestions('psychology', 5);
+          await apiService.prefetchQuestions('funfacts', 5);
+        } catch (err) {
+          console.error('Failed to prefetch questions:', err);
+        }
+      }
     };
     
-    warmupApi();
-    
-    // Clean up on unmount
-    return () => {
-      apiService.stopWarmupInterval();
-    };
-  }, []);
+    checkApi();
+  }, [networkStatus]);
 
-  // Fetch question with improved error handling using ApiService
+  // Fetch question with error handling
   const fetchQuestion = useCallback(async () => {
+    if (!selectedSection) {
+      console.warn('No section selected, cannot fetch question');
+      return;
+    }
+    
     try {
       setIsLoading(true);
       setIsQuestionLoading(true);
       setError(null);
       
-      // Use the ApiService instead of direct axios calls
-      if (!selectedSection) {
-        throw new Error('No section selected');
-      }
-      
       const question = await apiService.getRandomQuestion(selectedSection);
       
-      if (question) {
-        // Check if question has been used before
-        if (usedQuestionIds.has(question.id)) {
-          // If we've used all questions from the set (60 total), reset the used set
-          if (usedQuestionIds.size >= 58) { // Leave a little buffer
-            setUsedQuestionIds(new Set());
-          } else {
-            // Try getting another question
-            setIsLoading(false);
-            setIsQuestionLoading(false);
-            return fetchQuestion();
-          }
+      // Check if question has been used before
+      if (usedQuestionIds.has(question.id)) {
+        // If we've used many questions, reset the used set
+        if (usedQuestionIds.size >= 20) {
+          setUsedQuestionIds(new Set([question.id]));
+        } else {
+          // Try getting another question
+          setIsLoading(false);
+          setIsQuestionLoading(false);
+          return fetchQuestion();
         }
-        
-        // Shuffle answer options
-        const shuffledQuestion = {...question};
-        const optionKeys = Object.keys(shuffledQuestion.options);
-        const optionValues = Object.values(shuffledQuestion.options);
-        
-        // Create a mapping of old positions to new positions
-        const newPositions = [...optionKeys].sort(() => Math.random() - 0.5);
-        const oldToNewMap = {};
-        optionKeys.forEach((key, index) => {
-          oldToNewMap[key] = newPositions[index];
-        });
-        
-        // Create shuffled options object
-        const shuffledOptions = {};
-        optionKeys.forEach((key, index) => {
-          shuffledOptions[newPositions[index]] = optionValues[index];
-        });
-        
-        // Update correct answer based on the new positions
-        const newCorrectAnswer = oldToNewMap[shuffledQuestion.correctAnswer];
-        
-        shuffledQuestion.options = shuffledOptions;
-        shuffledQuestion.correctAnswer = newCorrectAnswer;
-        
+      } else {
         // Add to used questions set
         setUsedQuestionIds(prev => new Set([...prev, question.id]));
-        
-        setCurrentQuestion(shuffledQuestion);
-        setShowQuestion(true);
-        setQuestionsAnswered(prev => prev + 1);
-      } else {
-        throw new Error('No question data received');
       }
+      
+      // Shuffle answer options
+      const shuffledQuestion = {...question};
+      const optionKeys = Object.keys(shuffledQuestion.options);
+      const optionValues = Object.values(shuffledQuestion.options);
+      
+      // Create a mapping of old positions to new positions
+      const newPositions = [...optionKeys].sort(() => Math.random() - 0.5);
+      const oldToNewMap = {};
+      optionKeys.forEach((key, index) => {
+        oldToNewMap[key] = newPositions[index];
+      });
+      
+      // Create shuffled options object
+      const shuffledOptions = {};
+      optionKeys.forEach((key, index) => {
+        shuffledOptions[newPositions[index]] = optionValues[index];
+      });
+      
+      // Update correct answer based on the new positions
+      const newCorrectAnswer = oldToNewMap[shuffledQuestion.correctAnswer];
+      
+      shuffledQuestion.options = shuffledOptions;
+      shuffledQuestion.correctAnswer = newCorrectAnswer;
+      
+      setCurrentQuestion(shuffledQuestion);
+      setShowQuestion(true);
+      setQuestionsAnswered(prev => prev + 1);
     } catch (error) {
       console.error('Error fetching question:', error);
-      
-      // Get API status to provide better error messages
-      const apiStatus = apiService.getStatus();
-      
-      setError(`Failed to fetch question: ${apiStatus.lastError || error.message}.`);
-      
-      // Try warming up the API for next time
-      if (networkStatus) {
-        apiService.warmup();
-      }
+      setError(`Failed to fetch question: ${error.message}`);
     } finally {
       setIsLoading(false);
       setIsQuestionLoading(false);
     }
-  }, [selectedSection, usedQuestionIds, networkStatus]);
+  }, [selectedSection, usedQuestionIds]);
 
-  // SIMPLIFIED: Load videos on initial mount
+  // Load videos on initial mount
   useEffect(() => {
     const loadVideos = async () => {
       try {
         console.log('Loading videos from YouTube service');
-        const videos = await YouTubeService.getViralShorts(30);
-        console.log(`Loaded ${videos.length} videos`);
+        const loadedVideos = await YouTubeService.getViralShorts(20);
+        console.log(`Loaded ${loadedVideos.length} videos`);
         
-        if (videos && videos.length > 0) {
-          setVideos(videos);
+        if (loadedVideos && loadedVideos.length > 0) {
+          setVideos(loadedVideos);
         } else {
           console.warn('No videos were loaded');
         }
       } catch (error) {
         console.error('Error loading videos:', error);
-        setVideos([]);
       } finally {
         setIsLoading(false);
       }
@@ -243,16 +157,9 @@ function App() {
 
     loadVideos();
     SoundEffects.preloadSounds();
-    
-    // Start tutorial after loading
-    setTimeout(() => {
-      if (tutorialMode) {
-        setShowTutorial(true);
-      }
-    }, 1500);
-  }, [tutorialMode]);
+  }, []);
 
-  // SIMPLIFIED: Get a random video
+  // Get a random video
   const getRandomVideo = useCallback(() => {
     if (!videos || videos.length === 0) {
       return null;
@@ -274,7 +181,7 @@ function App() {
         setScore(prevScore => prevScore + timeScore);
       }
       
-      // Update streak and check milestone
+      // Update streak
       const newStreak = streak + 1;
       setStreak(newStreak);
       
@@ -295,17 +202,7 @@ function App() {
         if (correctAnswers + 1 >= 5) {
           setTimeout(() => {
             setTutorialMode(false);
-            
-            // Show time mode intro after tutorial completion
-            setTimeout(() => {
-              setTimeMode(true);
-              setShowTimeIntro(true);
-              
-              // Show game mode popup after intro closes
-              setTimeout(() => {
-                setShowGameModePopup(true);
-              }, 5000);
-            }, 1000);
+            setTimeMode(true);
           }, 3000);
         }
       } else {
@@ -313,22 +210,6 @@ function App() {
         if (newStreak % 2 === 0) {
           // Standard reward: 1 video every 2 questions
           setAvailableVideos(prev => prev + 1);
-          setShowRewardPopup(true);
-          setTimeout(() => setShowRewardPopup(false), 3000);
-        }
-        
-        // Milestone rewards: extra video at streaks of 5, 10, 15, etc.
-        if (newStreak >= 5 && newStreak % 5 === 0) {
-          setShowMilestone(true);
-          setCurrentMilestone(newStreak);
-          setAvailableVideos(prev => prev + 2); // Add 2 instead of 1
-          SoundEffects.playStreak();
-        }
-        
-        // Start time mode at streak of 10 if not already active
-        if (newStreak === 10 && !timeMode) {
-          setTimeMode(true);
-          setShowTimeIntro(true);
         }
         
         // Fetch next question after a delay
@@ -349,112 +230,50 @@ function App() {
     }
   }, [correctAnswers, fetchQuestion, streak, timeMode, tutorialMode, getRandomVideo]);
 
-  // Start watching all rewards with error handling and retry
-  const startWatchingAllRewards = useCallback(() => {
+  // Start watching a video from rewards
+  const watchVideo = useCallback(() => {
     if (availableVideos <= 0) return;
     
     try {
-      // Get unique videos for all available rewards
-      const videosToWatch = [];
+      // Get a random video
+      const video = getRandomVideo();
       
-      for (let i = 0; i < availableVideos; i++) {
-        let video = getRandomVideo();
-        
-        if (video) {
-          videosToWatch.push(video);
-        }
-      }
-      
-      if (videosToWatch.length > 0) {
-        setRewardsToWatch(videosToWatch);
-        setCurrentVideoIndex(0);
-        setCurrentVideo(videosToWatch[0]);
-        setWatchingAllRewards(true);
+      if (video) {
+        setCurrentVideo(video);
         setShowQuestion(false);
-        setAvailableVideos(0); // Reset available videos count
+        setAvailableVideos(prev => prev - 1);
       } else {
-        setError("Couldn't load videos. Please try again later.");
+        setError("Couldn't load video. Please try again later.");
       }
     } catch (error) {
-      console.error('Error starting videos:', error);
-      setError("Error loading videos: " + error.message);
+      console.error('Error loading video:', error);
+      setError("Error loading video: " + error.message);
     }
   }, [availableVideos, getRandomVideo]);
 
   // Handle video ending
   const handleVideoEnd = useCallback(() => {
-    if (watchingAllRewards) {
-      // Move to next video if available
-      if (currentVideoIndex < rewardsToWatch.length - 1) {
-        setCurrentVideoIndex(prev => prev + 1);
-        setCurrentVideo(rewardsToWatch[currentVideoIndex + 1]);
-      } else {
-        // No more videos
-        setWatchingAllRewards(false);
-        setShowQuestion(true);
-        setShowAllDoneMessage(true);
-        setTimeout(() => setShowAllDoneMessage(false), 3000);
-      }
-    } else {
-      // Single video mode - go back to questions
-      setShowQuestion(true);
-      
-      // In tutorial mode, fetch next question after video
-      if (tutorialMode) {
-        fetchQuestion();
-      }
+    setShowQuestion(true);
+    
+    // In tutorial mode, fetch next question after video
+    if (tutorialMode) {
+      fetchQuestion();
     }
-  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch, tutorialMode, fetchQuestion]);
+  }, [tutorialMode, fetchQuestion]);
 
   // Handle video skip
   const handleVideoSkip = useCallback(() => {
-    if (watchingAllRewards) {
-      // Move to next video if available
-      if (currentVideoIndex < rewardsToWatch.length - 1) {
-        setCurrentVideoIndex(prev => prev + 1);
-        setCurrentVideo(rewardsToWatch[currentVideoIndex + 1]);
-      } else {
-        // No more videos
-        setWatchingAllRewards(false);
-        setShowQuestion(true);
-        setShowAllDoneMessage(true);
-        setTimeout(() => setShowAllDoneMessage(false), 3000);
-      }
-    } else {
-      // Single video mode - go back to questions
-      setShowQuestion(true);
-      
-      // In tutorial mode, fetch next question after video
-      if (tutorialMode) {
-        fetchQuestion();
-      }
-    }
-  }, [watchingAllRewards, currentVideoIndex, rewardsToWatch, tutorialMode, fetchQuestion]);
-
-  // Handle exit from rewards section
-  const handleExitRewards = useCallback(() => {
-    if (watchingAllRewards) {
-      setShowExitConfirmation(true);
-    } else {
-      setShowQuestion(true);
-    }
-  }, [watchingAllRewards]);
-
-  // Confirm exit from rewards
-  const confirmExitRewards = useCallback(() => {
-    setShowExitConfirmation(false);
-    setWatchingAllRewards(false);
     setShowQuestion(true);
-  }, []);
-
-  // Cancel exit from rewards
-  const cancelExitRewards = useCallback(() => {
-    setShowExitConfirmation(false);
-  }, []);
+    
+    // In tutorial mode, fetch next question after video
+    if (tutorialMode) {
+      fetchQuestion();
+    }
+  }, [tutorialMode, fetchQuestion]);
 
   // Handle video ready state
   const handleVideoReady = useCallback(() => {
-    setVideoReady(true);
+    console.log('Video ready to play');
   }, []);
 
   // Handle start button click
@@ -469,42 +288,17 @@ function App() {
     SoundEffects.playTransition();
     setSelectedSection(section);
     setShowSection(false);
-    fetchQuestion();
+    
+    // Prefetch some questions in the background
+    apiService.prefetchQuestions(section, 5);
+    
+    // Fetch the first question
+    setTimeout(() => {
+      fetchQuestion();
+    }, 100);
   }, [fetchQuestion]);
-
-  // Handle milestone close
-  const handleMilestoneClose = useCallback(() => {
-    setShowMilestone(false);
-  }, []);
-
-  // Handle time intro close
-  const handleTimeIntroClose = useCallback(() => {
-    setShowTimeIntro(false);
-  }, []);
-
-  // Handle YouTube login
-  const handleYouTubeLogin = useCallback((isLoggedIn, videos = []) => {
-    setYoutubePersonalization(isLoggedIn);
-    if (isLoggedIn && videos.length > 0) {
-      setPersonalizedVideos(videos);
-    }
-  }, []);
-
-  // Handle tutorial step navigation
-  const handleNextTutorialStep = useCallback(() => {
-    if (tutorialStep < tutorialSteps.length - 1) {
-      setTutorialStep(prev => prev + 1);
-    } else {
-      setShowTutorial(false);
-    }
-  }, [tutorialStep, tutorialSteps.length]);
-
-  // Handle game mode popup close
-  const handleGameModePopupClose = useCallback(() => {
-    setShowGameModePopup(false);
-  }, []);
-
-  // Auto-dismiss the error after 5 seconds
+  
+  // Auto-dismiss errors after 5 seconds
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
@@ -517,18 +311,24 @@ function App() {
 
   return (
     <div className="app">
+      {/* Login/Rewards buttons visibility */}
       {!showWelcome && !showSection && (
         <>
-          <YouTubeLogin onLoginStatusChange={handleYouTubeLogin} />
-          
           {showQuestion && !isLoading && !tutorialMode && (
-            <RewardsButton 
-              availableVideos={availableVideos} 
-              onWatchVideo={startWatchingAllRewards} 
-            />
+            <button 
+              className="fixed top-4 left-4 z-50 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full flex items-center gap-2 transition-colors shadow-md"
+              onClick={watchVideo}
+              disabled={availableVideos <= 0}
+            >
+              <span className="font-medium">Rewards: {availableVideos}</span>
+            </button>
           )}
           
-          {timeMode && <ScoreDisplay score={score} />}
+          {timeMode && (
+            <div className="fixed top-4 right-4 z-40 bg-white shadow-md rounded-full px-4 py-2 flex items-center gap-2">
+              <span className="font-bold text-lg">Score: {score}</span>
+            </div>
+          )}
         </>
       )}
       
@@ -549,10 +349,14 @@ function App() {
                   Tutorial Mode: Question {questionsAnswered} of 5
                 </div>
               ) : (
-                <ProgressBar 
-                  questionsAnswered={questionsAnswered}
-                  tutorialMode={false}
-                />
+                <div className="w-full mb-4 px-4">
+                  <div className="flex justify-between text-xs text-gray-600 mb-1">
+                    <span className="font-medium">Questions Answered: {questionsAnswered}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-orange-500 h-2 rounded-full transition-all duration-500 ease-out w-full"></div>
+                  </div>
+                </div>
               )}
               
               {isQuestionLoading ? (
@@ -575,78 +379,23 @@ function App() {
                 onEnd={handleVideoEnd}
                 onSkip={handleVideoSkip}
                 onReady={handleVideoReady}
-                onExit={handleExitRewards}
-                watchingAllRewards={watchingAllRewards}
-                currentIndex={currentVideoIndex + 1}
-                totalVideos={rewardsToWatch.length}
               />
             </>
           )}
         </>
-      )}
-
-      {/* Tutorial Popup */}
-      {showTutorial && (
-        <TutorialPopup 
-          step={tutorialSteps[tutorialStep]} 
-          onNext={handleNextTutorialStep}
-          currentStep={tutorialStep + 1}
-          totalSteps={tutorialSteps.length}
-        />
-      )}
-
-      {/* Game Mode Popup */}
-      {showGameModePopup && (
-        <GameModePopup onClose={handleGameModePopupClose} />
-      )}
-
-      {/* Milestone Celebration */}
-      {showMilestone && (
-        <MilestoneCelebration 
-          milestone={currentMilestone}
-          onClose={handleMilestoneClose}
-        />
-      )}
-      
-      {/* Time Mode Intro */}
-      {showTimeIntro && (
-        <TimeModeIntro onClose={handleTimeIntroClose} />
-      )}
-      
-      {/* All Done Message */}
-      {showAllDoneMessage && (
-        <AllDoneMessage />
-      )}
-      
-      {/* Exit confirmation for rewards */}
-      {showExitConfirmation && (
-        <RewardsConfirmation
-          onConfirm={confirmExitRewards}
-          onCancel={cancelExitRewards}
-          remainingVideos={rewardsToWatch.length - currentVideoIndex - 1}
-        />
-      )}
-      
-      {/* Rewards earned popup */}
-      {showRewardPopup && (
-        <RewardNotification 
-          isVisible={showRewardPopup}
-          onClose={() => setShowRewardPopup(false)}
-          rewardCount={1}
-        />
-      )}
-      
-      {/* Network status indicator */}
-      {!networkStatus && (
-        <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
-          You're offline. Some features may not work.
-        </div>
       )}
       
       {/* Error message */}
       {error && (
         <div className="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg animate-fadeIn z-50">
           {error}
+        </div>
+      )}
+      
+      {/* Network status indicator */}
+      {!networkStatus && (
+        <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          You're offline. Some features may not work.
         </div>
       )}
     </div>
