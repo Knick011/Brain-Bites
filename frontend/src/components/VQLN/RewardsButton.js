@@ -1,7 +1,9 @@
-// components/VQLN/RewardsButton.js
 import React, { useState } from 'react';
 import { Video, X } from 'lucide-react';
 
+/**
+ * Button for accessing video rewards
+ */
 const RewardsButton = ({ availableVideos, onWatchVideo }) => {
   const [showRewards, setShowRewards] = useState(false);
   
