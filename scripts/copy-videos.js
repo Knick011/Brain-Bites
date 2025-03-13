@@ -1,35 +1,37 @@
 const fs = require('fs');
 const path = require('path');
 
-// Paths
-const sourceJsonFile = path.resolve(__dirname, '../public/youtube-videos.json');
-const buildJsonFile = path.resolve(__dirname, '../build/youtube-videos.json');
-
-// Ensure videos.json is in both locations
+// Copy youtube-videos.json from the project root to the build directory
 function copyVideosJson() {
-  console.log('Checking for YouTube videos JSON file...');
+  const sourceFile = path.join(__dirname, '../youtube-videos.json');
+  const targetFile = path.join(__dirname, '../build/youtube-videos.json');
   
-  // Create fallback JSON if needed
-  if (!fs.existsSync(sourceJsonFile)) {
-    console.log('Creating placeholder youtube-videos.json in public/');
-    const fallbackJson = {
-      videos: [],
-      lastUpdated: new Date().toISOString(),
-      count: 0,
-      note: "This is a placeholder file. It should be populated by GitHub Actions."
-    };
+  try {
+    // Make sure the build directory exists
+    if (!fs.existsSync(path.join(__dirname, '../build'))) {
+      console.log('Build directory not found, skipping copy.');
+      return;
+    }
     
-    fs.writeFileSync(sourceJsonFile, JSON.stringify(fallbackJson, null, 2));
+    // Copy the file if it exists
+    if (fs.existsSync(sourceFile)) {
+      fs.copyFileSync(sourceFile, targetFile);
+      console.log('Successfully copied youtube-videos.json to build directory');
+    } else {
+      console.log('Source youtube-videos.json not found, using empty json');
+      // Create an empty structure
+      const emptyVideos = {
+        videos: [],
+        lastUpdated: new Date().toISOString(),
+        count: 0
+      };
+      
+      fs.writeFileSync(targetFile, JSON.stringify(emptyVideos, null, 2));
+      console.log('Created empty youtube-videos.json in build directory');
+    }
+  } catch (error) {
+    console.error('Error copying youtube-videos.json:', error);
   }
-  
-  // Copy to build directory if it exists
-  if (fs.existsSync(path.resolve(__dirname, '../build'))) {
-    console.log('Copying youtube-videos.json to build/');
-    fs.copyFileSync(sourceJsonFile, buildJsonFile);
-  }
-  
-  console.log('Done!');
 }
 
-// Run the copy function
 copyVideosJson();
