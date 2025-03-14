@@ -7,6 +7,8 @@ import RewardsButton from './components/VQLN/RewardsButton';
 import SoundEffects from './utils/SoundEffects';
 import YouTubeService from './utils/YouTubeService';
 import ApiService from './utils/ApiService';
+import ApiWarmupService from './utils/ApiWarmupService';
+import SwipeNavigation from './components/VQLN/SwipeNavigation';
 import './styles/theme.css';
 import './styles/GameStyles.css';
 
@@ -49,6 +51,7 @@ function App() {
   const [usedQuestionIds, setUsedQuestionIds] = useState(new Set());
   const [tutorialMode, setTutorialMode] = useState(true);
   const [networkStatus, setNetworkStatus] = useState(navigator.onLine);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
 
   // Monitor network status
   useEffect(() => {
@@ -101,6 +104,17 @@ function App() {
     }, 5 * 60 * 1000); // 5 minutes
 
     return () => clearInterval(pingInterval);
+  }, []);
+
+  // Start API warmup service
+  useEffect(() => {
+    // Start the API warmup service when the app loads
+    ApiWarmupService.start();
+    
+    // Stop the warmup service when the component unmounts
+    return () => {
+      ApiWarmupService.stop();
+    };
   }, []);
 
   // Fetch question with error handling
@@ -399,6 +413,14 @@ function App() {
       setIsQuestionLoading(false);
     }
   }, []);
+
+  // Handle continue from explanation
+  const handleContinue = useCallback(() => {
+    if (tutorialMode && selectedAnswer) {
+      const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
+      handleAnswerSubmit(isCorrect);
+    }
+  }, [tutorialMode, selectedAnswer, currentQuestion, handleAnswerSubmit]);
   
   // Auto-dismiss errors after 5 seconds
   useEffect(() => {
@@ -463,12 +485,19 @@ function App() {
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
                 </div>
               ) : currentQuestion ? (
-                <QuestionCard 
-                  question={currentQuestion}
-                  onAnswerSubmit={handleAnswerSubmit}
-                  timeMode={timeMode}
-                  streak={streak}
-                />
+                <>
+                  <QuestionCard 
+                    question={currentQuestion}
+                    onAnswerSubmit={handleAnswerSubmit}
+                    timeMode={timeMode}
+                    streak={streak}
+                    onSelectAnswer={setSelectedAnswer}
+                  />
+                  {/* Add swipe navigation in tutorial mode after answering a question */}
+                  {tutorialMode && selectedAnswer && (
+                    <SwipeNavigation onSwipeUp={handleContinue} />
+                  )}
+                </>
               ) : (
                 <div className="w-full h-full bg-white p-4 rounded-lg text-center my-20">
                   <p>No question available. Please try a different category or check your connection.</p>
@@ -489,6 +518,7 @@ function App() {
                 onSkip={handleVideoSkip}
                 onReady={handleVideoReady}
               />
+              <SwipeNavigation onSwipeUp={handleVideoSkip} />
             </>
           )}
         </>
