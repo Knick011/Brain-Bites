@@ -2,9 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import AnswerNotification from './AnswerNotification';
 
-/**
- * Question display card component
- */
 const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
