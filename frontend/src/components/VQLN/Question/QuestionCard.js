@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import AnswerNotification from './AnswerNotification';
 
-const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }) => {
+const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0, onSelectAnswer }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [answerTime, setAnswerTime] = useState(10);
@@ -39,6 +39,13 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
     return () => clearInterval(timer);
   }, [timerActive, timeMode]);
 
+  // Update parent component with selected answer for swipe navigation
+  useEffect(() => {
+    if (onSelectAnswer && selectedAnswer !== null) {
+      onSelectAnswer(selectedAnswer);
+    }
+  }, [selectedAnswer, onSelectAnswer]);
+
   if (!question) {
     return <div className="w-full h-full bg-white p-4">Loading question...</div>;
   }
@@ -46,6 +53,7 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
   const handleTimeUp = () => {
     if (!selectedAnswer) {
       setSelectedAnswer('TIMEOUT');
+      if (onSelectAnswer) onSelectAnswer('TIMEOUT');
       setShowExplanation(true);
       setExplanationTimeLeft(15);
     }
@@ -61,6 +69,7 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
     setTimerActive(false);
     
     setSelectedAnswer(option);
+    if (onSelectAnswer) onSelectAnswer(option);
     
     // Always show explanation with a short delay
     setTimeout(() => {
