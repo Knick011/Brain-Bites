@@ -10,9 +10,6 @@ import ApiService from './utils/ApiService';
 import './styles/theme.css';
 import './styles/GameStyles.css';
 
-// Initialize services
-const apiService = new ApiService();
-
 function App() {
   // State variables
   const [showWelcome, setShowWelcome] = useState(true);
@@ -56,15 +53,15 @@ function App() {
   useEffect(() => {
     const checkApi = async () => {
       console.log("Checking API availability...");
-      const isAvailable = await apiService.checkAvailability();
+      const isAvailable = await ApiService.checkAvailability();
       console.log("API available:", isAvailable);
       
       if (!isAvailable && networkStatus) {
         console.warn('API not available, prefetching questions for offline use');
         try {
           // Prefetch some fallback questions
-          await apiService.prefetchQuestions('psychology', 3);
-          await apiService.prefetchQuestions('funfacts', 3);
+          await ApiService.prefetchQuestions('psychology', 3);
+          await ApiService.prefetchQuestions('funfacts', 3);
         } catch (err) {
           console.error('Failed to prefetch questions:', err);
         }
@@ -87,7 +84,7 @@ function App() {
       setError(null);
       
       console.log(`Fetching ${selectedSection} question...`);
-      const question = await apiService.getRandomQuestion(selectedSection);
+      const question = await ApiService.getRandomQuestion(selectedSection);
       console.log("Received question:", question);
       
       if (!question) {
@@ -149,7 +146,7 @@ function App() {
       // If we have a section but no question, try using a fallback
       if (selectedSection) {
         try {
-          const fallbackQuestion = apiService.getFallbackQuestion(selectedSection);
+          const fallbackQuestion = ApiService.getFallbackQuestion(selectedSection);
           setCurrentQuestion(fallbackQuestion);
           setShowQuestion(true);
         } catch (fallbackError) {
@@ -254,17 +251,21 @@ function App() {
         }, 500);
       }
       
-      SoundEffects.playCorrect();
+      if (SoundEffects.playCorrect) {
+        SoundEffects.playCorrect();
+      }
     } else {
       setStreak(0);
-      SoundEffects.playIncorrect();
+      if (SoundEffects.playIncorrect) {
+        SoundEffects.playIncorrect();
+      }
       
       // Fetch a new question after a delay
       setTimeout(() => {
         fetchQuestion();
       }, 500);
     }
-  }, [correctAnswers, fetchQuestion, streak, timeMode, tutorialMode, getRandomVideo]);
+  }, [correctAnswers, fetchQuestion, getRandomVideo, streak, timeMode, tutorialMode]);
 
   // Start watching a video from rewards
   const watchVideo = useCallback(() => {
@@ -314,19 +315,23 @@ function App() {
 
   // Handle start button click
   const handleStart = useCallback(() => {
-    SoundEffects.playTransition();
+    if (SoundEffects.playTransition) {
+      SoundEffects.playTransition();
+    }
     setShowWelcome(false);
     setShowSection(true);
   }, []);
 
   // Handle section selection
   const handleMainSelection = useCallback((section) => {
-    SoundEffects.playTransition();
+    if (SoundEffects.playTransition) {
+      SoundEffects.playTransition();
+    }
     setSelectedSection(section);
     setShowSection(false);
     
     // Prefetch some questions in the background
-    apiService.prefetchQuestions(section, 5);
+    ApiService.prefetchQuestions(section, 5);
     
     // Fetch the first question
     setTimeout(() => {
