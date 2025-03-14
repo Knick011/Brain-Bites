@@ -1,12 +1,7 @@
 // components/VQLN/Question/AnswerNotification.js
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, AlertCircle, ChevronDown } from 'lucide-react';
 
-/**
- * Answer Notification Popup
- * 
- * This component shows the explanation after answering a question.
- */
 const AnswerNotification = ({ 
   isCorrect, 
   isTimeout = false, 
@@ -45,32 +40,24 @@ const AnswerNotification = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onContinue]);
-  
-  const getIcon = () => {
-    if (isCorrect) return <CheckCircle size={32} className="text-green-500" />;
-    if (isTimeout) return <AlertCircle size={32} className="text-yellow-500" />;
-    return <XCircle size={32} className="text-red-500" />;
-  };
-  
-  const getTitle = () => {
-    if (isCorrect) return "Correct!";
-    if (isTimeout) return "Time's up!";
-    return "Incorrect";
-  };
-  
-  const getBackgroundColor = () => {
-    if (isCorrect) return "bg-green-50";
-    if (isTimeout) return "bg-yellow-50";
-    return "bg-red-50";
-  };
-  
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
-      <div className="bg-white rounded-lg max-w-md w-full mx-4 shadow-2xl animate-fadeIn">
-        <div className={`rounded-lg p-5 ${getBackgroundColor()}`}>
+      <div className="bg-white rounded-lg max-w-md w-full mx-4 shadow-2xl">
+        <div className={`rounded-lg p-5 ${
+          isCorrect ? "bg-green-50" : isTimeout ? "bg-yellow-50" : "bg-red-50"
+        }`}>
           <div className="flex items-center gap-3 mb-3">
-            {getIcon()}
-            <h3 className="text-xl font-bold">{getTitle()}</h3>
+            {isCorrect ? (
+              <CheckCircle size={32} className="text-green-500" />
+            ) : isTimeout ? (
+              <AlertCircle size={32} className="text-yellow-500" />
+            ) : (
+              <XCircle size={32} className="text-red-500" />
+            )}
+            <h3 className="text-xl font-bold">
+              {isCorrect ? "Correct!" : isTimeout ? "Time's up!" : "Incorrect"}
+            </h3>
           </div>
           
           {!isCorrect && !isTimeout && (
