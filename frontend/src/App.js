@@ -10,6 +10,24 @@ import ApiService from './utils/ApiService';
 import './styles/theme.css';
 import './styles/GameStyles.css';
 
+// Error message component
+const ErrorMessage = ({ message, onRetry }) => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <h3 className="text-xl font-bold text-red-600 mb-4">Error</h3>
+      <p className="text-gray-700 mb-4">{message}</p>
+      {onRetry && (
+        <button 
+          onClick={onRetry}
+          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          Try Again
+        </button>
+      )}
+    </div>
+  </div>
+);
+
 function App() {
   // State variables
   const [showWelcome, setShowWelcome] = useState(true);
@@ -59,7 +77,7 @@ function App() {
       if (!isAvailable && networkStatus) {
         console.warn('API not available, prefetching questions for offline use');
         try {
-          // Prefetch some fallback questions
+          // Prefetch some questions
           await ApiService.prefetchQuestions('psychology', 3);
           await ApiService.prefetchQuestions('funfacts', 3);
         } catch (err) {
@@ -70,6 +88,20 @@ function App() {
     
     checkApi();
   }, [networkStatus]);
+  
+  // Keep API alive with periodic pings
+  useEffect(() => {
+    // Send a ping to the server every 5 minutes to keep it active
+    const pingInterval = setInterval(() => {
+      if (ApiService.isReady) {
+        fetch(`${ApiService.baseUrl}/`)
+          .then(response => console.log("API keep-alive ping sent"))
+          .catch(err => console.warn("API ping failed:", err));
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(pingInterval);
+  }, []);
 
   // Fetch question with error handling
   const fetchQuestion = useCallback(async () => {
@@ -142,17 +174,7 @@ function App() {
     } catch (error) {
       console.error('Error fetching question:', error);
       setError(`Failed to fetch question: ${error.message}`);
-      
-      // If we have a section but no question, try using a fallback
-      if (selectedSection) {
-        try {
-          const fallbackQuestion = ApiService.getFallbackQuestion(selectedSection);
-          setCurrentQuestion(fallbackQuestion);
-          setShowQuestion(true);
-        } catch (fallbackError) {
-          console.error('Error getting fallback question:', fallbackError);
-        }
-      }
+      setIsQuestionLoading(false);
     } finally {
       setIsLoading(false);
       setIsQuestionLoading(false);
@@ -330,14 +352,53 @@ function App() {
     setSelectedSection(section);
     setShowSection(false);
     
-    // Prefetch some questions in the background
-    ApiService.prefetchQuestions(section, 5);
-    
-    // Fetch the first question
-    setTimeout(() => {
-      fetchQuestion();
-    }, 100);
-  }, [fetchQuestion]);
+    // Immediately fetch the first question
+    try {
+      console.log(`Selecting section: ${section}`);
+      const fetchInitialQuestion = async () => {
+        setIsQuestionLoading(true);
+        const question = await ApiService.getRandomQuestion(section);
+        
+        if (question) {
+          // Process the question (same as in fetchQuestion)
+          const shuffledQuestion = {...question};
+          if (shuffledQuestion.options) {
+            const optionKeys = Object.keys(shuffledQuestion.options);
+            const optionValues = Object.values(shuffledQuestion.options);
+            
+            const newPositions = [...optionKeys].sort(() => Math.random() - 0.5);
+            const oldToNewMap = {};
+            optionKeys.forEach((key, index) => {
+              oldToNewMap[key] = newPositions[index];
+            });
+            
+            const shuffledOptions = {};
+            optionKeys.forEach((key, index) => {
+              shuffledOptions[newPositions[index]] = optionValues[index];
+            });
+            
+            const newCorrectAnswer = oldToNewMap[shuffledQuestion.correctAnswer];
+            
+            shuffledQuestion.options = shuffledOptions;
+            shuffledQuestion.correctAnswer = newCorrectAnswer;
+          }
+          
+          setCurrentQuestion(shuffledQuestion);
+          setShowQuestion(true);
+          setQuestionsAnswered(prev => prev + 1);
+        }
+        setIsQuestionLoading(false);
+      };
+      
+      fetchInitialQuestion();
+      
+      // Also prefetch more questions for later use
+      ApiService.prefetchQuestions(section, 5);
+    } catch (error) {
+      console.error("Error in initial question fetch:", error);
+      setIsQuestionLoading(false);
+    }
+  }, []);
   
   // Auto-dismiss errors after 5 seconds
   useEffect(() => {
@@ -435,9 +496,17 @@ function App() {
       
       {/* Error message */}
       {error && (
-        <div className="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg animate-fadeIn z-50">
-          {error}
-        </div>
+        <ErrorMessage 
+          message={error}
+          onRetry={() => {
+            setError(null);
+            if (selectedSection) {
+              fetchQuestion();
+            } else {
+              setShowSection(true);
+            }
+          }}
+        />
       )}
       
       {/* Network status indicator */}
