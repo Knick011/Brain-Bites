@@ -1,207 +1,114 @@
-import React, { useState, useEffect } from 'react';
-import SoundEffects from '../../../utils/SoundEffects';
-import AnswerNotification from './AnswerNotification';
+// components/VQLN/Question/AnswerNotification.js
+import React, { useEffect, useState } from 'react';
+import { CheckCircle, XCircle, AlertCircle, ChevronDown } from 'lucide-react';
 
 /**
- * Question display card component
+ * Answer Notification Popup
+ * 
+ * This component shows the explanation after answering a question.
  */
-const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }) => {
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [showExplanation, setShowExplanation] = useState(false);
-  const [answerTime, setAnswerTime] = useState(10);
-  const [timerActive, setTimerActive] = useState(true);
-  const [pointsEarned, setPointsEarned] = useState(0);
-  const [showPoints, setShowPoints] = useState(false);
-  const [explanationTimeLeft, setExplanationTimeLeft] = useState(15);
-
-  // Reset states when a new question is loaded
+const AnswerNotification = ({ 
+  isCorrect, 
+  isTimeout = false, 
+  explanation, 
+  correctAnswer,
+  onContinue,
+  timeLeft = 15
+}) => {
+  const [timer, setTimer] = useState(timeLeft);
+  
+  // Countdown timer effect
   useEffect(() => {
-    setSelectedAnswer(null);
-    setShowExplanation(false);
-    setExplanationTimeLeft(15);
+    const countdown = setInterval(() => {
+      setTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(countdown);
+          onContinue && onContinue();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
     
-    if (timeMode) {
-      setAnswerTime(10);
-      setTimerActive(true);
-    }
-  }, [question, timeMode]);
-
-  // Timer for question timeout
+    return () => clearInterval(countdown);
+  }, [onContinue]);
+  
+  // Handle keyboard shortcuts
   useEffect(() => {
-    let timer;
-    if (timerActive && timeMode) {
-      timer = setInterval(() => {
-        setAnswerTime(prev => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            handleTimeUp();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [timerActive, timeMode]);
-
-  // Timer for explanation auto-proceed
-  useEffect(() => {
-    let timer;
-    if (showExplanation) {
-      timer = setInterval(() => {
-        setExplanationTimeLeft(prev => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            onAnswerSubmit(selectedAnswer === question.correctAnswer);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [showExplanation, onAnswerSubmit, selectedAnswer, question]);
-
-  // Keyboard shortcut for skipping explanation
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'ArrowDown' && showExplanation) {
-        onAnswerSubmit(selectedAnswer === question.correctAnswer);
+    const handleKeyDown = (e) => {
+      // Continue on Space, Enter, or Down Arrow
+      if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowDown') {
+        onContinue && onContinue();
       }
     };
-
+    
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showExplanation, onAnswerSubmit, selectedAnswer, question]);
-
-  if (!question) {
-    return <div className="w-full h-full bg-white p-4">Loading question...</div>;
-  }
-
-  const handleTimeUp = () => {
-    if (!selectedAnswer) {
-      SoundEffects.playIncorrect();
-      setSelectedAnswer('TIMEOUT');
-      setShowExplanation(true);
-      setExplanationTimeLeft(15);
-    }
+  }, [onContinue]);
+  
+  const getIcon = () => {
+    if (isCorrect) return <CheckCircle size={32} className="text-green-500" />;
+    if (isTimeout) return <AlertCircle size={32} className="text-yellow-500" />;
+    return <XCircle size={32} className="text-red-500" />;
   };
-
-  const handleAnswerClick = (option) => {
-    if (selectedAnswer !== null) return;
-    
-    // Calculate remaining time for scoring
-    const remainingTime = timeMode ? answerTime : null;
-    
-    // Stop the timer
-    setTimerActive(false);
-    
-    // Calculate points if in time mode
-    if (timeMode && remainingTime) {
-      const calculatedPoints = Math.max(10, Math.floor(100 - (remainingTime * 9)));
-      setPointsEarned(calculatedPoints);
-    }
-    
-    // Play button press sound
-    SoundEffects.playButtonPress();
-    
-    setSelectedAnswer(option);
-    
-    setTimeout(() => {
-      setShowExplanation(true);
-      setExplanationTimeLeft(15);
-      
-      if (option === question.correctAnswer) {
-        SoundEffects.playCorrect();
-        
-        // Show points animation if in time mode
-        if (timeMode) {
-          setShowPoints(true);
-          setTimeout(() => setShowPoints(false), 1500);
-        }
-      } else {
-        SoundEffects.playIncorrect();
-      }
-    }, 500);
+  
+  const getTitle = () => {
+    if (isCorrect) return "Correct!";
+    if (isTimeout) return "Time's up!";
+    return "Incorrect";
   };
-
-  // Handle continue from explanation
-  const handleContinue = () => {
-    onAnswerSubmit(selectedAnswer === question.correctAnswer);
+  
+  const getBackgroundColor = () => {
+    if (isCorrect) return "bg-green-50";
+    if (isTimeout) return "bg-yellow-50";
+    return "bg-red-50";
   };
-
+  
   return (
-    <div className="w-full h-full bg-white rounded-lg shadow-md p-6">
-      {/* Streak Display */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-gray-700 font-medium">Streak:</span>
-          <span className="bg-orange-500 text-white px-3 py-1 rounded-full">{streak}</span>
-        </div>
-        
-        {timeMode && (
-          <div className="w-2/3">
-            <div className="flex justify-end mb-1">
-              <span className="text-gray-700 font-medium">{answerTime}s</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div 
-                className={`h-2.5 rounded-full transition-all duration-1000 ease-linear ${
-                  answerTime > 6 ? 'bg-green-500' : 
-                  answerTime > 3 ? 'bg-yellow-500' : 'bg-red-500'
-                }`}
-                style={{ width: `${(answerTime / 10) * 100}%` }}
-              ></div>
-            </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
+      <div className="bg-white rounded-lg max-w-md w-full mx-4 shadow-2xl animate-fadeIn">
+        <div className={`rounded-lg p-5 ${getBackgroundColor()}`}>
+          <div className="flex items-center gap-3 mb-3">
+            {getIcon()}
+            <h3 className="text-xl font-bold">{getTitle()}</h3>
           </div>
-        )}
-      </div>
-      
-      {/* Points animation */}
-      {showPoints && timeMode && (
-        <div className="fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-orange-500 animate-bounce z-50">
-          +{pointsEarned}
-        </div>
-      )}
-      
-      <div className="mb-6">
-        <h2 className="text-xl font-bold mb-4">{question.question}</h2>
-        
-        <div className="space-y-3">
-          {Object.entries(question.options).map(([key, value]) => (
-            <button
-              key={key}
-              onClick={() => handleAnswerClick(key)}
-              className={`w-full p-3 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-center rounded-full transition-colors ${
-                selectedAnswer === key && showExplanation
-                  ? key === question.correctAnswer
-                    ? 'from-green-400 to-green-500'
-                    : 'from-red-400 to-red-500'
-                  : selectedAnswer === key
-                    ? 'bg-gray-200 text-gray-800'  // Selected but waiting for result
-                    : 'hover:from-orange-500 hover:to-orange-600'
-              } ${selectedAnswer !== null ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-              disabled={selectedAnswer !== null}
+          
+          {!isCorrect && !isTimeout && (
+            <div className="mb-4">
+              <p className="font-medium mb-1">The correct answer was:</p>
+              <p className="text-gray-800 font-bold">{correctAnswer}</p>
+            </div>
+          )}
+          
+          <div className="mb-6">
+            <p className="text-gray-700">{explanation}</p>
+          </div>
+          
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-600">
+              Next question in {timer}s
+            </div>
+            
+            <button 
+              onClick={onContinue}
+              className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium transition-colors"
             >
-              {value}
+              <span>Continue</span>
+              <ChevronDown size={16} />
             </button>
-          ))}
+          </div>
+          
+          {/* Progress bar */}
+          <div className="w-full bg-gray-200 h-1 mt-4 rounded-full overflow-hidden">
+            <div 
+              className="h-1 bg-orange-500 transition-all duration-1000 ease-linear" 
+              style={{ width: `${(timer / timeLeft) * 100}%` }}
+            ></div>
+          </div>
         </div>
       </div>
-
-      {/* Explanation Popup */}
-      {showExplanation && (
-        <AnswerNotification 
-          isCorrect={selectedAnswer === question.correctAnswer}
-          isTimeout={selectedAnswer === 'TIMEOUT'}
-          explanation={question.explanation}
-          correctAnswer={question.options[question.correctAnswer]}
-          onContinue={handleContinue}
-          timeLeft={explanationTimeLeft}
-        />
-      )}
     </div>
   );
 };
 
-export default QuestionCard;
+export default AnswerNotification;
