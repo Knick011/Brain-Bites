@@ -1,5 +1,5 @@
+// components/VQLN/Question/QuestionCard.js
 import React, { useState, useEffect } from 'react';
-import SoundEffects from '../../../utils/SoundEffects';
 import AnswerNotification from './AnswerNotification';
 
 /**
@@ -10,8 +10,6 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
   const [showExplanation, setShowExplanation] = useState(false);
   const [answerTime, setAnswerTime] = useState(10);
   const [timerActive, setTimerActive] = useState(true);
-  const [pointsEarned, setPointsEarned] = useState(0);
-  const [showPoints, setShowPoints] = useState(false);
   const [explanationTimeLeft, setExplanationTimeLeft] = useState(15);
 
   // Reset states when a new question is loaded
@@ -44,43 +42,12 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
     return () => clearInterval(timer);
   }, [timerActive, timeMode]);
 
-  // Timer for explanation auto-proceed
-  useEffect(() => {
-    let timer;
-    if (showExplanation) {
-      timer = setInterval(() => {
-        setExplanationTimeLeft(prev => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            onAnswerSubmit(selectedAnswer === question.correctAnswer);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [showExplanation, onAnswerSubmit, selectedAnswer, question]);
-
-  // Keyboard shortcut for skipping explanation
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'ArrowDown' && showExplanation) {
-        onAnswerSubmit(selectedAnswer === question.correctAnswer);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showExplanation, onAnswerSubmit, selectedAnswer, question]);
-
   if (!question) {
     return <div className="w-full h-full bg-white p-4">Loading question...</div>;
   }
 
   const handleTimeUp = () => {
     if (!selectedAnswer) {
-      SoundEffects.playIncorrect();
       setSelectedAnswer('TIMEOUT');
       setShowExplanation(true);
       setExplanationTimeLeft(15);
@@ -96,39 +63,17 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
     // Stop the timer
     setTimerActive(false);
     
-    // Calculate points if in time mode
-    if (timeMode && remainingTime) {
-      const calculatedPoints = Math.max(10, Math.floor(100 - (remainingTime * 9)));
-      setPointsEarned(calculatedPoints);
-    }
-    
-    // Play button press sound
-    SoundEffects.playButtonPress();
-    
     setSelectedAnswer(option);
     
-    // Always show explanation
+    // Always show explanation with a short delay
     setTimeout(() => {
       setShowExplanation(true);
-      setExplanationTimeLeft(15);
-      
-      const isCorrect = option === question.correctAnswer;
-      if (isCorrect) {
-        SoundEffects.playCorrect();
-        
-        // Show points animation if in time mode
-        if (timeMode) {
-          setShowPoints(true);
-          setTimeout(() => setShowPoints(false), 1500);
-        }
-      } else {
-        SoundEffects.playIncorrect();
-      }
-    }, 500);
+    }, 300);
   };
 
   // Handle continue from explanation
   const handleContinue = () => {
+    setShowExplanation(false);
     onAnswerSubmit(selectedAnswer === question.correctAnswer);
   };
 
@@ -159,13 +104,6 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
         )}
       </div>
       
-      {/* Points animation */}
-      {showPoints && timeMode && (
-        <div className="fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-orange-500 animate-bounce z-50">
-          +{pointsEarned}
-        </div>
-      )}
-      
       <div className="mb-6">
         <h2 className="text-xl font-bold mb-4">{question.question}</h2>
         
@@ -174,18 +112,16 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0 }
             <button
               key={key}
               onClick={() => handleAnswerClick(key)}
-              className={`w-full p-3 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-center rounded-full transition-colors ${
-                selectedAnswer === key && showExplanation
+              className={`w-full p-3 bg-gray-100 text-left rounded-lg transition-colors ${
+                selectedAnswer === key 
                   ? key === question.correctAnswer
-                    ? 'from-green-400 to-green-500'
-                    : 'from-red-400 to-red-500'
-                  : selectedAnswer === key
-                    ? 'bg-gray-200 text-gray-800'  // Selected but waiting for result
-                    : 'hover:from-orange-500 hover:to-orange-600'
+                    ? 'bg-green-200'
+                    : 'bg-red-200'
+                  : 'hover:bg-gray-200'
               } ${selectedAnswer !== null ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               disabled={selectedAnswer !== null}
             >
-              {value}
+              <span className="font-medium">{key}: </span>{value}
             </button>
           ))}
         </div>
