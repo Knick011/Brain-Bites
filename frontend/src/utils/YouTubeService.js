@@ -9,24 +9,7 @@ class YouTubeService {
       shownVideos: new Set()
     };
     this.cacheExpiry = 30 * 60 * 1000; // 30 minutes cache
-    this.fallbackVideos = [
-      {
-        id: "8_gdcaX9Xqk",
-        url: "https://www.youtube.com/shorts/8_gdcaX9Xqk",
-        title: "Would You Split Or Steal $250,000?",
-        channelTitle: "MrBeast",
-        channelHandle: "MrBeast",
-        addedAt: new Date().toISOString()
-      },
-      {
-        id: "c0YNnrHBARc",
-        url: "https://www.youtube.com/shorts/c0YNnrHBARc",
-        title: "How I Start My Mornings - Harvest Edition",
-        channelTitle: "Zach King",
-        channelHandle: "ZachKing",
-        addedAt: new Date().toISOString()
-      }
-    ];
+    this.fallbackVideos = []; // Removed fallback videos
   }
 
   /**
@@ -68,8 +51,8 @@ class YouTubeService {
       }
       
       if (!response || !response.ok) {
-        console.log('No successful response, using fallback videos');
-        return this.fallbackVideos;
+        console.error('No successful response from video sources');
+        throw new Error("Failed to load videos from any source");
       }
       
       // Parse the response as text first to verify it's valid JSON
@@ -81,12 +64,12 @@ class YouTubeService {
       } catch (err) {
         console.error(`Invalid JSON from ${successPath}:`, err);
         console.error('First 100 chars of response:', text.substring(0, 100));
-        return this.fallbackVideos;
+        throw new Error("Invalid video data format");
       }
       
       if (!data.videos || !Array.isArray(data.videos) || data.videos.length === 0) {
         console.error('No videos found in response');
-        return this.fallbackVideos;
+        throw new Error("No videos available");
       }
       
       // Update cache
@@ -119,9 +102,8 @@ class YouTubeService {
         console.error('Error loading from localStorage:', err);
       }
       
-      // Return fallback videos if all else fails
-      console.log('Using fallback videos');
-      return this.fallbackVideos.slice(0, maxResults);
+      // Throw error instead of returning fallbacks
+      throw new Error("Failed to load any videos");
     }
   }
 
@@ -150,11 +132,6 @@ class YouTubeService {
     if (availableVideos.length < count) {
       console.log('Not enough videos available, resetting shown videos cache');
       this.cache.shownVideos.clear();
-      
-      // Return fallback videos if we don't have enough even after reset
-      if (this.cache.videos.length < count) {
-        return this.fallbackVideos.slice(0, count);
-      }
       
       // Return random videos from the full cache
       return this.getRandomVideos(this.cache.videos, count);
@@ -196,5 +173,3 @@ class YouTubeService {
     console.log('Cache cleared');
   }
 }
-
-export default new YouTubeService();
