@@ -125,9 +125,7 @@ class ApiService {
       }
     } catch (error) {
       console.error(`Error fetching question for ${category}:`, error);
-      
-      // Return a fallback question if all else fails
-      return this.getFallbackQuestion(category);
+      throw new Error(`Failed to fetch questions for ${category}: ${error.message}`);
     }
   }
 
@@ -171,66 +169,8 @@ class ApiService {
    * Get a fallback question when API fails
    */
   getFallbackQuestion(category) {
-    console.log(`Using fallback question for ${category}`);
-    
-    const fallbackQuestions = {
-      psychology: [
-        {
-          id: 1,
-          question: "What is the definition of psychology?",
-          options: {
-            A: "The study of human culture",
-            B: "The scientific study of behavior and mental processes",
-            C: "The study of historical events",
-            D: "The study of chemical reactions in the brain"
-          },
-          correctAnswer: "B",
-          explanation: "Psychology is defined as the scientific study of behavior and mental processes."
-        },
-        {
-          id: 2,
-          question: "Who is considered the father of modern psychology?",
-          options: {
-            A: "Sigmund Freud",
-            B: "Wilhelm Wundt",
-            C: "B.F. Skinner",
-            D: "Carl Jung"
-          },
-          correctAnswer: "B",
-          explanation: "Wilhelm Wundt is often regarded as the father of modern psychology because he established the first psychology laboratory."
-        }
-      ],
-      funfacts: [
-        {
-          id: 31,
-          question: "What is the only mammal capable of true flight?",
-          options: {
-            A: "Bat",
-            B: "Squirrel",
-            C: "Flying squirrel",
-            D: "Ostrich"
-          },
-          correctAnswer: "A",
-          explanation: "Bats are the only mammals that can truly fly."
-        },
-        {
-          id: 32,
-          question: "Which animal is known to have the longest migration route?",
-          options: {
-            A: "Monarch butterfly",
-            B: "Arctic tern",
-            C: "Humpback whale",
-            D: "Caribou"
-          },
-          correctAnswer: "B",
-          explanation: "The Arctic tern migrates from the Arctic to the Antarctic and back each year, making it the longest migration of any known animal."
-        }
-      ]
-    };
-    
-    const categoryQuestions = fallbackQuestions[category] || fallbackQuestions.funfacts;
-    const randomIndex = Math.floor(Math.random() * categoryQuestions.length);
-    return categoryQuestions[randomIndex];
+    console.error(`No fallback questions available for ${category}`);
+    throw new Error(`Failed to fetch questions for ${category}`);
   }
 }
 
