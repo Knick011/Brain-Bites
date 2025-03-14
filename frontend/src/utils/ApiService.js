@@ -1,6 +1,4 @@
-/**
- * Service for API interactions
- */
+
 class ApiService {
   constructor(baseUrl) {
     this.baseUrl = baseUrl || 'https://brain-bites-api.onrender.com';
@@ -13,9 +11,7 @@ class ApiService {
     };
   }
 
-  /**
-   * Get a fallback question when API fails
-   */
+
   getFallbackQuestion(category) {
     console.log(`Using fallback question for ${category}`);
     
@@ -79,9 +75,7 @@ class ApiService {
     return categoryQuestions[randomIndex];
   }
 
-  /**
-   * Check if the API is available
-   */
+
   async checkAvailability() {
     try {
       console.log(`Checking API availability at ${this.baseUrl}`);
@@ -111,9 +105,7 @@ class ApiService {
     }
   }
 
-  /**
-   * Get a random question
-   */
+
   async getRandomQuestion(category) {
     if (!category) {
       throw new Error('Category is required');
@@ -165,8 +157,8 @@ class ApiService {
         // Verify the question matches the expected category based on ID
         // Psychology: IDs 1-30, Fun Facts: IDs 31-60
         const isValidQuestion = 
-          (category === 'psychology' && question.id >= 1 && question.id <= 30) || 
-          (category === 'funfacts' && question.id >= 31 && question.id <= 60);
+          (category === 'funfacts' && question.id >= 1 && question.id <= 30) || 
+          (category === 'psychology' && question.id >= 31 && question.id <= 60);
         
         if (!isValidQuestion) {
           console.warn(`Question ID ${question.id} doesn't match expected category ${category}`);
@@ -197,9 +189,7 @@ class ApiService {
     }
   }
 
-  /**
-   * Fetch and cache multiple questions in the background
-   */
+
   async prefetchQuestions(category, count = 5) {
     try {
       if (!this.questionCache[category]) {
