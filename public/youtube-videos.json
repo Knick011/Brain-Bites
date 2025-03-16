@@ -1,6 +1,114 @@
 {
   "videos": [
     {
+      "id": "acbA1plzXFY",
+      "url": "https://www.youtube.com/shorts/acbA1plzXFY",
+      "title": "Cool Intro | David Dobrik",
+      "channelTitle": "David Dobrik",
+      "channelHandle": "DavidDobrik",
+      "publishedAt": "2015-02-15T22:57:51Z",
+      "addedAt": "2025-03-16T12:38:04.523Z"
+    },
+    {
+      "id": "WhmqSeg0XLQ",
+      "url": "https://www.youtube.com/shorts/WhmqSeg0XLQ",
+      "title": "Drove Cross Country for In-N-Out | David Dobrik",
+      "channelTitle": "David Dobrik",
+      "channelHandle": "DavidDobrik",
+      "publishedAt": "2015-02-15T23:11:41Z",
+      "addedAt": "2025-03-16T12:38:04.523Z"
+    },
+    {
+      "id": "630Ui3osC2U",
+      "url": "https://www.youtube.com/shorts/630Ui3osC2U",
+      "title": "Moves you can use with your siblings to make your life at home more efficient.",
+      "channelTitle": "Daniel LaBelle",
+      "channelHandle": "DanielLabielle",
+      "publishedAt": "2020-04-29T14:11:27Z",
+      "addedAt": "2025-03-16T12:38:15.520Z"
+    },
+    {
+      "id": "n7SDv8aBlHI",
+      "url": "https://www.youtube.com/shorts/n7SDv8aBlHI",
+      "title": "Home Alone in a Rush 2",
+      "channelTitle": "Daniel LaBelle",
+      "channelHandle": "DanielLabielle",
+      "publishedAt": "2022-11-25T15:43:33Z",
+      "addedAt": "2025-03-16T12:38:15.520Z"
+    },
+    {
+      "id": "cwJT0RN09QQ",
+      "url": "https://www.youtube.com/shorts/cwJT0RN09QQ",
+      "title": "Speedrunning YT Shorts #197 (fart🏃)",
+      "channelTitle": "Joe Caine",
+      "channelHandle": "joecain",
+      "publishedAt": "2024-12-09T17:15:02Z",
+      "addedAt": "2025-03-16T12:38:18.036Z"
+    },
+    {
+      "id": "cTftSbsB308",
+      "url": "https://www.youtube.com/shorts/cTftSbsB308",
+      "title": "PRETENDING TO BE A BABY FOR FREE IHOP! 😱",
+      "channelTitle": "Cheeky Boyos",
+      "channelHandle": "cheekyboyos",
+      "publishedAt": "2025-02-19T00:00:23Z",
+      "addedAt": "2025-03-16T12:38:24.147Z"
+    },
+    {
+      "id": "5GGYDqepLgU",
+      "url": "https://www.youtube.com/shorts/5GGYDqepLgU",
+      "title": "Amazon Home Favorites #4 | Viral TikTok Products #shorts #products #amazonfinds #homeproducts",
+      "channelTitle": "Justice Buys",
+      "channelHandle": "Justicebuys",
+      "publishedAt": "2023-03-01T17:54:47Z",
+      "addedAt": "2025-03-16T12:38:31.323Z"
+    },
+    {
+      "id": "BuVKgN1S-tQ",
+      "url": "https://www.youtube.com/shorts/BuVKgN1S-tQ",
+      "title": "Try Not to Laugh Challenge 343 🤣 #shorts #funny #viral",
+      "channelTitle": "Jeffrey X",
+      "channelHandle": "Jefferyxreacts",
+      "publishedAt": "2024-03-25T14:32:26Z",
+      "addedAt": "2025-03-16T12:38:32.510Z"
+    },
+    {
+      "id": "UrhKuIJzl7E",
+      "url": "https://www.youtube.com/shorts/UrhKuIJzl7E",
+      "title": "How The Dinosaurs REALLY Went Extinct... 🎯🦖",
+      "channelTitle": "How Ridiculous",
+      "channelHandle": "Howridiculous",
+      "publishedAt": "2025-01-28T04:24:59Z",
+      "addedAt": "2025-03-16T12:38:34.948Z"
+    },
+    {
+      "id": "xLYNMxl3l_Y",
+      "url": "https://www.youtube.com/shorts/xLYNMxl3l_Y",
+      "title": "Testing Unusual Juices",
+      "channelTitle": "Joshua Weissman",
+      "channelHandle": "JoshuaWeissman",
+      "publishedAt": "2024-01-16T18:30:40Z",
+      "addedAt": "2025-03-16T12:38:42.013Z"
+    },
+    {
+      "id": "Qmm2mRVsYdw",
+      "url": "https://www.youtube.com/shorts/Qmm2mRVsYdw",
+      "title": "Shawarma Rice Filipino Style @lumpiaqueen",
+      "channelTitle": "The Golden Balance",
+      "channelHandle": "GoldenBalance",
+      "publishedAt": "2024-08-01T13:00:23Z",
+      "addedAt": "2025-03-16T12:38:49.174Z"
+    },
+    {
+      "id": "EU3MpMxvH7Y",
+      "url": "https://www.youtube.com/shorts/EU3MpMxvH7Y",
+      "title": "Chicken Alfredo (NEW Recipe)",
+      "channelTitle": "The Golden Balance",
+      "channelHandle": "GoldenBalance",
+      "publishedAt": "2024-10-05T13:00:14Z",
+      "addedAt": "2025-03-16T12:38:49.174Z"
+    },
+    {
       "id": "Z8bdV7Hga6M",
       "url": "https://www.youtube.com/shorts/Z8bdV7Hga6M",
       "title": "Try Not to Laugh Challenge 661 🤣 #funny ⁠#shorts #viral",
@@ -2458,6 +2566,6 @@
       "addedAt": "2025-03-14T01:43:21.199Z"
     }
   ],
-  "lastUpdated": "2025-03-16T01:50:27.455Z",
-  "count": 273
+  "lastUpdated": "2025-03-16T12:38:51.296Z",
+  "count": 285
 }
