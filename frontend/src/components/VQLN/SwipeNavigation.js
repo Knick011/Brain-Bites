@@ -1,5 +1,6 @@
 // components/VQLN/SwipeNavigation.js
 import React, { useEffect, useRef, useState } from 'react';
+import { ChevronUp } from 'lucide-react';
 
 /**
  * Component to add swipe navigation functionality 
@@ -89,6 +90,21 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
     <>
       {/* Flash effect when swiping */}
       <div className={`swipe-flash ${showFlash ? 'active' : ''}`}></div>
+      
+      {/* Swipe indicator that shows a floating arrow */}
+      <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
+        <div className="relative flex flex-col items-center">
+          {/* Main pulsing circle */}
+          <div className="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center animate-bounce-slow">
+            <ChevronUp size={24} className="text-white" />
+          </div>
+          
+          {/* Instructional text */}
+          <div className="text-white text-sm mt-2 bg-black bg-opacity-40 px-3 py-1 rounded-full">
+            Swipe up
+          </div>
+        </div>
+      </div>
     </>
   );
 };
