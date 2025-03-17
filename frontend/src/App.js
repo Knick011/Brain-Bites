@@ -1,4 +1,4 @@
-// App.js fixes for ensuring questions display correctly
+// App.js with improvements for swipe navigation and scoring
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -9,8 +9,13 @@ import SoundEffects from './utils/SoundEffects';
 import YouTubeService from './utils/YouTubeService';
 import ApiService from './utils/ApiService';
 import SwipeNavigation from './components/VQLN/SwipeNavigation';
+import TutorialPopup from './components/VQLN/Tutorial/TutorialPopup';
+import GameModePopup from './components/VQLN/GameModePopup';
+import MilestoneCelebration from './components/VQLN/MilestoneCelebration';
+import PointsAnimation from './components/VQLN/Question/PointsAnimation';
 import './styles/theme.css';
 import './styles/GameStyles.css';
+import './styles/popup-animations.css';
 
 function App() {
   // State variables
@@ -34,6 +39,36 @@ function App() {
   const [tutorialMode, setTutorialMode] = useState(true);
   const [networkStatus, setNetworkStatus] = useState(navigator.onLine);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  
+  // New state variables for enhanced UI
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [showGameModePopup, setShowGameModePopup] = useState(false);
+  const [showMilestone, setShowMilestone] = useState(false);
+  const [currentMilestone, setCurrentMilestone] = useState(0);
+  const [answerTime, setAnswerTime] = useState(null);
+  const [showPointsAnimation, setShowPointsAnimation] = useState(false);
+  const [pointsEarned, setPointsEarned] = useState(0);
+
+  // Define tutorial steps
+  const tutorialSteps = [
+    {
+      title: "Welcome to Brain Bites!",
+      content: "Answer quiz questions and watch entertaining videos as rewards. Swipe up to navigate between questions and videos!"
+    },
+    {
+      title: "Answer Questions",
+      content: "Select the correct answer from the options. The faster you answer, the more points you'll earn in Time Mode!"
+    },
+    {
+      title: "Earn Video Rewards",
+      content: "Every 2 correct answers earns you a video reward. Reach streak milestones (5, 10, 15...) for bonus videos!"
+    },
+    {
+      title: "Time Mode",
+      content: "After the tutorial, Time Mode activates! Answer quickly for more points - up to 2x for super-fast answers!"
+    }
+  ];
 
   // Monitor network status
   useEffect(() => {
@@ -175,25 +210,49 @@ function App() {
     return videos[randomIndex];
   }, [videos]);
 
-  // Handle answer submission
-  const handleAnswerSubmit = useCallback((isCorrect, answerTime = null) => {
+  // Handle answer submission with time-based scoring
+  const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
+    // Save the answer time for points calculation
+    setAnswerTime(answerTimeValue);
+    
     if (isCorrect) {
       // Update correct answers count
       setCorrectAnswers(prev => prev + 1);
       
-      // Calculate score if in time mode
+      // Calculate time-based score if in time mode
       if (timeMode) {
         // Default time score if not provided
-        const timeScore = (answerTime !== null) 
-          ? Math.max(10, Math.floor(100 - (answerTime * 9)))
-          : 50; // Default score
+        const timeScore = (answerTimeValue !== null) 
+          ? Math.max(20, Math.floor(100 - (answerTimeValue * 9)))
+          : 50;
         
-        setScore(prevScore => prevScore + timeScore);
+        // Apply time multiplier for faster answers
+        const timeRatio = answerTimeValue !== null ? 1 - (answerTimeValue / 10) : 0.5;
+        const timeMultiplier = 1 + timeRatio; // 1.0 to 2.0 multiplier
+        const finalScore = Math.floor(timeScore * timeMultiplier);
+        
+        // Show points animation
+        setPointsEarned(finalScore);
+        setShowPointsAnimation(true);
+        setTimeout(() => setShowPointsAnimation(false), 1500);
+        
+        // Update total score
+        setScore(prevScore => prevScore + finalScore);
       }
       
       // Update streak
       const newStreak = streak + 1;
       setStreak(newStreak);
+      
+      // Check for milestone achievements (every 5)
+      if (newStreak > 0 && newStreak % 5 === 0 && !tutorialMode) {
+        setCurrentMilestone(newStreak);
+        setShowMilestone(true);
+        setAvailableVideos(prev => prev + 1); // Bonus video for milestone
+        if (SoundEffects.playStreak) {
+          SoundEffects.playStreak();
+        }
+      }
       
       // Tutorial mode - show video immediately after each correct answer
       if (tutorialMode) {
@@ -212,8 +271,11 @@ function App() {
         if (correctAnswers + 1 >= 5) {
           setTimeout(() => {
             setTutorialMode(false);
-            setTimeMode(true);
-          }, 3000);
+            setShowGameModePopup(true); // Show game mode popup
+            setTimeout(() => {
+              setTimeMode(true);
+            }, 3000);
+          }, 1000);
         }
       } else {
         // Game mode reward logic
@@ -225,7 +287,7 @@ function App() {
         // Fetch next question after a delay
         setTimeout(() => {
           fetchQuestion();
-        }, 500);
+        }, 1500);
       }
       
       if (SoundEffects.playCorrect) {
@@ -240,7 +302,7 @@ function App() {
       // Fetch a new question after a delay
       setTimeout(() => {
         fetchQuestion();
-      }, 500);
+      }, 1500);
     }
   }, [correctAnswers, fetchQuestion, getRandomVideo, streak, timeMode, tutorialMode]);
 
@@ -294,7 +356,7 @@ function App() {
     setShowSection(true);
   }, []);
 
-  // Handle section selection
+  // Handle section selection with tutorial initialization
   const handleMainSelection = useCallback((section) => {
     if (SoundEffects.playTransition) {
       SoundEffects.playTransition();
@@ -302,7 +364,11 @@ function App() {
     setSelectedSection(section);
     setShowSection(false);
     
-    // Immediately fetch the first question
+    // Show first tutorial step
+    setTutorialStep(0);
+    setShowTutorial(true);
+    
+    // Load first question in background
     try {
       console.log(`Selecting section: ${section}`);
       const fetchInitialQuestion = async () => {
@@ -347,6 +413,23 @@ function App() {
     }
   }, []);
 
+  // Handle tutorial navigation
+  const handleTutorialNext = useCallback(() => {
+    if (tutorialStep < tutorialSteps.length - 1) {
+      setTutorialStep(prev => prev + 1);
+    } else {
+      setShowTutorial(false);
+    }
+  }, [tutorialStep, tutorialSteps.length]);
+
+  // Handle milestone celebration close
+  const handleMilestoneClose = useCallback(() => {
+    setShowMilestone(false);
+    
+    // Continue with the next question
+    fetchQuestion();
+  }, [fetchQuestion]);
+
   // Handle continue from explanation
   const handleContinue = useCallback(() => {
     if (tutorialMode && selectedAnswer) {
@@ -386,18 +469,46 @@ function App() {
         </>
       )}
       
+      {/* Welcome Screen */}
       {showWelcome && (
         <InitialWelcome onStart={handleStart} isLoading={isLoading} />
       )}
       
+      {/* Section Selection */}
       {showSection && (
         <MainSelection onSelect={handleMainSelection} />
       )}
       
+      {/* Tutorial Popup */}
+      {showTutorial && (
+        <TutorialPopup 
+          step={tutorialSteps[tutorialStep]}
+          onNext={handleTutorialNext}
+          currentStep={tutorialStep + 1}
+          totalSteps={tutorialSteps.length}
+        />
+      )}
+      
+      {/* Game Mode Popup */}
+      {showGameModePopup && (
+        <GameModePopup 
+          onClose={() => setShowGameModePopup(false)}
+        />
+      )}
+      
+      {/* Milestone Celebration */}
+      {showMilestone && (
+        <MilestoneCelebration 
+          milestone={currentMilestone}
+          onClose={handleMilestoneClose}
+        />
+      )}
+      
+      {/* Main Content Area */}
       {!showWelcome && !showSection && (
         <>
           {showQuestion ? (
-            <div className="question-container">
+            <div className="question-container swipe-container">
               {tutorialMode ? (
                 <div className="w-full bg-orange-500 text-white py-2 px-4 text-center font-bold rounded-t-lg">
                   Tutorial Mode: Question {questionsAnswered} of 5
@@ -411,6 +522,16 @@ function App() {
                     <div className="bg-orange-500 h-2 rounded-full transition-all duration-500 ease-out w-full"></div>
                   </div>
                 </div>
+              )}
+              
+              {/* Points Animation */}
+              {showPointsAnimation && (
+                <PointsAnimation 
+                  points={50}
+                  isTimeMode={timeMode}
+                  answerTime={answerTime}
+                  maxTime={10}
+                />
               )}
               
               {isQuestionLoading ? (
