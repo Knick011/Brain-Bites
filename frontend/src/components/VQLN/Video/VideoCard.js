@@ -1,10 +1,10 @@
 // components/VQLN/Video/VideoCard.js
 import React, { useEffect, useState } from 'react';
 import ReactPlayer from 'react-player';
-import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 
 /**
- * Video player component with improved TikTok-style swiping
+ * Video player component with TikTok-style swiping
  */
 const VideoCard = ({ 
   url, 
@@ -18,7 +18,7 @@ const VideoCard = ({
 }) => {
   const [showControls, setShowControls] = useState(true);
   
-  // Hide controls after 3 seconds
+  // Auto-hide controls after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowControls(false);
@@ -77,14 +77,7 @@ const VideoCard = ({
   return (
     <div className="video-container swipe-container" onTouchStart={handleTouch}>
       <div className="swipe-content">
-        <div className="relative" style={{ 
-          width: '100%', 
-          height: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#000'
-        }}>
+        <div className="relative flex items-center justify-center w-full h-full">
           {/* Progress indicator for multiple videos */}
           {watchingAllRewards && (
             <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 px-4 py-2 rounded-full text-white z-10">
@@ -93,59 +86,43 @@ const VideoCard = ({
             </div>
           )}
           
-          <div style={{
-            width: '100%',
-            maxWidth: '450px', 
-            height: '90vh',
-            maxHeight: '800px',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            position: 'relative'
-          }}>
-            <ReactPlayer
-              url={url}
-              width="100%"
-              height="100%"
-              playing={true}
-              controls={false}
-              onEnded={onEnd}
-              onReady={onReady}
-              onError={(e) => {
-                console.error('Video playback error:', e);
-                onSkip && onSkip();
-              }}
-              config={{
-                youtube: {
-                  playerVars: {
-                    modestbranding: 1,
-                    showinfo: 0,
-                    rel: 0,
-                    iv_load_policy: 3,
+          <div className="w-full max-w-md h-full max-h-screen flex items-center justify-center">
+            <div className="relative w-full h-full max-h-[85vh] rounded-lg overflow-hidden">
+              <ReactPlayer
+                url={url}
+                width="100%"
+                height="100%"
+                playing={true}
+                controls={false}
+                onEnded={onEnd}
+                onReady={onReady}
+                onError={(e) => {
+                  console.error('Video playback error:', e);
+                  onSkip && onSkip();
+                }}
+                config={{
+                  youtube: {
+                    playerVars: {
+                      modestbranding: 1,
+                      showinfo: 0,
+                      rel: 0,
+                      iv_load_policy: 3,
+                    },
                   },
-                },
-              }}
-            />
-          </div>
-          
-          {/* TikTok-style swipe indicator */}
-          <div className="swipe-indicator">
-            <div className="circle animate-bounce-slow">
-              <ChevronUp size={24} />
-            </div>
-            <div className="text animate-pulse-soft">
-              Swipe up for next
+                }}
+              />
             </div>
           </div>
           
           {/* Controls */}
           {showControls && (
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4 z-20 animate-fadeIn">
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4 z-10">
               <div className="flex gap-4">
                 {/* Exit button */}
                 {watchingAllRewards && (
                   <button 
                     onClick={onExit}
-                    className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full transition-colors"
+                    className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full transition-colors shadow-md"
                   >
                     <X size={18} />
                     <span>Exit</span>
@@ -155,7 +132,7 @@ const VideoCard = ({
                 {/* Skip button */}
                 <button 
                   onClick={onSkip}
-                  className="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-full transition-colors"
+                  className="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-full transition-colors shadow-md"
                 >
                   <ChevronDown size={18} />
                   <span>{watchingAllRewards ? 'Next' : 'Skip'}</span>
