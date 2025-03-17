@@ -681,3 +681,158 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
 }
+/* Add to your GameStyles.css file */
+
+/* Points Animation Base Styles */
+.points-animation {
+  position: absolute;
+  text-align: center;
+  font-weight: 800;
+  z-index: 100;
+  pointer-events: none;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: points-pop 1.5s ease-out forwards;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.points-value {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+/* Animation for points popup */
+@keyframes points-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  15% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-50%, -80%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -100%) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Time-based points styles */
+.points-time-based .points-value {
+  position: relative;
+  font-size: 3.5rem;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: points-glow 1.5s ease-out;
+}
+
+.points-excellent .points-value {
+  background-image: linear-gradient(45deg, #FFD700, #FFA500);
+  -webkit-text-fill-color: transparent;
+}
+
+.points-great .points-value {
+  background-image: linear-gradient(45deg, #4CAF50, #8BC34A);
+  -webkit-text-fill-color: transparent;
+}
+
+.points-good .points-value {
+  background-image: linear-gradient(45deg, #2196F3, #03A9F4);
+  -webkit-text-fill-color: transparent;
+}
+
+/* Fast bonus indicator */
+.points-bonus-indicator {
+  margin-top: -10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2px 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transform: scale(0);
+  animation: bonus-appear 0.3s ease-out 0.2s forwards;
+}
+
+.points-bonus-text {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #FF5722;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@keyframes bonus-appear {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Timer points animation */
+.timer-points {
+  position: relative;
+  display: inline-block;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.timer-points:after {
+  content: 'pts';
+  font-size: 0.7em;
+  opacity: 0.8;
+  margin-left: 1px;
+}
+
+.timer-danger .timer-points {
+  animation: pulse-points 0.5s ease-in-out infinite;
+}
+
+@keyframes pulse-points {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Timer danger animation */
+.timer-danger {
+  animation: timer-pulse 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes timer-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Points glow effect */
+@keyframes points-glow {
+  0% {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
+  }
+  100% {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+  }
+}
