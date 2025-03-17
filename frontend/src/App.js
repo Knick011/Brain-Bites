@@ -1,3 +1,4 @@
+// App.js fixes for ensuring questions display correctly
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -7,28 +8,9 @@ import RewardsButton from './components/VQLN/RewardsButton';
 import SoundEffects from './utils/SoundEffects';
 import YouTubeService from './utils/YouTubeService';
 import ApiService from './utils/ApiService';
-import ApiWarmupService from './utils/ApiWarmupService';
 import SwipeNavigation from './components/VQLN/SwipeNavigation';
 import './styles/theme.css';
 import './styles/GameStyles.css';
-
-// Error message component
-const ErrorMessage = ({ message, onRetry }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-      <h3 className="text-xl font-bold text-red-600 mb-4">Error</h3>
-      <p className="text-gray-700 mb-4">{message}</p>
-      {onRetry && (
-        <button 
-          onClick={onRetry}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
-        >
-          Try Again
-        </button>
-      )}
-    </div>
-  </div>
-);
 
 function App() {
   // State variables
@@ -76,45 +58,33 @@ function App() {
       console.log("Checking API availability...");
       const isAvailable = await ApiService.checkAvailability();
       console.log("API available:", isAvailable);
-      
-      if (!isAvailable && networkStatus) {
-        console.warn('API not available, prefetching questions for offline use');
-        try {
-          // Prefetch some questions
-          await ApiService.prefetchQuestions('psychology', 3);
-          await ApiService.prefetchQuestions('funfacts', 3);
-        } catch (err) {
-          console.error('Failed to prefetch questions:', err);
-        }
-      }
     };
     
     checkApi();
   }, [networkStatus]);
-  
-  // Keep API alive with periodic pings
+
+  // Load videos on initial mount
   useEffect(() => {
-    // Send a ping to the server every 5 minutes to keep it active
-    const pingInterval = setInterval(() => {
-      if (ApiService.isReady) {
-        fetch(`${ApiService.baseUrl}/`)
-          .then(response => console.log("API keep-alive ping sent"))
-          .catch(err => console.warn("API ping failed:", err));
+    const loadVideos = async () => {
+      try {
+        console.log('Loading videos from YouTube service');
+        const loadedVideos = await YouTubeService.getViralShorts(10);
+        console.log(`Loaded ${loadedVideos.length} videos`);
+        
+        if (loadedVideos && loadedVideos.length > 0) {
+          setVideos(loadedVideos);
+        } else {
+          console.warn('No videos were loaded');
+        }
+      } catch (error) {
+        console.error('Error loading videos:', error);
+      } finally {
+        setIsLoading(false);
       }
-    }, 5 * 60 * 1000); // 5 minutes
-
-    return () => clearInterval(pingInterval);
-  }, []);
-
-  // Start API warmup service
-  useEffect(() => {
-    // Start the API warmup service when the app loads
-    ApiWarmupService.start();
-    
-    // Stop the warmup service when the component unmounts
-    return () => {
-      ApiWarmupService.stop();
     };
+
+    loadVideos();
+    SoundEffects.preloadSounds();
   }, []);
 
   // Fetch question with error handling
@@ -195,30 +165,6 @@ function App() {
     }
   }, [selectedSection, usedQuestionIds]);
 
-  // Load videos on initial mount
-  useEffect(() => {
-    const loadVideos = async () => {
-      try {
-        console.log('Loading videos from YouTube service');
-        const loadedVideos = await YouTubeService.getViralShorts(10);
-        console.log(`Loaded ${loadedVideos.length} videos`);
-        
-        if (loadedVideos && loadedVideos.length > 0) {
-          setVideos(loadedVideos);
-        } else {
-          console.warn('No videos were loaded');
-        }
-      } catch (error) {
-        console.error('Error loading videos:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadVideos();
-    SoundEffects.preloadSounds();
-  }, []);
-
   // Get a random video
   const getRandomVideo = useCallback(() => {
     if (!videos || videos.length === 0) {
@@ -242,12 +188,7 @@ function App() {
           ? Math.max(10, Math.floor(100 - (answerTime * 9)))
           : 50; // Default score
         
-        console.log(`Adding ${timeScore} points to score`);
-        setScore(prevScore => {
-          const newScore = prevScore + timeScore;
-          console.log(`New score: ${newScore}`);
-          return newScore;
-        });
+        setScore(prevScore => prevScore + timeScore);
       }
       
       // Update streak
@@ -344,11 +285,6 @@ function App() {
     }
   }, [tutorialMode, fetchQuestion]);
 
-  // Handle video ready state
-  const handleVideoReady = useCallback(() => {
-    console.log('Video ready to play');
-  }, []);
-
   // Handle start button click
   const handleStart = useCallback(() => {
     if (SoundEffects.playTransition) {
@@ -405,9 +341,6 @@ function App() {
       };
       
       fetchInitialQuestion();
-      
-      // Also prefetch more questions for later use
-      ApiService.prefetchQuestions(section, 5);
     } catch (error) {
       console.error("Error in initial question fetch:", error);
       setIsQuestionLoading(false);
@@ -421,8 +354,8 @@ function App() {
       handleAnswerSubmit(isCorrect);
     }
   }, [tutorialMode, selectedAnswer, currentQuestion, handleAnswerSubmit]);
-  
-  // Auto-dismiss errors after 5 seconds
+
+  // Error handling
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
@@ -516,7 +449,7 @@ function App() {
                 url={currentVideo?.url}
                 onEnd={handleVideoEnd}
                 onSkip={handleVideoSkip}
-                onReady={handleVideoReady}
+                onReady={() => {}}
               />
               <SwipeNavigation onSwipeUp={handleVideoSkip} />
             </>
@@ -526,17 +459,25 @@ function App() {
       
       {/* Error message */}
       {error && (
-        <ErrorMessage 
-          message={error}
-          onRetry={() => {
-            setError(null);
-            if (selectedSection) {
-              fetchQuestion();
-            } else {
-              setShowSection(true);
-            }
-          }}
-        />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-xl font-bold text-red-600 mb-4">Error</h3>
+            <p className="text-gray-700 mb-4">{error}</p>
+            <button 
+              onClick={() => {
+                setError(null);
+                if (selectedSection) {
+                  fetchQuestion();
+                } else {
+                  setShowSection(true);
+                }
+              }}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
       )}
       
       {/* Network status indicator */}
