@@ -1,4 +1,4 @@
-// App.js with improvements for swipe navigation and scoring
+// App.js with improved swipe functionality
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -254,16 +254,16 @@ function App() {
         }
       }
       
-      // Tutorial mode - show video immediately after each correct answer
+      // Tutorial mode - prepare the video but don't show it automatically
       if (tutorialMode) {
         // Get a random video
         const videoToPlay = getRandomVideo();
         
         if (videoToPlay) {
-          // Show video after a small delay
+          // Prepare the video but wait for user to swipe
           setTimeout(() => {
             setCurrentVideo(videoToPlay);
-            setShowQuestion(false);
+            // Don't automatically change to video - wait for swipe
           }, 500);
         }
         
@@ -329,13 +329,11 @@ function App() {
 
   // Handle video ending
   const handleVideoEnd = useCallback(() => {
-    setShowQuestion(true);
-    
-    // In tutorial mode, fetch next question after video
-    if (tutorialMode) {
-      fetchQuestion();
+    // Don't automatically transition in tutorial mode - wait for swipe
+    if (!tutorialMode) {
+      setShowQuestion(true);
     }
-  }, [tutorialMode, fetchQuestion]);
+  }, [tutorialMode]);
 
   // Handle video skip
   const handleVideoSkip = useCallback(() => {
@@ -434,7 +432,14 @@ function App() {
   const handleContinue = useCallback(() => {
     if (tutorialMode && selectedAnswer) {
       const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
-      handleAnswerSubmit(isCorrect);
+      
+      if (isCorrect) {
+        // In tutorial mode, after correct answer, we show the video
+        setShowQuestion(false);
+      } else {
+        // For incorrect answers, fetch the next question
+        handleAnswerSubmit(isCorrect);
+      }
     }
   }, [tutorialMode, selectedAnswer, currentQuestion, handleAnswerSubmit]);
 
@@ -508,7 +513,7 @@ function App() {
       {!showWelcome && !showSection && (
         <>
           {showQuestion ? (
-            <div className="question-container swipe-container">
+            <div className="question-container swipe-content">
               {tutorialMode ? (
                 <div className="w-full bg-orange-500 text-white py-2 px-4 text-center font-bold rounded-t-lg">
                   Tutorial Mode: Question {questionsAnswered} of 5
@@ -546,10 +551,15 @@ function App() {
                     timeMode={timeMode}
                     streak={streak}
                     onSelectAnswer={setSelectedAnswer}
+                    tutorialMode={tutorialMode}
                   />
                   {/* Add swipe navigation in tutorial mode after answering a question */}
                   {tutorialMode && selectedAnswer && (
-                    <SwipeNavigation onSwipeUp={handleContinue} />
+                    <SwipeNavigation 
+                      onSwipeUp={handleContinue} 
+                      isTutorial={true} 
+                      showAfterAction={!!selectedAnswer} 
+                    />
                   )}
                 </>
               ) : (
@@ -572,7 +582,11 @@ function App() {
                 onSkip={handleVideoSkip}
                 onReady={() => {}}
               />
-              <SwipeNavigation onSwipeUp={handleVideoSkip} />
+              <SwipeNavigation 
+                onSwipeUp={handleVideoSkip} 
+                isTutorial={tutorialMode} 
+                showAfterAction={true} 
+              />
             </>
           )}
         </>
