@@ -4,7 +4,7 @@ import ReactPlayer from 'react-player';
 import { ChevronDown, X } from 'lucide-react';
 
 /**
- * Video player component with TikTok-style swiping
+ * Video player component without swipe indicators
  */
 const VideoCard = ({ 
   url, 
