@@ -73,3 +73,112 @@
   from { transform: scale(0.95) translateZ(0); opacity: 0; }
   to { transform: scale(1) translateZ(0); opacity: 1; }
 }
+/* Add to your styles/popup-animations.css file */
+
+/* Fade In animation for popup backgrounds */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Scale In animation for popup content */
+@keyframes scaleIn {
+  from { 
+    transform: scale(0.9); 
+    opacity: 0; 
+  }
+  to { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Celebration animation for milestone popups */
+@keyframes celebration {
+  0% { 
+    transform: scale(0.9); 
+    opacity: 0; 
+  }
+  25% { 
+    transform: scale(1.05); 
+    opacity: 1; 
+  }
+  50% { 
+    transform: scale(0.97); 
+  }
+  75% { 
+    transform: scale(1.02); 
+  }
+  100% { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+}
+
+.animate-celebration {
+  animation: celebration 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Slow pulse animation */
+@keyframes pulse-slow {
+  0% { 
+    transform: scale(1); 
+    box-shadow: 0 0 0 0 rgba(255, 159, 28, 0.4);
+  }
+  50% { 
+    transform: scale(1.03); 
+    box-shadow: 0 0 0 10px rgba(255, 159, 28, 0);
+  }
+  100% { 
+    transform: scale(1); 
+    box-shadow: 0 0 0 0 rgba(255, 159, 28, 0);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Text gradient effect */
+.text-gradient {
+  background-image: linear-gradient(45deg, #ff9f1c, #FFD700);
+  background-size: 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  -webkit-text-fill-color: transparent; 
+  -moz-text-fill-color: transparent;
+}
+
+/* Prevent body scroll during popups */
+body.popup-open {
+  overflow: hidden;
+}
+
+/* Confetti animation */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  animation: confetti-fall 4s ease-out forwards;
+  z-index: 10000;
+}
