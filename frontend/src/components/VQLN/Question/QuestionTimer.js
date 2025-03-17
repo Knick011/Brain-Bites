@@ -1,9 +1,24 @@
-// QuestionTimer.js
+// components/VQLN/Question/QuestionTimer.js
 import React, { useEffect, useState } from 'react';
+import { Clock } from 'lucide-react';
 
-const QuestionTimer = ({ timeLimit, onTimeUp, isActive }) => {
+/**
+ * Enhanced Question Timer with point indicators
+ */
+const QuestionTimer = ({ timeLimit = 10, onTimeUp, isActive, displayScore = true }) => {
   const [timeRemaining, setTimeRemaining] = useState(timeLimit);
+  const [potentialPoints, setPotentialPoints] = useState(100);
   
+  // Calculate potential points based on time remaining
+  useEffect(() => {
+    if (isActive && timeRemaining > 0) {
+      // Calculate points: 100 when full time left, 10 when time almost up
+      const calculatedPoints = Math.max(10, Math.floor(100 - ((timeLimit - timeRemaining) / timeLimit) * 90));
+      setPotentialPoints(calculatedPoints);
+    }
+  }, [timeRemaining, timeLimit, isActive]);
+  
+  // Timer countdown effect
   useEffect(() => {
     let interval = null;
     
@@ -12,7 +27,7 @@ const QuestionTimer = ({ timeLimit, onTimeUp, isActive }) => {
         setTimeRemaining(prevTime => {
           if (prevTime <= 1) {
             clearInterval(interval);
-            onTimeUp();
+            onTimeUp && onTimeUp();
             return 0;
           }
           return prevTime - 1;
@@ -26,22 +41,46 @@ const QuestionTimer = ({ timeLimit, onTimeUp, isActive }) => {
   // Reset timer when new question appears
   useEffect(() => {
     setTimeRemaining(timeLimit);
+    setPotentialPoints(100);
   }, [timeLimit]);
   
   // Calculate percentage for progress bar
   const percentage = (timeRemaining / timeLimit) * 100;
   
+  // Get timer color based on percentage
+  const getTimerColor = () => {
+    if (percentage > 70) return 'bg-green-500';
+    if (percentage > 30) return 'bg-yellow-500';
+    return 'bg-red-500 timer-danger';
+  };
+  
+  // Get points text color based on points
+  const getPointsColor = () => {
+    if (potentialPoints > 80) return 'text-green-500';
+    if (potentialPoints > 40) return 'text-yellow-500';
+    return 'text-red-500';
+  };
+  
   return (
-    <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-      <div 
-        className={`h-2.5 rounded-full transition-all duration-1000 ${
-          percentage > 60 ? 'bg-green-500' : 
-          percentage > 30 ? 'bg-yellow-500' : 'bg-red-500'
-        }`}
-        style={{ width: `${percentage}%` }}
-      ></div>
-    </div>
-  );
-};
-
-export default QuestionTimer;
+    <div className="w-full mb-3">
+      {/* Timer display */}
+      <div className="flex justify-between items-center mb-1">
+        <div className="flex items-center gap-1 text-sm font-medium">
+          <Clock size={14} className="text-gray-600" />
+          <span>{timeRemaining}s</span>
+        </div>
+        
+        {/* Points indicator */}
+        {displayScore && (
+          <div className={`flex items-center text-sm font-bold ${getPointsColor()}`}>
+            <span className="mr-1">+</span>
+            <span className="timer-points">{potentialPoints}</span>
+            <span className="ml-1">pts</span>
+          </div>
+        )}
+      </div>
+      
+      {/* Progress bar */}
+      <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+        <div 
+          className
