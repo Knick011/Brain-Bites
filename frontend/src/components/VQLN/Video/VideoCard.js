@@ -1,10 +1,10 @@
 // components/VQLN/Video/VideoCard.js
 import React, { useEffect, useState } from 'react';
 import ReactPlayer from 'react-player';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown, X, ChevronUp } from 'lucide-react';
 
 /**
- * Video player component without swipe indicators
+ * Video player component with swipe capabilities
  */
 const VideoCard = ({ 
   url, 
@@ -14,9 +14,11 @@ const VideoCard = ({
   onExit,
   watchingAllRewards = false,
   currentIndex = 1,
-  totalVideos = 1
+  totalVideos = 1,
+  tutorialMode = false // Added tutorial mode flag
 }) => {
   const [showControls, setShowControls] = useState(true);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
   
   // Auto-hide controls after 3 seconds
   useEffect(() => {
@@ -28,15 +30,18 @@ const VideoCard = ({
   }, []);
   
   // Show controls on touch
-  const handleTouch = () => {
-    setShowControls(true);
-    
-    // Hide controls again after 3 seconds
-    const timer = setTimeout(() => {
-      setShowControls(false);
-    }, 3000);
-    
-    return () => clearTimeout(timer);
+  const handleTouch = (e) => {
+    // Don't trigger controls for swipe movements
+    if (e.type === 'touchstart') {
+      setShowControls(true);
+      
+      // Hide controls again after 3 seconds
+      const timer = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
   };
   
   // Setup keyboard shortcuts
@@ -53,12 +58,22 @@ const VideoCard = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onSkip, onExit]);
 
+  // Handle player ready
+  const handlePlayerReady = () => {
+    setIsPlayerReady(true);
+    if (onReady) onReady();
+  };
+
+  // Handle player error
+  const handlePlayerError = (error) => {
+    console.error('Video playback error:', error);
+    if (onSkip) onSkip();
+  };
+
   // Early return for invalid URL
   if (!url || !url.includes('youtube.com/shorts/')) {
     console.error('Invalid YouTube Shorts URL:', url);
-    if (onSkip) {
-      setTimeout(() => onSkip(), 0);
-    }
+    setTimeout(() => onSkip && onSkip(), 0);
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-black">
         <div className="text-white text-center p-4">
@@ -75,14 +90,23 @@ const VideoCard = ({
   }
 
   return (
-    <div className="video-container swipe-container" onTouchStart={handleTouch}>
-      <div className="swipe-content">
-        <div className="relative flex items-center justify-center w-full h-full">
+    <div className="video-container swipe-content" onTouchStart={handleTouch}>
+      <div className="relative flex items-center justify-center w-full h-full">
           {/* Progress indicator for multiple videos */}
           {watchingAllRewards && (
             <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 px-4 py-2 rounded-full text-white z-10">
               <span className="font-medium">{currentIndex}</span>
               <span className="text-gray-300"> / {totalVideos}</span>
+            </div>
+          )}
+          
+          {/* Swipe indicator for tutorial mode */}
+          {tutorialMode && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none animate-pulse">
+              <div className="bg-black bg-opacity-50 px-4 py-2 rounded-full text-white flex items-center gap-2">
+                <ChevronUp size={20} />
+                <span>Swipe up to continue</span>
+              </div>
             </div>
           )}
           
@@ -95,11 +119,8 @@ const VideoCard = ({
                 playing={true}
                 controls={false}
                 onEnded={onEnd}
-                onReady={onReady}
-                onError={(e) => {
-                  console.error('Video playback error:', e);
-                  onSkip && onSkip();
-                }}
+                onReady={handlePlayerReady}
+                onError={handlePlayerError}
                 config={{
                   youtube: {
                     playerVars: {
@@ -146,4 +167,5 @@ const VideoCard = ({
   );
 };
 
-export default VideoCard;
+export default VideoCard;>
+          {/* Progress
