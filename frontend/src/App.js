@@ -1,4 +1,4 @@
-// App.js with improved swipe functionality
+// App.js with improved swipe functionality and fixed video loading
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -49,6 +49,10 @@ function App() {
   const [answerTime, setAnswerTime] = useState(null);
   const [showPointsAnimation, setShowPointsAnimation] = useState(false);
   const [pointsEarned, setPointsEarned] = useState(0);
+  
+  // State for swipe navigation
+  const [swipeEnabled, setSwipeEnabled] = useState(false);
+  const [explanationVisible, setExplanationVisible] = useState(false);
 
   // Define tutorial steps
   const tutorialSteps = [
@@ -134,6 +138,11 @@ function App() {
       setIsQuestionLoading(true);
       setError(null);
       
+      // Reset swipe-related states
+      setSwipeEnabled(false);
+      setExplanationVisible(false);
+      setSelectedAnswer(null);
+      
       console.log(`Fetching ${selectedSection} question...`);
       const question = await ApiService.getRandomQuestion(selectedSection);
       console.log("Received question:", question);
@@ -212,6 +221,11 @@ function App() {
 
   // Handle answer submission with time-based scoring
   const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
+    // Enable swiping only in tutorial mode
+    if (tutorialMode) {
+      setSwipeEnabled(true);
+    }
+    
     // Save the answer time for points calculation
     setAnswerTime(answerTimeValue);
     
@@ -261,10 +275,8 @@ function App() {
         
         if (videoToPlay) {
           // Prepare the video but wait for user to swipe
-          setTimeout(() => {
-            setCurrentVideo(videoToPlay);
-            // Don't automatically change to video - wait for swipe
-          }, 500);
+          setCurrentVideo(videoToPlay);
+          // Don't automatically change to video - wait for swipe
         }
         
         // Exit tutorial mode after 5 correct answers
@@ -306,7 +318,7 @@ function App() {
     }
   }, [correctAnswers, fetchQuestion, getRandomVideo, streak, timeMode, tutorialMode]);
 
-  // Start watching a video from rewards
+  // Watch a video from rewards
   const watchVideo = useCallback(() => {
     if (availableVideos <= 0) return;
     
@@ -318,6 +330,8 @@ function App() {
         setCurrentVideo(video);
         setShowQuestion(false);
         setAvailableVideos(prev => prev - 1);
+        // Enable swipe for videos
+        setSwipeEnabled(true);
       } else {
         setError("Couldn't load video. Please try again later.");
       }
@@ -428,20 +442,41 @@ function App() {
     fetchQuestion();
   }, [fetchQuestion]);
 
-  // Handle continue from explanation
-  const handleContinue = useCallback(() => {
+  // Handle swipe up in explanation
+  const handleSwipeUpExplanation = useCallback(() => {
     if (tutorialMode && selectedAnswer) {
       const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
       
       if (isCorrect) {
-        // In tutorial mode, after correct answer, we show the video
+        // Show video after swipe
         setShowQuestion(false);
       } else {
         // For incorrect answers, fetch the next question
-        handleAnswerSubmit(isCorrect);
+        fetchQuestion();
       }
+      
+      // Reset swipe enabled
+      setSwipeEnabled(false);
     }
-  }, [tutorialMode, selectedAnswer, currentQuestion, handleAnswerSubmit]);
+  }, [tutorialMode, selectedAnswer, currentQuestion, fetchQuestion]);
+
+  // Handle swipe from video to question
+  const handleSwipeUpVideo = useCallback(() => {
+    setShowQuestion(true);
+    
+    // In tutorial mode, fetch next question after video
+    if (tutorialMode) {
+      fetchQuestion();
+    }
+    
+    // Reset swipe enabled
+    setSwipeEnabled(false);
+  }, [tutorialMode, fetchQuestion]);
+
+  // Track explanation visibility
+  const handleExplanationVisibility = useCallback((isVisible) => {
+    setExplanationVisible(isVisible);
+  }, []);
 
   // Error handling
   useEffect(() => {
@@ -515,7 +550,7 @@ function App() {
           {showQuestion ? (
             <div className="question-container swipe-content">
               {tutorialMode ? (
-                <div className="w-full bg-orange-500 text-white py-2 px-4 text-center font-bold rounded-t-lg">
+                <div className="w-full bg-orange-500 text-white py-2 px-4 text-center font-bold">
                   Tutorial Mode: Question {questionsAnswered} of 5
                 </div>
               ) : (
@@ -552,13 +587,15 @@ function App() {
                     streak={streak}
                     onSelectAnswer={setSelectedAnswer}
                     tutorialMode={tutorialMode}
+                    onExplanationShow={handleExplanationVisibility}
                   />
-                  {/* Add swipe navigation in tutorial mode after answering a question */}
-                  {tutorialMode && selectedAnswer && (
+                  
+                  {/* Add swipe navigation in tutorial mode after answering a question and explanation is shown */}
+                  {tutorialMode && swipeEnabled && explanationVisible && (
                     <SwipeNavigation 
-                      onSwipeUp={handleContinue} 
+                      onSwipeUp={handleSwipeUpExplanation} 
                       isTutorial={true} 
-                      showAfterAction={!!selectedAnswer} 
+                      enabled={true}
                     />
                   )}
                 </>
@@ -581,11 +618,15 @@ function App() {
                 onEnd={handleVideoEnd}
                 onSkip={handleVideoSkip}
                 onReady={() => {}}
+                tutorialMode={tutorialMode}
               />
+              
+              {/* Add swipe navigation for videos */}
               <SwipeNavigation 
-                onSwipeUp={handleVideoSkip} 
+                onSwipeUp={handleSwipeUpVideo} 
                 isTutorial={tutorialMode} 
-                showAfterAction={true} 
+                enabled={true}
+                isVideo={true}
               />
             </>
           )}
