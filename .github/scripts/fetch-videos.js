@@ -10,7 +10,6 @@ if (!API_KEY) {
 }
 
 // Your list of channel IDs
-
 const CHANNELS = [
   { handle: 'MrBeast', id: 'UCX6OQ3DkcsbYNE6H8uQQuVA' },
   { handle: 'ZachChoi', id: 'UCI78AdiI6f7VKhqW1i4B3Rw' },
@@ -35,10 +34,10 @@ const CHANNELS = [
   { handle: 'DavidDobrik', id: 'UCmh5gdwCx6lN7gEC20leNVA' },
   { handle: 'GordonRamsay', id: 'UCIEv3lZ_tNXHzL3ox-_uUGQ' },
   { handle: 'JoshuaWeissman', id: 'UChBEbMKI1eCcejTtmI32UEw' },
-    { handle: 'Jacksepticeye', id: 'UCYzPXprvl5Y-Sf0g4vX-m6g' },
+  { handle: 'Jacksepticeye', id: 'UCYzPXprvl5Y-Sf0g4vX-m6g' },
   { handle: 'KhabyLame', id: 'UC86suRFnqiw8zN6LIYxddYQ' },
   { handle: 'EmmaChamberlain', id: 'UC78cxCAcp7JfQPgKxYdyGrg' },
-    { handle: 'AddisonRae', id: 'UCsjVTTUMNPlas_Swa5QPVDA' },
+  { handle: 'AddisonRae', id: 'UCsjVTTUMNPlas_Swa5QPVDA' },
   { handle: 'TuckerBudzyn', id: 'UCNSzfesc7IgWZwg4n6uXr1A' },
   { handle: 'Jiffpom', id: 'UC6IijBsXlCzX8uM60VlBpSQ' },
   { handle: 'DudePerfect', id: 'UCRijo3ddMTht_IHyNSNXpNQ' },
@@ -54,10 +53,8 @@ const CHANNELS = [
   { handle: 'Veritasium', id: 'UCHnyfMqiRRG1u-2MsSQLbXA' }
 ];
 
-
-
-// Output path
-const OUTPUT_DIR = 'public';
+// Output path - UPDATED TO USE FRONTEND/PUBLIC
+const OUTPUT_DIR = 'frontend/public';
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'youtube-videos.json');
 
 // Make sure the output directory exists
