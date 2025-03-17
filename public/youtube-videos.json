@@ -1,6 +1,60 @@
 {
   "videos": [
     {
+      "id": "vDxc4AHZAdk",
+      "url": "https://www.youtube.com/shorts/vDxc4AHZAdk",
+      "title": "When in Australia….you cook up a delicious Wagyu Burger with Cheese !",
+      "channelTitle": "Gordon Ramsay",
+      "channelHandle": "GordonRamsay",
+      "publishedAt": "2023-05-08T16:00:41Z",
+      "addedAt": "2025-03-17T01:47:11.235Z"
+    },
+    {
+      "id": "WhWkNOUWDk0",
+      "url": "https://www.youtube.com/shorts/WhWkNOUWDk0",
+      "title": "If you’re moving into a dorm room this autumn…..please don’t cook your #food like this",
+      "channelTitle": "Gordon Ramsay",
+      "channelHandle": "GordonRamsay",
+      "publishedAt": "2024-08-19T15:36:02Z",
+      "addedAt": "2025-03-17T01:47:11.235Z"
+    },
+    {
+      "id": "mrAQHjeTSwo",
+      "url": "https://www.youtube.com/shorts/mrAQHjeTSwo",
+      "title": "Stare at the X and see a brand new color",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2022-09-06T17:15:02Z",
+      "addedAt": "2025-03-17T01:47:14.996Z"
+    },
+    {
+      "id": "iU62on1Iabw",
+      "url": "https://www.youtube.com/shorts/iU62on1Iabw",
+      "title": "would you eat this? #shorts",
+      "channelTitle": "Zach Choi",
+      "channelHandle": "ZachChoi",
+      "publishedAt": "2023-12-22T02:30:18Z",
+      "addedAt": "2025-03-17T01:47:23.614Z"
+    },
+    {
+      "id": "ImKUlIurDQ8",
+      "url": "https://www.youtube.com/shorts/ImKUlIurDQ8",
+      "title": "ultimate spam sandwich #shorts",
+      "channelTitle": "Zach Choi",
+      "channelHandle": "ZachChoi",
+      "publishedAt": "2022-10-11T01:30:04Z",
+      "addedAt": "2025-03-17T01:47:23.614Z"
+    },
+    {
+      "id": "nAiKLoCP-kU",
+      "url": "https://www.youtube.com/shorts/nAiKLoCP-kU",
+      "title": "Reach the Money, Win $10,000",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2025-02-14T18:15:00Z",
+      "addedAt": "2025-03-17T01:47:27.326Z"
+    },
+    {
       "id": "acbA1plzXFY",
       "url": "https://www.youtube.com/shorts/acbA1plzXFY",
       "title": "Cool Intro | David Dobrik",
@@ -2566,6 +2620,6 @@
       "addedAt": "2025-03-14T01:43:21.199Z"
     }
   ],
-  "lastUpdated": "2025-03-16T12:38:51.296Z",
-  "count": 285
+  "lastUpdated": "2025-03-17T01:47:57.122Z",
+  "count": 291
 }
