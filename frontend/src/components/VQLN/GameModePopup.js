@@ -1,111 +1,70 @@
 // components/VQLN/GameModePopup.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Award, Video, Zap } from 'lucide-react';
-import StandardPopup from './Common/StandardPopup';
 
+/**
+ * Enhanced Game Mode Popup Component
+ */
 const GameModePopup = ({ onClose }) => {
+  // Auto-close after 10 seconds to ensure it doesn't get stuck
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose && onClose();
+    }, 10000);
+    
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
   return (
-    <StandardPopup 
-      isOpen={true} 
-      onClose={onClose}
-      title="Game Mode Activated!"
-      size="md"
-      showCloseButton={false}
-    >
-      <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
-        <div style={{ 
-          display: 'inline-flex', 
-          marginBottom: '1rem', 
-          padding: '1rem',
-          background: 'linear-gradient(to right, #f97316, #facc15)',
-          color: 'white',
-          borderRadius: '9999px'
-        }}>
-          <Zap size={36} />
-        </div>
-        
-        <p style={{ 
-          marginBottom: '1.5rem', 
-          color: '#4b5563', 
-          fontSize: '1rem', 
-          lineHeight: '1.5'
-        }}>
-          You've completed the tutorial. Now you'll earn rewards for answering correctly!
-        </p>
-      </div>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div style={{ 
-          backgroundColor: '#fff7ed', 
-          borderRadius: '0.5rem', 
-          padding: '1rem', 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '0.75rem' 
-        }}>
-          <div style={{ 
-            padding: '0.5rem', 
-            backgroundColor: '#ffedd5', 
-            borderRadius: '9999px' 
-          }}>
-            <Video size={20} style={{ color: '#f97316' }} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 animate-fadeIn">
+      <div className="bg-white rounded-xl max-w-md w-full mx-4 shadow-2xl animate-scaleIn">
+        <div className="p-6">
+          {/* Header */}
+          <div className="text-center mb-5">
+            <div className="inline-flex mb-4 p-4 bg-gradient-to-r from-orange-500 to-yellow-400 rounded-full text-white">
+              <Zap size={36} />
+            </div>
+            
+            <h2 className="text-2xl font-bold mb-2">Game Mode Activated!</h2>
+            
+            <p className="text-gray-600 mb-5">
+              You've completed the tutorial. Now you'll earn rewards for answering correctly!
+            </p>
           </div>
-          <div style={{ textAlign: 'left' }}>
-            <p style={{ fontWeight: '600', color: '#1f2937' }}>Every 2 correct answers</p>
-            <p style={{ color: '#4b5563' }}>Earn 1 video reward</p>
+          
+          {/* Rewards Info */}
+          <div className="grid gap-4 mb-6">
+            <div className="bg-orange-50 rounded-lg p-4 flex items-center gap-3">
+              <div className="bg-orange-100 p-3 rounded-full">
+                <Video size={20} className="text-orange-500" />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-800">Every 2 correct answers</p>
+                <p className="text-gray-600 text-sm">Earn 1 video reward</p>
+              </div>
+            </div>
+            
+            <div className="bg-yellow-50 rounded-lg p-4 flex items-center gap-3">
+              <div className="bg-yellow-100 p-3 rounded-full">
+                <Award size={20} className="text-yellow-500" />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-800">Streak milestones (5, 10, 15...)</p>
+                <p className="text-gray-600 text-sm">Earn bonus videos!</p>
+              </div>
+            </div>
           </div>
-        </div>
-        
-        <div style={{ 
-          backgroundColor: '#fefce8', 
-          borderRadius: '0.5rem', 
-          padding: '1rem', 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '0.75rem' 
-        }}>
-          <div style={{ 
-            padding: '0.5rem', 
-            backgroundColor: '#fef9c3', 
-            borderRadius: '9999px' 
-          }}>
-            <Award size={20} style={{ color: '#eab308' }} />
-          </div>
-          <div style={{ textAlign: 'left' }}>
-            <p style={{ fontWeight: '600', color: '#1f2937' }}>Streak milestones (5, 10, 15...)</p>
-            <p style={{ color: '#4b5563' }}>Earn bonus videos!</p>
-          </div>
+          
+          {/* Button */}
+          <button 
+            onClick={() => onClose && onClose()}
+            className="w-full bg-gradient-to-r from-orange-500 to-yellow-400 text-white py-3 rounded-full font-medium shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+          >
+            Let's Go!
+          </button>
         </div>
       </div>
-      
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <button 
-          onClick={onClose}
-          style={{
-            background: 'linear-gradient(to right, #f97316, #facc15)',
-            color: 'white',
-            padding: '0.75rem 2rem',
-            borderRadius: '9999px',
-            fontWeight: '500',
-            boxShadow: '0 10px 15px -3px rgba(249, 115, 22, 0.2)',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'all 0.3s',
-            transform: 'translateY(0)'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(249, 115, 22, 0.3)';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(249, 115, 22, 0.2)';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
-        >
-          Let's Go!
-        </button>
-      </div>
-    </StandardPopup>
+    </div>
   );
 };
 
