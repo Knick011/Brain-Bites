@@ -26,7 +26,7 @@ const AnswerNotification = ({
     }, 1000);
     
     return () => clearInterval(countdown);
-  }, [onContinue]);
+  }, [onContinue, timeLeft]);
   
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -40,6 +40,9 @@ const AnswerNotification = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onContinue]);
+
+  // Debug logging
+  console.log("Rendering AnswerNotification", { isCorrect, isTimeout, explanation });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
@@ -60,7 +63,7 @@ const AnswerNotification = ({
             </h3>
           </div>
           
-          {!isCorrect && !isTimeout && (
+          {!isCorrect && !isTimeout && correctAnswer && (
             <div className="mb-4">
               <p className="font-medium mb-1">The correct answer was:</p>
               <p className="text-gray-800 font-bold">{correctAnswer}</p>
@@ -68,7 +71,7 @@ const AnswerNotification = ({
           )}
           
           <div className="mb-6">
-            <p className="text-gray-700">{explanation}</p>
+            <p className="text-gray-700">{explanation || "No explanation available."}</p>
           </div>
           
           <div className="flex justify-between items-center">
