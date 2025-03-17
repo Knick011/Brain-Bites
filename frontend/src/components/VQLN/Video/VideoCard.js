@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+// components/VQLN/Video/VideoCard.js
+import React, { useEffect, useState } from 'react';
 import ReactPlayer from 'react-player';
-import { ChevronDown, X } from 'lucide-react';
-import SwipeIndicator from './SwipeIndicator';
+import { ChevronDown, ChevronUp, X } from 'lucide-react';
 
 /**
- * Video player component
+ * Video player component with improved TikTok-style swiping
  */
 const VideoCard = ({ 
   url, 
@@ -16,6 +16,29 @@ const VideoCard = ({
   currentIndex = 1,
   totalVideos = 1
 }) => {
+  const [showControls, setShowControls] = useState(true);
+  
+  // Hide controls after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowControls(false);
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Show controls on touch
+  const handleTouch = () => {
+    setShowControls(true);
+    
+    // Hide controls again after 3 seconds
+    const timer = setTimeout(() => {
+      setShowControls(false);
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  };
+  
   // Setup keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -52,14 +75,15 @@ const VideoCard = ({
   }
 
   return (
-    <div className="video-container swipe-container">
+    <div className="video-container swipe-container" onTouchStart={handleTouch}>
       <div className="swipe-content">
         <div className="relative" style={{ 
           width: '100%', 
           height: '100vh',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          backgroundColor: '#000'
         }}>
           {/* Progress indicator for multiple videos */}
           {watchingAllRewards && (
@@ -70,18 +94,18 @@ const VideoCard = ({
           )}
           
           <div style={{
-            width: '350px',
-            height: '622px',
-            borderRadius: '30px',
+            width: '100%',
+            maxWidth: '450px', 
+            height: '90vh',
+            maxHeight: '800px',
+            borderRadius: '12px',
             overflow: 'hidden',
-            border: '2px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: '0 0 20px rgba(0, 0, 0, 0.2)',
             position: 'relative'
           }}>
             <ReactPlayer
               url={url}
-              width="350px"
-              height="622px"
+              width="100%"
+              height="100%"
               playing={true}
               controls={false}
               onEnded={onEnd}
@@ -100,49 +124,47 @@ const VideoCard = ({
                   },
                 },
               }}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                transform: 'translateX(-50%)'
-              }}
             />
           </div>
           
-          {/* Controls */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4">
-            <div className="flex gap-4">
-              {/* Exit button */}
-              {watchingAllRewards && (
-                <button 
-                  onClick={onExit}
-                  className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full transition-colors"
-                >
-                  <X size={18} />
-                  <span>Exit</span>
-                </button>
-              )}
-              
-              {/* Skip button */}
-              <button 
-                onClick={onSkip}
-                className="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-full transition-colors"
-              >
-                <ChevronDown size={18} />
-                <span>{watchingAllRewards ? 'Next' : 'Skip'}</span>
-              </button>
+          {/* TikTok-style swipe indicator */}
+          <div className="swipe-indicator">
+            <div className="circle animate-bounce-slow">
+              <ChevronUp size={24} />
             </div>
-            
-            {/* Keyboard instructions */}
-            <div className="text-xs text-white bg-black bg-opacity-50 px-3 py-1 rounded-full">
-              Press <span className="font-bold">↓</span> to {watchingAllRewards ? 'next' : 'skip'}, 
-              {watchingAllRewards && <> <span className="font-bold">ESC</span> to exit</>}
+            <div className="text animate-pulse-soft">
+              Swipe up for next
             </div>
           </div>
+          
+          {/* Controls */}
+          {showControls && (
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4 z-20 animate-fadeIn">
+              <div className="flex gap-4">
+                {/* Exit button */}
+                {watchingAllRewards && (
+                  <button 
+                    onClick={onExit}
+                    className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full transition-colors"
+                  >
+                    <X size={18} />
+                    <span>Exit</span>
+                  </button>
+                )}
+                
+                {/* Skip button */}
+                <button 
+                  onClick={onSkip}
+                  className="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-full transition-colors"
+                >
+                  <ChevronDown size={18} />
+                  <span>{watchingAllRewards ? 'Next' : 'Skip'}</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-      
-      {/* Add the swipe indicator */}
-      <SwipeIndicator />
     </div>
   );
 };
