@@ -1,8 +1,15 @@
-// components/VQLN/Question/QuestionCard.js - Simplified version
+// components/VQLN/Question/QuestionCard.js
 import React, { useState, useEffect } from 'react';
 import AnswerNotification from './AnswerNotification';
 
-const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0, onSelectAnswer }) => {
+const QuestionCard = ({ 
+  question, 
+  onAnswerSubmit, 
+  timeMode = false, 
+  streak = 0, 
+  onSelectAnswer,
+  tutorialMode = false
+}) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [answerTime, setAnswerTime] = useState(10);
@@ -80,11 +87,8 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0, 
   // Handle continue from explanation
   const handleContinue = () => {
     setShowExplanation(false);
-    onAnswerSubmit(selectedAnswer === question.correctAnswer);
+    onAnswerSubmit(selectedAnswer === question.correctAnswer, 10 - answerTime);
   };
-
-  // Debug log to ensure question data is properly loaded
-  console.log("Rendering question:", question);
 
   return (
     <div className="bg-[#FFF8E7] h-full">
@@ -138,7 +142,7 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0, 
             </div>
           </div>
           
-          {/* Explanation Popup */}
+          {/* Explanation Popup - No continue button in tutorial mode */}
           {showExplanation && (
             <AnswerNotification 
               isCorrect={selectedAnswer === question.correctAnswer}
@@ -147,6 +151,7 @@ const QuestionCard = ({ question, onAnswerSubmit, timeMode = false, streak = 0, 
               correctAnswer={question.options?.[question.correctAnswer] || ""}
               onContinue={handleContinue}
               timeLeft={explanationTimeLeft}
+              showContinueButton={!tutorialMode} // Hide continue button in tutorial mode
             />
           )}
         </div>
