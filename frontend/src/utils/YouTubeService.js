@@ -9,48 +9,6 @@ class YouTubeService {
       shownVideos: new Set()
     };
     this.cacheExpiry = 30 * 60 * 1000; // 30 minutes cache
-    this.fallbackVideos = [
-      {
-        id: "8_gdcaX9Xqk",
-        url: "https://www.youtube.com/shorts/8_gdcaX9Xqk",
-        title: "Would You Split Or Steal $250,000?",
-        channelTitle: "MrBeast",
-        channelHandle: "MrBeast",
-        addedAt: new Date().toISOString()
-      },
-      {
-        id: "c0YNnrHBARc",
-        url: "https://www.youtube.com/shorts/c0YNnrHBARc",
-        title: "How I Start My Mornings - Harvest Edition",
-        channelTitle: "Zach King",
-        channelHandle: "ZachKing",
-        addedAt: new Date().toISOString()
-      },
-      {
-        id: "OgSd80t9JaM",
-        url: "https://www.youtube.com/shorts/OgSd80t9JaM",
-        title: "Ping Pong, But All Elevated Surfaces Count.",
-        channelTitle: "Daniel LaBelle",
-        channelHandle: "DanielLabielle",
-        addedAt: new Date().toISOString()
-      },
-      {
-        id: "cnu9aJMM3cQ",
-        url: "https://www.youtube.com/shorts/cnu9aJMM3cQ",
-        title: "OneStopChop's FLAVOR FILLED mac and cheese is one EVERYONE will love!",
-        channelTitle: "Little Remy Food 🐭🍝",
-        channelHandle: "remy",
-        addedAt: new Date().toISOString()
-      },
-      {
-        id: "MlPAmRN-uwg",
-        url: "https://www.youtube.com/shorts/MlPAmRN-uwg",
-        title: "Well that escalated QUICKLY 😳🎱",
-        channelTitle: "Dude Perfect",
-        channelHandle: "DudePerfect",
-        addedAt: new Date().toISOString()
-      }
-    ];
   }
 
   /**
@@ -58,37 +16,72 @@ class YouTubeService {
    */
   async getViralShorts(maxResults = 10) {
     try {
-      console.log('Trying to fetch videos from:');
-      console.log('/youtube-videos.json');
-      
       // Use cache if valid
       if (this.isValidCache()) {
         console.log('Using cached videos');
         return this.getUniqueVideosFromCache(maxResults);
       }
 
-      // Try to fetch from the JSON file
+      console.log('Trying to fetch videos from:');
+      console.log('/youtube-videos.json');
+
+      // Attempt to fetch the file with a longer timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       try {
         const response = await fetch('/youtube-videos.json', {
           cache: 'no-store',
-          headers: { 'Accept': 'application/json' }
+          headers: { 'Accept': 'application/json' },
+          signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
           throw new Error(`Failed to load videos: ${response.status}`);
         }
         
-        // Parse the response carefully
+        // Get the text content first to handle potential JSON issues
         const text = await response.text();
         console.log('Successfully loaded videos from:');
         console.log('/youtube-videos.json');
         
+        // Manual JSON parsing with error handling
         let data;
         try {
+          // First try normal parsing
           data = JSON.parse(text);
-        } catch (err) {
-          console.error('Invalid JSON in response:', err);
-          throw new Error('Invalid JSON format');
+        } catch (parseError) {
+          console.error('Initial JSON parse failed:', parseError);
+          
+          // Try to fix common JSON issues
+          try {
+            // Clean the text - remove unexpected characters, normalize whitespace
+            const cleanedText = text
+              .replace(/[^\x20-\x7E]/g, '') // Remove non-printable chars
+              .replace(/[\n\r\t]/g, ' ')    // Replace newlines/tabs with spaces
+              .replace(/\s+/g, ' ')         // Normalize multiple spaces
+              .trim();
+              
+            // Check if we need to add missing brackets
+            let processedText = cleanedText;
+            if (!cleanedText.startsWith('{')) {
+              processedText = '{' + processedText;
+            }
+            if (!cleanedText.endsWith('}')) {
+              processedText = processedText + '}';
+            }
+            
+            // Try parsing again
+            data = JSON.parse(processedText);
+            console.log('Fixed and parsed JSON successfully');
+          } catch (fixError) {
+            console.error('Failed to fix JSON:', fixError);
+            
+            // If we still can't parse, try to get videos from localStorage
+            throw new Error('Could not parse JSON after cleanup');
+          }
         }
         
         if (!data.videos || !Array.isArray(data.videos) || data.videos.length === 0) {
@@ -100,39 +93,63 @@ class YouTubeService {
         this.cache.lastFetched = Date.now();
         this.cache.shownVideos.clear();
         
-        localStorage.setItem('youtube_cache', JSON.stringify({
-          videos: data.videos.slice(0, 20), // Store a subset to save space
-          lastFetched: Date.now()
-        }));
+        // Save to localStorage for backup
+        try {
+          localStorage.setItem('youtube_cache', JSON.stringify({
+            videos: data.videos.slice(0, 20), // Store a subset to save space
+            lastFetched: Date.now()
+          }));
+        } catch (storageErr) {
+          console.warn('Could not save to localStorage:', storageErr);
+        }
         
         return this.getUniqueVideosFromCache(maxResults);
       } catch (fetchError) {
+        clearTimeout(timeoutId);
         console.error('Error fetching videos from JSON file:', fetchError);
-        throw fetchError; // Let the error propagate to the localStorage/fallback handler
+        
+        // Try localStorage if fetch fails
+        const storedVideos = this.getVideosFromStorage();
+        if (storedVideos.length > 0) {
+          return storedVideos.slice(0, maxResults);
+        }
+        
+        throw fetchError;
       }
     } catch (error) {
-      console.error('Error fetching videos:', error);
+      console.error('Error getting videos:', error);
       
-      // Try to load from localStorage if available
-      try {
-        console.log('Using videos from localStorage');
-        const storedCache = localStorage.getItem('youtube_cache');
-        if (storedCache) {
-          const parsedCache = JSON.parse(storedCache);
-          if (parsedCache.videos && parsedCache.videos.length > 0) {
-            this.cache.videos = parsedCache.videos;
-            this.cache.lastFetched = parsedCache.lastFetched;
-            return this.getUniqueVideosFromCache(Math.min(maxResults, this.cache.videos.length));
-          }
-        }
-      } catch (err) {
-        console.error('Error loading from localStorage:', err);
+      // Last resort: check localStorage
+      const storedVideos = this.getVideosFromStorage();
+      if (storedVideos.length > 0) {
+        return storedVideos.slice(0, maxResults);
       }
       
-      // Use fallback videos as a last resort
-      console.log('Using fallback videos');
-      return this.fallbackVideos.slice(0, maxResults);
+      // If we truly have no videos, return an empty array
+      return [];
     }
+  }
+  
+  /**
+   * Get videos from localStorage
+   */
+  getVideosFromStorage() {
+    try {
+      const storedCache = localStorage.getItem('youtube_cache');
+      if (storedCache) {
+        const parsedCache = JSON.parse(storedCache);
+        if (parsedCache.videos && parsedCache.videos.length > 0) {
+          console.log('Using videos from localStorage');
+          this.cache.videos = parsedCache.videos;
+          this.cache.lastFetched = parsedCache.lastFetched;
+          return this.cache.videos;
+        }
+      }
+    } catch (err) {
+      console.error('Error loading from localStorage:', err);
+    }
+    
+    return [];
   }
 
   /**
