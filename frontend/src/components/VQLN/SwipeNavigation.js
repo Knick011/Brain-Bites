@@ -3,8 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ChevronUp } from 'lucide-react';
 
 /**
- * Component to add swipe navigation functionality 
- * similar to TikTok/Instagram reels with animation
+ * Component to add swipe navigation functionality similar to TikTok/Instagram reels
  */
 const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
   const touchStartRef = useRef(null);
@@ -33,7 +32,7 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
           setSwipeAmount(currentDistance);
           
           // Apply transform to current content
-          const content = document.querySelector('.question-container, .video-container');
+          const content = document.querySelector('.swipe-content');
           if (content) {
             // Limit the transform to avoid pulling too far
             const maxTransform = Math.min(currentDistance * 0.3, window.innerHeight * 0.3);
@@ -49,21 +48,42 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
       
       const distance = touchStartRef.current - touchMoveRef.current;
       
-      // Reset content position
-      const content = document.querySelector('.question-container, .video-container');
+      // Reset content position with transition
+      const content = document.querySelector('.swipe-content');
       if (content) {
-        content.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        content.style.transform = '';
-      }
-      
-      // Detect upward swipe
-      if (distance > threshold) {
-        // Show flash effect
-        setShowFlash(true);
-        setTimeout(() => setShowFlash(false), 300);
+        content.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
         
-        // Trigger swipe action
-        onSwipeUp();
+        // If swipe threshold met, trigger the transition animation
+        if (distance > threshold) {
+          content.classList.add('exiting');
+          
+          // Show flash effect
+          setShowFlash(true);
+          setTimeout(() => setShowFlash(false), 300);
+          
+          // Set up the next content to slide in from bottom
+          setTimeout(() => {
+            // Trigger swipe action (this will change content)
+            onSwipeUp();
+            
+            // Get the new content element and animate it
+            setTimeout(() => {
+              const newContent = document.querySelector('.swipe-content');
+              if (newContent) {
+                newContent.classList.add('entering');
+                // Remove classes after animation completes
+                setTimeout(() => {
+                  if (newContent) {
+                    newContent.classList.remove('entering');
+                  }
+                }, 500);
+              }
+            }, 50);
+          }, 250); // Trigger just before the exit animation completes
+        } else {
+          // Reset if threshold not met
+          content.style.transform = '';
+        }
       }
       
       // Reset touch positions
@@ -91,18 +111,13 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
       {/* Flash effect when swiping */}
       <div className={`swipe-flash ${showFlash ? 'active' : ''}`}></div>
       
-      {/* Swipe indicator that shows a floating arrow */}
-      <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
-        <div className="relative flex flex-col items-center">
-          {/* Main pulsing circle */}
-          <div className="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center animate-bounce-slow">
-            <ChevronUp size={24} className="text-white" />
-          </div>
-          
-          {/* Instructional text */}
-          <div className="text-white text-sm mt-2 bg-black bg-opacity-40 px-3 py-1 rounded-full">
-            Swipe up
-          </div>
+      {/* Swipe indicator */}
+      <div className="swipe-indicator">
+        <div className="swipe-indicator-circle">
+          <ChevronUp />
+        </div>
+        <div className="swipe-indicator-text">
+          Swipe up
         </div>
       </div>
     </>
