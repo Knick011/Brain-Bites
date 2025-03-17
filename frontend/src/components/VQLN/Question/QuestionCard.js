@@ -8,7 +8,8 @@ const QuestionCard = ({
   timeMode = false, 
   streak = 0, 
   onSelectAnswer,
-  tutorialMode = false
+  tutorialMode = false,
+  onExplanationShow
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -46,12 +47,19 @@ const QuestionCard = ({
     return () => clearInterval(timer);
   }, [timerActive, timeMode]);
 
-  // Update parent component with selected answer for swipe navigation
+  // Update parent component with selected answer
   useEffect(() => {
     if (onSelectAnswer && selectedAnswer !== null) {
       onSelectAnswer(selectedAnswer);
     }
   }, [selectedAnswer, onSelectAnswer]);
+
+  // Notify parent when explanation is shown
+  useEffect(() => {
+    if (showExplanation && onExplanationShow) {
+      onExplanationShow(true);
+    }
+  }, [showExplanation, onExplanationShow]);
 
   if (!question) {
     return <div className="w-full h-full bg-white p-4">Loading question...</div>;
@@ -142,7 +150,7 @@ const QuestionCard = ({
             </div>
           </div>
           
-          {/* Explanation Popup - No continue button in tutorial mode */}
+          {/* Explanation Popup - Using tutorialMode flag */}
           {showExplanation && (
             <AnswerNotification 
               isCorrect={selectedAnswer === question.correctAnswer}
@@ -151,7 +159,7 @@ const QuestionCard = ({
               correctAnswer={question.options?.[question.correctAnswer] || ""}
               onContinue={handleContinue}
               timeLeft={explanationTimeLeft}
-              showContinueButton={!tutorialMode} // Hide continue button in tutorial mode
+              tutorialMode={tutorialMode} // Pass tutorial mode flag
             />
           )}
         </div>
