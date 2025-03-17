@@ -534,3 +534,150 @@
 .video-container {
   background-color: #000;
 }
+/* Add this to your GameStyles.css file */
+
+/* TikTok Style Container */
+.tiktok-style {
+  overflow: hidden;
+  background-color: #000;
+}
+
+/* Current visible content */
+.current-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  z-index: 5;
+  will-change: transform, opacity;
+}
+
+/* Next content ready to enter */
+.next-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: translateY(100%) scale(0.9);
+  opacity: 0.2;
+  z-index: 4;
+}
+
+/* TikTok flash effect */
+.tiktok-flash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  pointer-events: none;
+  animation: tiktok-flash 0.3s ease-out forwards;
+}
+
+@keyframes tiktok-flash {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Swipe indicator at bottom of screen */
+.swipe-indicator-container {
+  position: fixed;
+  bottom: 80px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.swipe-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  animation: pulse 2s infinite;
+}
+
+.swipe-indicator svg {
+  animation: bounce 1.5s infinite;
+}
+
+.swipe-indicator span {
+  font-size: 12px;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* TikTok-style transition animations */
+@keyframes tiktok-exit {
+  from { 
+    transform: translateY(0) scale(1); 
+    opacity: 1;
+  }
+  to { 
+    transform: translateY(-100%) scale(0.8); 
+    opacity: 0;
+  }
+}
+
+@keyframes tiktok-enter {
+  from { 
+    transform: translateY(100%) scale(0.9); 
+    opacity: 0.2;
+  }
+  to { 
+    transform: translateY(0) scale(1); 
+    opacity: 1;
+  }
+}
+
+.tiktok-exiting {
+  animation: tiktok-exit 0.35s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.tiktok-entering {
+  animation: tiktok-enter 0.35s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+/* Specific styles for video container */
+.video-container.swipe-container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background-color: #000;
+  z-index: 1;
+}
+
+/* Question container in TikTok style */
+.question-container.swipe-container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background-color: var(--bg-light, #FFF8E7);
+  z-index: 1;
+}
+
+/* Pulse animation for swipe indicator */
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 0.4; }
+  100% { opacity: 0.8; }
+}
+
+/* Bounce animation for chevron */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
