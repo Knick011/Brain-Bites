@@ -1,44 +1,72 @@
 // components/VQLN/SwipeNavigation.js
 import React, { useEffect, useRef, useState } from 'react';
+import { ChevronUp } from 'lucide-react';
 
 /**
- * Component to add swipe navigation functionality without visual indicators
+ * Enhanced SwipeNavigation component with TikTok-style transitions
  */
 const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
   const touchStartRef = useRef(null);
-  const touchEndRef = useRef(null);
   const touchMoveRef = useRef(null);
   const [swiping, setSwiping] = useState(false);
-  const [swipeAmount, setSwipeAmount] = useState(0);
-  const [showFlash, setShowFlash] = useState(false);
+  const [showIndicator, setShowIndicator] = useState(true);
+  
+  // Hide swipe indicator after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowIndicator(false);
+    }, 5000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  useEffect(() => {
+    // Add TikTok-style class to the body for global styling
+    document.body.classList.add('tiktok-style');
+    
+    // Apply necessary class to current content
+    const content = document.querySelector('.swipe-content');
+    if (content) {
+      content.classList.add('current-content');
+    }
+    
+    return () => {
+      document.body.classList.remove('tiktok-style');
+    };
+  }, []);
   
   useEffect(() => {
     const handleTouchStart = (e) => {
       touchStartRef.current = e.targetTouches[0].clientY;
+      touchMoveRef.current = e.targetTouches[0].clientY;
       setSwiping(false);
-      setSwipeAmount(0);
     };
     
     const handleTouchMove = (e) => {
-      touchMoveRef.current = e.targetTouches[0].clientY;
+      if (!touchStartRef.current) return;
       
-      if (touchStartRef.current && touchMoveRef.current) {
-        const currentDistance = touchStartRef.current - touchMoveRef.current;
+      touchMoveRef.current = e.targetTouches[0].clientY;
+      const distance = touchStartRef.current - touchMoveRef.current;
+      
+      // Only respond to upward swipes
+      if (distance > 0) {
+        setSwiping(true);
         
-        // Only track upward swipes
-        if (currentDistance > 0) {
-          setSwiping(true);
-          setSwipeAmount(currentDistance);
+        // Apply TikTok-style transform to current content
+        const content = document.querySelector('.current-content');
+        if (content) {
+          // Scale and translate with opacity change
+          const movePercent = Math.min((distance / window.innerHeight) * 100, 25);
+          const scaleValue = 1 - (movePercent / 100);
+          const opacityValue = 1 - (movePercent / 25);
           
-          // Apply transform to current content
-          const content = document.querySelector('.swipe-content');
-          if (content) {
-            // Limit the transform to avoid pulling too far
-            const maxTransform = Math.min(currentDistance * 0.3, window.innerHeight * 0.3);
-            content.style.transform = `translateY(-${maxTransform}px)`;
-            content.style.transition = 'none'; // Disable transition during drag
-          }
+          content.style.transform = `translateY(-${movePercent}%) scale(${scaleValue})`;
+          content.style.opacity = opacityValue;
+          content.style.transition = 'none'; // No transition during manual drag
         }
+        
+        // Prevent default to avoid page scrolling
+        e.preventDefault();
       }
     };
     
@@ -46,58 +74,56 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
       if (!touchStartRef.current || !touchMoveRef.current) return;
       
       const distance = touchStartRef.current - touchMoveRef.current;
+      const content = document.querySelector('.current-content');
       
-      // Reset content position with transition
-      const content = document.querySelector('.swipe-content');
       if (content) {
-        content.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+        // Add smooth transition for the completion of the swipe
+        content.style.transition = 'transform 0.35s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.35s cubic-bezier(0.19, 1, 0.22, 1)';
         
-        // If swipe threshold met, trigger the transition animation
         if (distance > threshold) {
-          content.classList.add('exiting');
+          // Complete the exit animation with TikTok-style
+          content.style.transform = 'translateY(-100%) scale(0.8)';
+          content.style.opacity = '0';
           
-          // Show flash effect
-          setShowFlash(true);
-          setTimeout(() => setShowFlash(false), 300);
+          // Create a flash effect for transition
+          const flash = document.createElement('div');
+          flash.className = 'tiktok-flash';
+          document.body.appendChild(flash);
           
-          // Set up the next content to slide in from bottom
+          // Trigger the swipe action after animation
           setTimeout(() => {
-            // Trigger swipe action (this will change content)
             onSwipeUp();
+            document.body.removeChild(flash);
             
-            // Get the new content element and animate it
+            // Set up the next content with TikTok entrance animation
             setTimeout(() => {
               const newContent = document.querySelector('.swipe-content');
               if (newContent) {
-                newContent.classList.add('entering');
-                // Remove classes after animation completes
-                setTimeout(() => {
-                  if (newContent) {
-                    newContent.classList.remove('entering');
-                  }
-                }, 500);
+                newContent.classList.add('current-content');
+                newContent.style.transition = 'transform 0.35s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.35s cubic-bezier(0.19, 1, 0.22, 1)';
+                newContent.style.transform = 'translateY(0) scale(1)';
+                newContent.style.opacity = '1';
               }
             }, 50);
-          }, 250); // Trigger just before the exit animation completes
+          }, 300);
         } else {
-          // Reset if threshold not met
-          content.style.transform = '';
+          // Reset if swipe was not strong enough
+          content.style.transform = 'translateY(0) scale(1)';
+          content.style.opacity = '1';
         }
       }
       
-      // Reset touch positions
+      // Reset touch values
       touchStartRef.current = null;
       touchMoveRef.current = null;
       setSwiping(false);
-      setSwipeAmount(0);
     };
     
-    // Add event listeners
+    // Add event listeners with passive false for preventDefault
     document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd);
     
-    // Clean up event listeners
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchmove', handleTouchMove);
@@ -107,10 +133,15 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
   
   return (
     <>
-      {/* Flash effect when swiping */}
-      <div className={`swipe-flash ${showFlash ? 'active' : ''}`}></div>
-      
-      {/* No swipe indicators anymore */}
+      {/* Subtle swipe indicator at bottom of screen */}
+      {showIndicator && (
+        <div className="swipe-indicator-container">
+          <div className="swipe-indicator">
+            <ChevronUp size={24} />
+            <span>Swipe up for next</span>
+          </div>
+        </div>
+      )}
     </>
   );
 };
