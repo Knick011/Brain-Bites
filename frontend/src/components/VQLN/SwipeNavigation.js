@@ -1,9 +1,8 @@
 // components/VQLN/SwipeNavigation.js
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronUp } from 'lucide-react';
 
 /**
- * Component to add swipe navigation functionality similar to TikTok/Instagram reels
+ * Component to add swipe navigation functionality without visual indicators
  */
 const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
   const touchStartRef = useRef(null);
@@ -111,15 +110,7 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
       {/* Flash effect when swiping */}
       <div className={`swipe-flash ${showFlash ? 'active' : ''}`}></div>
       
-      {/* Swipe indicator */}
-      <div className="swipe-indicator">
-        <div className="swipe-indicator-circle">
-          <ChevronUp />
-        </div>
-        <div className="swipe-indicator-text">
-          Swipe up
-        </div>
-      </div>
+      {/* No swipe indicators anymore */}
     </>
   );
 };
