@@ -536,7 +536,7 @@
 }
 /* Add this to your GameStyles.css file */
 
-/* Add this to your GameStyles.css file */
+/* Add these styles to your GameStyles.css file for enhanced TikTok-style transitions */
 
 /* TikTok Style Container */
 .tiktok-style {
@@ -596,7 +596,7 @@
   100% { opacity: 0; }
 }
 
-/* Fun swipe indicator for tutorial mode only */
+/* Fun swipe indicator for tutorial mode */
 .fun-swipe-indicator-container {
   position: fixed;
   bottom: 80px;
@@ -714,19 +714,28 @@
 }
 
 .tiktok-exiting {
-  animation: tiktok-exit 0.35s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  animation: tiktok-exit 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
 .tiktok-entering {
-  animation: tiktok-enter 0.35s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  animation: tiktok-enter 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
-/* Specific styles for video container */
-.video-container.swipe-container {
-  background-color: #000;
+/* Slower transitions for better visibility */
+.swipe-content {
+  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1) !important;
 }
 
-/* Question container in TikTok style */
-.question-container.swipe-container {
-  background-color: var(--bg-light, #FFF8E7);
+/* Video container styles */
+.video-container {
+  background-color: #000 !important;
+}
+
+.video-container .swipe-indicator {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Make sure to add bottom padding to explanation popup for swipe hint */
+.fixed.inset-0.z-50.flex.items-center.justify-center {
+  padding-bottom: 80px;
 }
