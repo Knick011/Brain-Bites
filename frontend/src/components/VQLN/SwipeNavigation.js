@@ -4,21 +4,30 @@ import { ChevronUp } from 'lucide-react';
 
 /**
  * Enhanced SwipeNavigation component with TikTok-style transitions
+ * Works anywhere on the screen with fun indicator only in tutorial mode
  */
-const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
+const SwipeNavigation = ({ onSwipeUp, threshold = 100, isTutorial = false, showAfterAction = false }) => {
   const touchStartRef = useRef(null);
   const touchMoveRef = useRef(null);
   const [swiping, setSwiping] = useState(false);
-  const [showIndicator, setShowIndicator] = useState(true);
+  const [showIndicator, setShowIndicator] = useState(false);
   
-  // Hide swipe indicator after 5 seconds
+  // Show indicator only in tutorial mode after answering question
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Only show indicator for tutorial and after action
+    if (isTutorial && showAfterAction) {
+      setShowIndicator(true);
+      
+      // Auto-hide after 5 seconds
+      const timer = setTimeout(() => {
+        setShowIndicator(false);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    } else {
       setShowIndicator(false);
-    }, 5000);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    }
+  }, [isTutorial, showAfterAction]);
   
   useEffect(() => {
     // Add TikTok-style class to the body for global styling
@@ -36,6 +45,7 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
   }, []);
   
   useEffect(() => {
+    // Make entire document swipeable
     const handleTouchStart = (e) => {
       touchStartRef.current = e.targetTouches[0].clientY;
       touchMoveRef.current = e.targetTouches[0].clientY;
@@ -119,7 +129,7 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
       setSwiping(false);
     };
     
-    // Add event listeners with passive false for preventDefault
+    // Add event listeners to entire document
     document.addEventListener('touchstart', handleTouchStart, { passive: true });
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd);
@@ -133,12 +143,15 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100 }) => {
   
   return (
     <>
-      {/* Subtle swipe indicator at bottom of screen */}
+      {/* Fun swipe indicator only shown in tutorial mode after answering */}
       {showIndicator && (
-        <div className="swipe-indicator-container">
-          <div className="swipe-indicator">
-            <ChevronUp size={24} />
-            <span>Swipe up for next</span>
+        <div className="fun-swipe-indicator-container">
+          <div className="fun-swipe-indicator">
+            <div className="indicator-ring"></div>
+            <div className="indicator-arrow">
+              <ChevronUp size={24} strokeWidth={3} />
+            </div>
+            <div className="indicator-text">Swipe up to continue</div>
           </div>
         </div>
       )}
