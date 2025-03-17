@@ -505,56 +505,6 @@
   }
 }
 
-/* Swipe indicator with TikTok style */
-.swipe-indicator {
-  position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 50;
-  pointer-events: none;
-}
-
-.swipe-indicator-circle {
-  width: 44px;
-  height: 44px;
-  background-color: rgba(255, 255, 255, 0.25);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 8px;
-  animation: bounce-indicator 2s infinite;
-}
-
-.swipe-indicator-text {
-  color: white;
-  font-size: 14px;
-  background-color: rgba(0, 0, 0, 0.4);
-  padding: 4px 12px;
-  border-radius: 999px;
-}
-
-.swipe-indicator svg {
-  color: white;
-  width: 24px;
-  height: 24px;
-}
-
-@keyframes bounce-indicator {
-  0%, 100% {
-    transform: translateY(0);
-    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
-  }
-  50% {
-    transform: translateY(-15px);
-    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
-  }
-}
-
 /* Flash effect when swiping */
 .swipe-flash {
   position: fixed;
@@ -573,19 +523,6 @@
   0% { opacity: 0; }
   50% { opacity: 1; }
   100% { opacity: 0; }
-}
-
-/* Gradient overlay for better visibility of indicator */
-.video-container::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 30%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
-  pointer-events: none;
-  z-index: 5;
 }
 
 /* Question container styling to match overall theme */
