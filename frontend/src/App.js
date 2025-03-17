@@ -90,6 +90,44 @@ function App() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+// Add this keyboard handler to your App.js
+
+/**
+ * Global keyboard navigation handler - add to your App.js component
+ */
+useEffect(() => {
+  const handleKeyDown = (event) => {
+    // Only handle global navigation when there's a question or video visible
+    if (showWelcome || showSection) return;
+    
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || 
+        event.key === ' ' || event.key === 'Enter') {
+      
+      // In question mode with explanation showing
+      if (showQuestion && explanationVisible) {
+        if (tutorialMode) {
+          handleSwipeUpExplanation();
+        } else {
+          // In regular mode, continue to next question
+          fetchQuestion();
+        }
+        event.preventDefault();
+      }
+      // In video mode
+      else if (!showQuestion) {
+        handleSwipeUpVideo();
+        event.preventDefault();
+      }
+    }
+  };
+  
+  window.addEventListener('keydown', handleKeyDown);
+  return () => window.removeEventListener('keydown', handleKeyDown);
+}, [
+  showWelcome, showSection, showQuestion, explanationVisible, 
+  tutorialMode, handleSwipeUpExplanation, fetchQuestion, handleSwipeUpVideo
+]);
   
   // Initialize API availability check
   useEffect(() => {
