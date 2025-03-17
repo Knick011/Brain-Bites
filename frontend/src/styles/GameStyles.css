@@ -462,3 +462,145 @@
     opacity: 0;
   }
 }
+/* Add these styles to your GameStyles.css file */
+
+/* ===== Swipe Navigation Styles ===== */
+
+/* Container for the swipe animations */
+.swipe-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100vh;
+}
+
+/* Main content styling */
+.swipe-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Entry animation for content coming from bottom */
+.swipe-enter {
+  transform: translateY(100%);
+}
+
+.swipe-enter-active {
+  transform: translateY(0);
+}
+
+/* Exit animation for content leaving to top */
+.swipe-exit {
+  transform: translateY(0);
+}
+
+.swipe-exit-active {
+  transform: translateY(-100%);
+}
+
+/* Swipe indicator animation */
+@keyframes bounce-slow {
+  0%, 100% { 
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% { 
+    transform: translateY(-15px);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s infinite;
+}
+
+/* Flash effect when swiping */
+.swipe-flash {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.swipe-flash.active {
+  animation: flash 0.3s forwards;
+}
+
+@keyframes flash {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* TikTok-style swipe up indicator */
+.swipe-indicator {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  z-index: 50;
+  width: 100%;
+  pointer-events: none;
+}
+
+.swipe-indicator .circle {
+  width: 48px;
+  height: 48px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.swipe-indicator .text {
+  font-size: 14px;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+/* Add a gradient overlay at the bottom of videos to make indicator more visible */
+.video-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+
+/* This creates a gentle pulse effect for the indicator */
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s infinite ease-in-out;
+}
