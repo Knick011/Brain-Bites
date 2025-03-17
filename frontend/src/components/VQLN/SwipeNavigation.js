@@ -4,18 +4,23 @@ import { ChevronUp } from 'lucide-react';
 
 /**
  * Enhanced SwipeNavigation component with TikTok-style transitions
- * Works anywhere on the screen with fun indicator only in tutorial mode
+ * Only enabled after user answers a question and only on the explanation popup
  */
-const SwipeNavigation = ({ onSwipeUp, threshold = 100, isTutorial = false, showAfterAction = false }) => {
+const SwipeNavigation = ({ 
+  onSwipeUp, 
+  threshold = 100, 
+  isTutorial = false, 
+  enabled = false,
+  isVideo = false
+}) => {
   const touchStartRef = useRef(null);
   const touchMoveRef = useRef(null);
   const [swiping, setSwiping] = useState(false);
   const [showIndicator, setShowIndicator] = useState(false);
   
-  // Show indicator only in tutorial mode after answering question
+  // Show indicator automatically in tutorial mode
   useEffect(() => {
-    // Only show indicator for tutorial and after action
-    if (isTutorial && showAfterAction) {
+    if (isTutorial && enabled) {
       setShowIndicator(true);
       
       // Auto-hide after 5 seconds
@@ -27,9 +32,13 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100, isTutorial = false, showA
     } else {
       setShowIndicator(false);
     }
-  }, [isTutorial, showAfterAction]);
+  }, [isTutorial, enabled]);
   
+  // Set up swipe handlers
   useEffect(() => {
+    // Don't add event listeners if not enabled
+    if (!enabled) return;
+    
     // Add TikTok-style class to the body for global styling
     document.body.classList.add('tiktok-style');
     
@@ -42,16 +51,20 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100, isTutorial = false, showA
     return () => {
       document.body.classList.remove('tiktok-style');
     };
-  }, []);
+  }, [enabled]);
   
   useEffect(() => {
-    // Make entire document swipeable
+    // Don't add event listeners if not enabled
+    if (!enabled) return;
+    
+    // Handle touch start
     const handleTouchStart = (e) => {
       touchStartRef.current = e.targetTouches[0].clientY;
       touchMoveRef.current = e.targetTouches[0].clientY;
       setSwiping(false);
     };
     
+    // Handle touch move
     const handleTouchMove = (e) => {
       if (!touchStartRef.current) return;
       
@@ -80,6 +93,7 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100, isTutorial = false, showA
       }
     };
     
+    // Handle touch end
     const handleTouchEnd = () => {
       if (!touchStartRef.current || !touchMoveRef.current) return;
       
@@ -88,34 +102,41 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100, isTutorial = false, showA
       
       if (content) {
         // Add smooth transition for the completion of the swipe
-        content.style.transition = 'transform 0.35s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.35s cubic-bezier(0.19, 1, 0.22, 1)';
+        content.style.transition = 'transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
         
         if (distance > threshold) {
           // Complete the exit animation with TikTok-style
           content.style.transform = 'translateY(-100%) scale(0.8)';
           content.style.opacity = '0';
           
-          // Create a flash effect for transition
-          const flash = document.createElement('div');
-          flash.className = 'tiktok-flash';
-          document.body.appendChild(flash);
+          // Create next content container that will come from bottom
+          const nextContent = document.createElement('div');
+          nextContent.className = 'next-content swipe-content';
+          nextContent.style.transform = 'translateY(100%) scale(0.9)';
+          nextContent.style.opacity = '0';
+          document.body.appendChild(nextContent);
           
           // Trigger the swipe action after animation
           setTimeout(() => {
+            // Execute the callback
             onSwipeUp();
-            document.body.removeChild(flash);
             
-            // Set up the next content with TikTok entrance animation
+            // Remove the temporary element
+            if (document.body.contains(nextContent)) {
+              document.body.removeChild(nextContent);
+            }
+            
+            // Wait a bit then set up the new content with TikTok entrance animation
             setTimeout(() => {
               const newContent = document.querySelector('.swipe-content');
               if (newContent) {
                 newContent.classList.add('current-content');
-                newContent.style.transition = 'transform 0.35s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.35s cubic-bezier(0.19, 1, 0.22, 1)';
+                newContent.style.transition = 'transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
                 newContent.style.transform = 'translateY(0) scale(1)';
                 newContent.style.opacity = '1';
               }
-            }, 50);
-          }, 300);
+            }, 100);
+          }, 450); // Slightly longer to let the animation complete
         } else {
           // Reset if swipe was not strong enough
           content.style.transform = 'translateY(0) scale(1)';
@@ -129,22 +150,30 @@ const SwipeNavigation = ({ onSwipeUp, threshold = 100, isTutorial = false, showA
       setSwiping(false);
     };
     
-    // Add event listeners to entire document
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd);
+    // Add event listeners to entire document or to video element for videos
+    const targetElement = isVideo ? 
+      document.querySelector('.video-container') : 
+      document;
+    
+    if (targetElement) {
+      targetElement.addEventListener('touchstart', handleTouchStart, { passive: true });
+      targetElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+      targetElement.addEventListener('touchend', handleTouchEnd);
+    }
     
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
+      if (targetElement) {
+        targetElement.removeEventListener('touchstart', handleTouchStart);
+        targetElement.removeEventListener('touchmove', handleTouchMove);
+        targetElement.removeEventListener('touchend', handleTouchEnd);
+      }
     };
-  }, [onSwipeUp, threshold]);
+  }, [onSwipeUp, threshold, enabled, isVideo]);
   
   return (
     <>
-      {/* Fun swipe indicator only shown in tutorial mode after answering */}
-      {showIndicator && (
+      {/* Show swipe indicator only when enabled */}
+      {showIndicator && enabled && (
         <div className="fun-swipe-indicator-container">
           <div className="fun-swipe-indicator">
             <div className="indicator-ring"></div>
