@@ -34,7 +34,7 @@ const SwipeNavigation = ({
     }
   }, [isTutorial, enabled]);
   
-  // Set up swipe handlers
+  // Set up swipe handlers and keyboard navigation
   useEffect(() => {
     // Don't add event listeners if not enabled
     if (!enabled) return;
@@ -48,10 +48,59 @@ const SwipeNavigation = ({
       content.classList.add('current-content');
     }
     
+    // Add keyboard event listener for down arrow key
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowDown') {
+        // Trigger the same animation and callback as a swipe up
+        const content = document.querySelector('.current-content');
+        if (content) {
+          // Add smooth transition
+          content.style.transition = 'transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
+          
+          // Execute animation
+          content.style.transform = 'translateY(-100%) scale(0.8)';
+          content.style.opacity = '0';
+          
+          // Create next content container that will come from bottom
+          const nextContent = document.createElement('div');
+          nextContent.className = 'next-content swipe-content';
+          nextContent.style.transform = 'translateY(100%) scale(0.9)';
+          nextContent.style.opacity = '0';
+          document.body.appendChild(nextContent);
+          
+          // Trigger the swipe action after animation
+          setTimeout(() => {
+            // Execute the callback
+            onSwipeUp();
+            
+            // Remove the temporary element
+            if (document.body.contains(nextContent)) {
+              document.body.removeChild(nextContent);
+            }
+            
+            // Wait a bit then set up the new content with TikTok entrance animation
+            setTimeout(() => {
+              const newContent = document.querySelector('.swipe-content');
+              if (newContent) {
+                newContent.classList.add('current-content');
+                newContent.style.transition = 'transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
+                newContent.style.transform = 'translateY(0) scale(1)';
+                newContent.style.opacity = '1';
+              }
+            }, 100);
+          }, 450);
+        }
+      }
+    };
+    
+    // Add keyboard event listener
+    window.addEventListener('keydown', handleKeyDown);
+    
     return () => {
       document.body.classList.remove('tiktok-style');
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [enabled]);
+  }, [enabled, onSwipeUp]);
   
   useEffect(() => {
     // Don't add event listeners if not enabled
