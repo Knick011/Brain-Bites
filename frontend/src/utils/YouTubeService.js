@@ -57,20 +57,25 @@ class YouTubeService {
           
           // Try to fix common JSON issues
           try {
-            // Clean the text - remove unexpected characters, normalize whitespace
+            // More aggressive cleaning - remove any unexpected characters that might cause issues
             const cleanedText = text
-              .replace(/[^\x20-\x7E]/g, '') // Remove non-printable chars
-              .replace(/[\n\r\t]/g, ' ')    // Replace newlines/tabs with spaces
-              .replace(/\s+/g, ' ')         // Normalize multiple spaces
+              .replace(/[^\x20-\x7E]/g, '')       // Remove non-printable chars
+              .replace(/[\n\r\t]/g, ' ')          // Replace newlines/tabs with spaces
+              .replace(/\s+/g, ' ')               // Normalize multiple spaces
+              .replace(/,\s*([}\]])/g, '$1')      // Remove trailing commas
+              .replace(/([{[,:])\s*}/g, '$1null') // Replace empty values with null
               .trim();
               
-            // Check if we need to add missing brackets
+            // Check for truncated JSON - sometimes the file might be cut off
             let processedText = cleanedText;
-            if (!cleanedText.startsWith('{')) {
-              processedText = '{' + processedText;
-            }
-            if (!cleanedText.endsWith('}')) {
-              processedText = processedText + '}';
+            
+            // Count opening and closing braces to detect imbalance
+            const openBraces = (processedText.match(/{/g) || []).length;
+            const closeBraces = (processedText.match(/}/g) || []).length;
+            
+            // Add missing closing braces if needed
+            for (let i = 0; i < openBraces - closeBraces; i++) {
+              processedText += '}';
             }
             
             // Try parsing again
@@ -79,8 +84,23 @@ class YouTubeService {
           } catch (fixError) {
             console.error('Failed to fix JSON:', fixError);
             
-            // If we still can't parse, try to get videos from localStorage
-            throw new Error('Could not parse JSON after cleanup');
+            // Try a more drastic approach - extract just the videos array if possible
+            try {
+              // Look for the videos array pattern
+              const videosMatch = text.match(/"videos"\s*:\s*\[([\s\S]*?)\]/);
+              if (videosMatch && videosMatch[1]) {
+                const videosArrayText = videosMatch[1];
+                const videosArray = JSON.parse('[' + videosArrayText + ']');
+                data = { videos: videosArray };
+                console.log('Extracted videos array from malformed JSON');
+              } else {
+                throw new Error('Could not extract videos array');
+              }
+            } catch (extractError) {
+              console.error('Failed to extract videos array:', extractError);
+              // If we still can't parse, try to get videos from localStorage
+              throw new Error('Could not parse JSON after all cleanup attempts');
+            }
           }
         }
         
