@@ -34,20 +34,20 @@ jobs:
         
       - name: Verify output file
         run: |
-          if [ ! -f public/youtube-videos.json ]; then
+          if [ ! -f frontend/public/youtube-videos.json ]; then
             echo "Error: output file not created"
             exit 1
           fi
           echo "JSON file stats:"
-          ls -la public/youtube-videos.json
+          ls -la frontend/public/youtube-videos.json
           echo "JSON file content preview:"
-          head -n 20 public/youtube-videos.json
+          head -n 20 frontend/public/youtube-videos.json
           echo "Video count:"
-          grep -o '"id":' public/youtube-videos.json | wc -l
+          grep -o '"id":' frontend/public/youtube-videos.json | wc -l
       
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add public/youtube-videos.json
+          git add frontend/public/youtube-videos.json
           git diff --staged --quiet || (git commit -m "Update YouTube videos - $(date)" && git push)
