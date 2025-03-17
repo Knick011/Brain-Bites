@@ -9,7 +9,48 @@ class YouTubeService {
       shownVideos: new Set()
     };
     this.cacheExpiry = 30 * 60 * 1000; // 30 minutes cache
-    this.fallbackVideos = []; // Removed fallback videos
+    this.fallbackVideos = [
+      {
+        id: "8_gdcaX9Xqk",
+        url: "https://www.youtube.com/shorts/8_gdcaX9Xqk",
+        title: "Would You Split Or Steal $250,000?",
+        channelTitle: "MrBeast",
+        channelHandle: "MrBeast",
+        addedAt: new Date().toISOString()
+      },
+      {
+        id: "c0YNnrHBARc",
+        url: "https://www.youtube.com/shorts/c0YNnrHBARc",
+        title: "How I Start My Mornings - Harvest Edition",
+        channelTitle: "Zach King",
+        channelHandle: "ZachKing",
+        addedAt: new Date().toISOString()
+      },
+      {
+        id: "OgSd80t9JaM",
+        url: "https://www.youtube.com/shorts/OgSd80t9JaM",
+        title: "Ping Pong, But All Elevated Surfaces Count.",
+        channelTitle: "Daniel LaBelle",
+        channelHandle: "DanielLabielle",
+        addedAt: new Date().toISOString()
+      },
+      {
+        id: "cnu9aJMM3cQ",
+        url: "https://www.youtube.com/shorts/cnu9aJMM3cQ",
+        title: "OneStopChop's FLAVOR FILLED mac and cheese is one EVERYONE will love!",
+        channelTitle: "Little Remy Food 🐭🍝",
+        channelHandle: "remy",
+        addedAt: new Date().toISOString()
+      },
+      {
+        id: "MlPAmRN-uwg",
+        url: "https://www.youtube.com/shorts/MlPAmRN-uwg",
+        title: "Well that escalated QUICKLY 😳🎱",
+        channelTitle: "Dude Perfect",
+        channelHandle: "DudePerfect",
+        addedAt: new Date().toISOString()
+      }
+    ];
   }
 
   /**
@@ -17,82 +58,68 @@ class YouTubeService {
    */
   async getViralShorts(maxResults = 10) {
     try {
+      console.log('Trying to fetch videos from:');
+      console.log('/youtube-videos.json');
+      
       // Use cache if valid
       if (this.isValidCache()) {
         console.log('Using cached videos');
         return this.getUniqueVideosFromCache(maxResults);
       }
 
-      // Try multiple possible paths with error handling
-      let response;
-      let successPath;
-      const possiblePaths = [
-        '/youtube-videos.json',
-        './youtube-videos.json',
-        `${window.location.origin}/youtube-videos.json`
-      ];
-      
-      for (const path of possiblePaths) {
-        try {
-          console.log(`Trying to fetch videos from: ${path}`);
-          response = await fetch(path, {
-            cache: 'no-store',
-            headers: { 'Accept': 'application/json' }
-          });
-          
-          if (response.ok) {
-            console.log(`Successfully loaded videos from: ${path}`);
-            successPath = path;
-            break;
-          }
-        } catch (err) {
-          console.warn(`Failed to fetch from ${path}:`, err);
-        }
-      }
-      
-      if (!response || !response.ok) {
-        console.error('No successful response from video sources');
-        throw new Error("Failed to load videos from any source");
-      }
-      
-      // Parse the response as text first to verify it's valid JSON
-      const text = await response.text();
-      let data;
-      
+      // Try to fetch from the JSON file
       try {
-        data = JSON.parse(text);
-      } catch (err) {
-        console.error(`Invalid JSON from ${successPath}:`, err);
-        console.error('First 100 chars of response:', text.substring(0, 100));
-        throw new Error("Invalid video data format");
+        const response = await fetch('/youtube-videos.json', {
+          cache: 'no-store',
+          headers: { 'Accept': 'application/json' }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load videos: ${response.status}`);
+        }
+        
+        // Parse the response carefully
+        const text = await response.text();
+        console.log('Successfully loaded videos from:');
+        console.log('/youtube-videos.json');
+        
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (err) {
+          console.error('Invalid JSON in response:', err);
+          throw new Error('Invalid JSON format');
+        }
+        
+        if (!data.videos || !Array.isArray(data.videos) || data.videos.length === 0) {
+          throw new Error('No videos found in response');
+        }
+        
+        // Update cache
+        this.cache.videos = data.videos;
+        this.cache.lastFetched = Date.now();
+        this.cache.shownVideos.clear();
+        
+        localStorage.setItem('youtube_cache', JSON.stringify({
+          videos: data.videos.slice(0, 20), // Store a subset to save space
+          lastFetched: Date.now()
+        }));
+        
+        return this.getUniqueVideosFromCache(maxResults);
+      } catch (fetchError) {
+        console.error('Error fetching videos from JSON file:', fetchError);
+        throw fetchError; // Let the error propagate to the localStorage/fallback handler
       }
-      
-      if (!data.videos || !Array.isArray(data.videos) || data.videos.length === 0) {
-        console.error('No videos found in response');
-        throw new Error("No videos available");
-      }
-      
-      // Update cache
-      this.cache.videos = data.videos;
-      this.cache.lastFetched = Date.now();
-      this.cache.shownVideos.clear();
-      
-      localStorage.setItem('youtube_cache', JSON.stringify({
-        videos: data.videos.slice(0, 20), // Store a subset to save space
-        lastFetched: Date.now()
-      }));
-      
-      return this.getUniqueVideosFromCache(maxResults);
     } catch (error) {
       console.error('Error fetching videos:', error);
       
       // Try to load from localStorage if available
       try {
+        console.log('Using videos from localStorage');
         const storedCache = localStorage.getItem('youtube_cache');
         if (storedCache) {
           const parsedCache = JSON.parse(storedCache);
           if (parsedCache.videos && parsedCache.videos.length > 0) {
-            console.log('Using videos from localStorage');
             this.cache.videos = parsedCache.videos;
             this.cache.lastFetched = parsedCache.lastFetched;
             return this.getUniqueVideosFromCache(Math.min(maxResults, this.cache.videos.length));
@@ -102,15 +129,9 @@ class YouTubeService {
         console.error('Error loading from localStorage:', err);
       }
       
-      // Add minimal fallback videos for tutorial mode
-      return [
-        {
-          id: "8_gdcaX9Xqk",
-          url: "https://www.youtube.com/shorts/8_gdcaX9Xqk",
-          title: "Would You Split Or Steal $250,000?",
-          channelTitle: "MrBeast"
-        }
-      ];
+      // Use fallback videos as a last resort
+      console.log('Using fallback videos');
+      return this.fallbackVideos.slice(0, maxResults);
     }
   }
 
