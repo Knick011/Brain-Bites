@@ -83,4 +83,25 @@ const QuestionTimer = ({ timeLimit = 10, onTimeUp, isActive, displayScore = true
       {/* Progress bar */}
       <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
         <div 
-          className
+          className={`h-2.5 rounded-full transition-all duration-1000 ease-linear ${getTimerColor()}`}
+          style={{ width: `${percentage}%` }}
+        ></div>
+      </div>
+      
+      {/* Animated points at stake */}
+      {displayScore && (
+        <div className="timer-points-visualization mt-1 flex justify-between">
+          <div className="h-1 bg-gray-100 rounded-full overflow-hidden flex-grow">
+            <div 
+              className="h-1 bg-gradient-to-r from-green-500 to-red-500 rounded-full transition-all duration-1000 ease-linear"
+              style={{ width: `${percentage}%` }}
+            ></div>
+          </div>
+          <div className="text-xs text-gray-500 ml-2">at stake</div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default QuestionTimer;
