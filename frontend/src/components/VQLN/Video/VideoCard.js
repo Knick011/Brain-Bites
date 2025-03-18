@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
 
 /**
- * Video player component with minimal UI
+ * Video player component with auto-advance
  */
 const VideoCard = ({ 
   url, 
@@ -14,11 +14,13 @@ const VideoCard = ({
   watchingAllRewards = false,
   currentIndex = 1,
   totalVideos = 1,
-  tutorialMode = false
+  tutorialMode = false,
+  autoAdvanceDelay = 30000 // Auto-advance after 30 seconds by default
 }) => {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isValidUrl, setIsValidUrl] = useState(true);
   const skipTimeoutRef = useRef(null);
+  const autoAdvanceTimerRef = useRef(null);
   
   // Check URL validity first thing in a useEffect
   useEffect(() => {
@@ -42,11 +44,39 @@ const VideoCard = ({
     };
   }, [url, onSkip]);
   
+  // Auto-advance timer
+  useEffect(() => {
+    console.log("Setting up video auto-advance timer", { autoAdvanceDelay });
+    
+    // Clear any existing timer
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+    }
+    
+    // Set new timer if we have a valid URL and auto-advance is enabled
+    if (isValidUrl && autoAdvanceDelay > 0) {
+      autoAdvanceTimerRef.current = setTimeout(() => {
+        console.log("Video auto-advance timer triggered");
+        if (onSkip) {
+          console.log("Calling onSkip from auto-advance timer");
+          onSkip();
+        }
+      }, autoAdvanceDelay);
+    }
+    
+    return () => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+      }
+    };
+  }, [isValidUrl, autoAdvanceDelay, onSkip]);
+  
   // Setup keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event) => {
       // Down Arrow to skip
       if (event.key === 'ArrowDown') {
+        console.log("Down arrow pressed in video, calling onSkip");
         event.preventDefault();
         if (onSkip) onSkip();
       } 
@@ -73,6 +103,12 @@ const VideoCard = ({
     if (onSkip) onSkip();
   };
 
+  // Handle player ended
+  const handlePlayerEnded = () => {
+    console.log("Video ended naturally, calling onEnd");
+    if (onEnd) onEnd();
+  };
+
   // If URL is invalid, show placeholder
   if (!isValidUrl) {
     return (
@@ -86,6 +122,27 @@ const VideoCard = ({
 
   return (
     <div className="video-container swipe-content">
+      {/* Touch handler for swipes */}
+      <div 
+        className="absolute inset-0 z-20"
+        onTouchStart={(e) => e.currentTarget.dataset.touchStartY = e.touches[0].clientY}
+        onTouchEnd={(e) => {
+          const startY = parseFloat(e.currentTarget.dataset.touchStartY || '0');
+          const endY = e.changedTouches[0].clientY;
+          
+          // If swiped up significantly, skip
+          if (startY - endY > 50 && onSkip) {
+            console.log("Swipe up detected in video, calling onSkip");
+            onSkip();
+          }
+        }}
+        onClick={(e) => {
+          // Add click handler to prevent touch events from propagating
+          e.stopPropagation();
+        }}
+        style={{ touchAction: 'none' }} 
+      />
+      
       <div className="relative flex items-center justify-center w-full h-full">
         {/* Progress indicator for multiple videos */}
         {watchingAllRewards && (
@@ -104,7 +161,7 @@ const VideoCard = ({
               height="100%"
               playing={true}
               controls={false}
-              onEnded={onEnd}
+              onEnded={handlePlayerEnded}
               onReady={handlePlayerReady}
               onError={handlePlayerError}
               config={{
