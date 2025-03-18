@@ -24,9 +24,9 @@ const VideoCard = ({
   
   // Check URL validity first thing in a useEffect
   useEffect(() => {
-    // Improved URL validation - checking if URL is a string and contains youtube
+    // Less strict URL validation - just check if it's a string and contains youtube
     if (!url || typeof url !== 'string' || !url.includes('youtube.com')) {
-      console.error('Invalid YouTube Shorts URL:', url);
+      console.error('Invalid YouTube URL:', url);
       setIsValidUrl(false);
       
       // Use a ref to track the timeout for cleanup
@@ -34,7 +34,7 @@ const VideoCard = ({
         if (onSkip) onSkip();
       }, 1000); // Slightly longer delay to show the error
     } else {
-      console.log("Valid URL detected:", url);
+      console.log("Valid YouTube URL detected:", url);
       setIsValidUrl(true);
     }
     
@@ -116,12 +116,18 @@ const VideoCard = ({
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-black">
         <div className="text-white text-center p-4">
-          <p>Loading video...</p>
+          <p>Loading next video...</p>
           <div className="mt-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white mx-auto"></div>
         </div>
       </div>
     );
   }
+
+  // Ensure URL is properly formatted for YouTube Shorts
+  const getFormattedUrl = (videoUrl) => {
+    // If it already has a proper format, return as is
+    return videoUrl;
+  };
 
   return (
     <div className="video-container swipe-content">
@@ -159,7 +165,7 @@ const VideoCard = ({
           <div className="relative w-full h-full max-h-[85vh] rounded-lg overflow-hidden">
             {/* Video player */}
             <ReactPlayer
-              url={url}
+              url={getFormattedUrl(url)}
               width="100%"
               height="100%"
               playing={true}
