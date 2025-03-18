@@ -1,4 +1,4 @@
-// App.js with all fixes applied
+// Updated App.js with all modifications applied
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -597,7 +597,33 @@ function App() {
      {/* Main Content Area */}
      {!showWelcome && !showSection && (
        <>
-         {showQuestion ? (
+         {!showQuestion ? (
+           <>
+             {isVideoLoading ? (
+               <div className="flex items-center justify-center h-full bg-black">
+                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+               </div>
+             ) : (
+               <VideoCard 
+                 url={currentVideo?.url}
+                 onEnd={handleVideoEnd}
+                 onSkip={handleVideoSkip}
+                 onReady={() => {}}
+                 tutorialMode={tutorialMode}
+               />
+             )}
+             
+             {/* Add swipe navigation for videos with minimal UI */}
+             {!isVideoLoading && (
+               <SwipeNavigation 
+                 onSwipeUp={handleSwipeUpVideo} 
+                 enabled={true}
+                 isVideo={true}
+                 minimalUI={true}
+               />
+             )}
+           </>
+         ) : (
            <div className="question-container swipe-content">
              {tutorialMode ? (
                <div className="w-full bg-orange-500 text-white py-2 px-4 text-center font-bold">
@@ -644,8 +670,8 @@ function App() {
                  {tutorialMode && swipeEnabled && explanationVisible && (
                    <SwipeNavigation 
                      onSwipeUp={handleSwipeUpExplanation} 
-                     isTutorial={true} 
                      enabled={true}
+                     minimalUI={true}
                    />
                  )}
                </>
@@ -661,32 +687,6 @@ function App() {
                </div>
              )}
            </div>
-         ) : (
-           <>
-             {isVideoLoading ? (
-               <div className="flex items-center justify-center h-full bg-black">
-                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
-               </div>
-             ) : (
-               <VideoCard 
-                 url={currentVideo?.url}
-                 onEnd={handleVideoEnd}
-                 onSkip={handleVideoSkip}
-                 onReady={() => {}}
-                 tutorialMode={tutorialMode}
-               />
-             )}
-             
-             {/* Add swipe navigation for videos */}
-             {!isVideoLoading && (
-               <SwipeNavigation 
-                 onSwipeUp={handleSwipeUpVideo} 
-                 isTutorial={tutorialMode} 
-                 enabled={true}
-                 isVideo={true}
-               />
-             )}
-           </>
          )}
        </>
      )}
@@ -773,6 +773,43 @@ function App() {
          Reset
        </button>
      )}
+
+     {/* Additional CSS for video protection */}
+     <style jsx>
+       {`
+         /* Video protection overlay */
+         #video-protection-overlay, #video-swipe-overlay {
+           position: absolute;
+           inset: 0;
+           z-index: 10;
+           cursor: default;
+           touch-action: none; /* Prevents all browser handling of touch events */
+         }
+
+         /* Makes sure YouTube iframe events don't bubble up and interfere with our swipe */
+         .video-container iframe {
+           pointer-events: none !important;
+         }
+
+         /* Enable pointer events only on controls */
+         .video-container .react-player > div > div {
+           pointer-events: none !important; 
+         }
+
+         /* Enhanced swipe transition */
+         .swipe-content {
+           position: relative;
+           transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+         }
+
+         @media (max-width: 768px) {
+           /* Make sure the video stays within boundaries on mobile */
+           .video-container .react-player {
+             max-height: 80vh !important;
+           }
+         }
+       `}
+     </style>
    </div>
  );
 }
