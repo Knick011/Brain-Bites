@@ -1,6 +1,6 @@
 // components/VQLN/Question/AnswerNotification.js
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, ArrowDown } from 'lucide-react';
 
 const AnswerNotification = ({ 
   isCorrect, 
@@ -12,6 +12,16 @@ const AnswerNotification = ({
   tutorialMode = false
 }) => {
   const [timer, setTimer] = useState(timeLeft);
+  const [showKeyboardHint, setShowKeyboardHint] = useState(true);
+  
+  // Auto-hide keyboard hint after 10 seconds
+  useEffect(() => {
+    const hintTimer = setTimeout(() => {
+      setShowKeyboardHint(false);
+    }, 10000);
+    
+    return () => clearTimeout(hintTimer);
+  }, []);
   
   // Countdown timer effect - only auto-continue in non-tutorial mode
   useEffect(() => {
@@ -31,20 +41,19 @@ const AnswerNotification = ({
     }
   }, [onContinue, timeLeft, tutorialMode]);
   
-  // We only need keyboard shortcuts in non-tutorial mode
+  // Enhanced keyboard shortcuts with more keys
   useEffect(() => {
-    if (!tutorialMode) {
-      const handleKeyDown = (e) => {
-        // Continue on Space, Enter, or Down Arrow
-        if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowDown') {
-          onContinue && onContinue();
-        }
-      };
-      
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [onContinue, tutorialMode]);
+    const handleKeyDown = (e) => {
+      // Continue on Space, Enter, or Down Arrow
+      if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowDown') {
+        e.preventDefault(); // Prevent default scrolling
+        onContinue && onContinue();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onContinue]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -76,24 +85,32 @@ const AnswerNotification = ({
             <p className="text-gray-700">{explanation || "No explanation available."}</p>
           </div>
           
-          {/* In tutorial mode, we only show swipe instruction */}
-          {tutorialMode ? (
-            <div className="text-center mt-6 text-gray-600">
-              <p className="font-medium">Swipe up to continue</p>
+          {/* Enhanced navigation instructions */}
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-600">
+              {tutorialMode ? (
+                <div className="flex items-center gap-2">
+                  <ArrowDown size={16} className="animate-bounce" />
+                  <span>Press ↓ key to continue</span>
+                </div>
+              ) : (
+                <span>Next question in {timer}s</span>
+              )}
             </div>
-          ) : (
-            /* In normal mode, we show timer and continue button */
-            <div className="flex justify-between items-center">
-              <div className="text-sm text-gray-600">
-                Next question in {timer}s
-              </div>
-              
-              <button 
-                onClick={() => onContinue && onContinue()}
-                className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium transition-colors"
-              >
-                <span>Continue</span>
-              </button>
+            
+            <button 
+              onClick={() => onContinue && onContinue()}
+              className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium transition-colors"
+            >
+              <span>Continue</span>
+              <ArrowDown size={14} />
+            </button>
+          </div>
+          
+          {/* Keyboard navigation hint */}
+          {showKeyboardHint && (
+            <div className="mt-4 p-2 bg-gray-100 rounded-lg text-center text-sm text-gray-600">
+              <p>Tip: You can also press <strong>↓</strong>, <strong>Enter</strong>, or <strong>Space</strong> to continue</p>
             </div>
           )}
           
