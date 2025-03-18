@@ -1,9 +1,9 @@
 // components/VQLN/Question/AnswerNotification.js
 import React from 'react';
-import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, ChevronUp } from 'lucide-react';
 
 /**
- * Simplified answer notification without continue button or keyboard instructions
+ * Answer notification component with minimal "swipe to continue" text
  */
 const AnswerNotification = ({ 
   isCorrect, 
@@ -38,8 +38,14 @@ const AnswerNotification = ({
             </div>
           )}
           
-          <div className="mb-4">
+          <div className="mb-6">
             <p className="text-gray-700">{explanation || "No explanation available."}</p>
+          </div>
+          
+          {/* Simple swipe instruction text - no UI controls or buttons */}
+          <div className="text-center mt-4 text-gray-500 flex items-center justify-center gap-1">
+            <ChevronUp size={16} />
+            <span className="text-sm">Swipe up to continue</span>
           </div>
         </div>
       </div>
