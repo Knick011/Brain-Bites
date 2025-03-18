@@ -1,7 +1,6 @@
 // components/VQLN/Question/QuestionCard.js
 import React, { useState, useEffect } from 'react';
 import AnswerNotification from './AnswerNotification';
-import { ArrowDown } from 'lucide-react';
 
 const QuestionCard = ({ 
   question, 
@@ -15,32 +14,17 @@ const QuestionCard = ({
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [answerTime, setAnswerTime] = useState(10);
-  const [timerActive, setTimerActive] = useState(false); // Start as inactive
-  const [explanationTimeLeft, setExplanationTimeLeft] = useState(15);
-  const [showKeyboardHint, setShowKeyboardHint] = useState(true);
-
-  // Auto-hide keyboard hint after 10 seconds
-  useEffect(() => {
-    const hintTimer = setTimeout(() => {
-      setShowKeyboardHint(false);
-    }, 10000);
-    
-    return () => clearTimeout(hintTimer);
-  }, []);
+  const [timerActive, setTimerActive] = useState(false);
 
   // Reset states when a new question is loaded
   useEffect(() => {
     setSelectedAnswer(null);
     setShowExplanation(false);
-    setExplanationTimeLeft(15);
-    setShowKeyboardHint(true);
-    
-    // Always set the timer state, but only activate it if in time mode
     setAnswerTime(10);
     setTimerActive(!!timeMode);
   }, [question, timeMode]);
 
-  // Timer for question timeout - now this runs unconditionally
+  // Timer for question timeout
   useEffect(() => {
     let timer;
     if (timerActive) {
@@ -77,7 +61,6 @@ const QuestionCard = ({
   // Handle key presses for answer selection
   useEffect(() => {
     const handleKeyPress = (e) => {
-      // Only handle key presses if there's a question and no answer selected yet
       if (!question || selectedAnswer !== null) return;
       
       const key = e.key.toUpperCase();
@@ -105,13 +88,12 @@ const QuestionCard = ({
     return () => window.removeEventListener('keypress', handleKeyPress);
   }, [question, selectedAnswer]);
 
-  // Define handleTimeUp function before it's used
+  // Handle time up function
   const handleTimeUp = () => {
     if (!selectedAnswer) {
       setSelectedAnswer('TIMEOUT');
       if (onSelectAnswer) onSelectAnswer('TIMEOUT');
       setShowExplanation(true);
-      setExplanationTimeLeft(15);
     }
   };
 
@@ -131,7 +113,7 @@ const QuestionCard = ({
     setSelectedAnswer(option);
     if (onSelectAnswer) onSelectAnswer(option);
     
-    // Always show explanation with a short delay
+    // Show explanation with a short delay
     setTimeout(() => {
       setShowExplanation(true);
     }, 300);
@@ -146,18 +128,6 @@ const QuestionCard = ({
   return (
     <div className="bg-[#FFF8E7] h-full">
       <div className="w-full mx-auto max-w-3xl p-4">
-        {/* Keyboard hint */}
-        {showKeyboardHint && !selectedAnswer && (
-          <div className="bg-orange-100 rounded-lg px-4 py-2 text-sm mb-4 flex items-center justify-between">
-            <span className="text-orange-800">
-              <span className="font-bold">Tip:</span> Use keyboard to select answers (A, B, C, D keys or 1, 2, 3, 4 keys)
-            </span>
-            <button onClick={() => setShowKeyboardHint(false)} className="text-orange-500">
-              ✕
-            </button>
-          </div>
-        )}
-        
         <div className="bg-white rounded-lg shadow-md p-6 mt-4">
           {/* Streak Display */}
           <div className="flex justify-between items-center mb-4">
@@ -201,19 +171,11 @@ const QuestionCard = ({
                   } ${selectedAnswer !== null ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                   disabled={selectedAnswer !== null}
                 >
-                  <span className="font-medium">{key}: </span>{value}
+                  {value}
                 </button>
               ))}
             </div>
           </div>
-          
-          {/* Keyboard navigation instructions for tutorial mode */}
-          {tutorialMode && !selectedAnswer && (
-            <div className="text-center mt-4 p-2 bg-gray-100 rounded-lg text-gray-600 flex items-center justify-center gap-2">
-              <ArrowDown size={16} className="text-orange-500" />
-              <span>You can also use keyboard keys to select answers</span>
-            </div>
-          )}
           
           {/* Explanation Popup */}
           {showExplanation && (
@@ -222,8 +184,6 @@ const QuestionCard = ({
               isTimeout={selectedAnswer === 'TIMEOUT'}
               explanation={question.explanation}
               correctAnswer={question.options?.[question.correctAnswer] || ""}
-              onContinue={handleContinue}
-              timeLeft={explanationTimeLeft}
               tutorialMode={tutorialMode}
             />
           )}
