@@ -1,4 +1,4 @@
-// App.js with improved swipe functionality and fixed video loading
+// App.js with improved swipe and keyboard navigation
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -40,7 +40,7 @@ function App() {
   const [networkStatus, setNetworkStatus] = useState(navigator.onLine);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   
-  // New state variables for enhanced UI
+  // Enhanced state variables
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
   const [showGameModePopup, setShowGameModePopup] = useState(false);
@@ -53,12 +53,14 @@ function App() {
   // State for swipe navigation
   const [swipeEnabled, setSwipeEnabled] = useState(false);
   const [explanationVisible, setExplanationVisible] = useState(false);
+  // New flag to track video loading
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
 
   // Define tutorial steps
   const tutorialSteps = [
     {
       title: "Welcome to Brain Bites!",
-      content: "Answer quiz questions and watch entertaining videos as rewards. Swipe up to navigate between questions and videos!"
+      content: "Answer quiz questions and watch entertaining videos as rewards. Swipe up or press the Down Arrow key to navigate between questions and videos!"
     },
     {
       title: "Answer Questions",
@@ -91,8 +93,6 @@ function App() {
     };
   }, []);
 
-
-
   // Initialize API availability check
   useEffect(() => {
     const checkApi = async () => {
@@ -108,14 +108,26 @@ function App() {
   useEffect(() => {
     const loadVideos = async () => {
       try {
+        setIsLoading(true);
         console.log('Loading videos from YouTube service');
-        const loadedVideos = await YouTubeService.getViralShorts(10);
+        const loadedVideos = await YouTubeService.getViralShorts(15); // Load more videos upfront
         console.log(`Loaded ${loadedVideos.length} videos`);
         
         if (loadedVideos && loadedVideos.length > 0) {
           setVideos(loadedVideos);
         } else {
-          console.warn('No videos were loaded');
+          console.warn('No videos were loaded, will retry');
+          // Retry after a short delay
+          setTimeout(async () => {
+            const retryVideos = await YouTubeService.getViralShorts(10);
+            if (retryVideos && retryVideos.length > 0) {
+              setVideos(retryVideos);
+            } else {
+              console.error('Failed to load videos after retry');
+            }
+            setIsLoading(false);
+          }, 2000);
+          return;
         }
       } catch (error) {
         console.error('Error loading videos:', error);
@@ -126,6 +138,21 @@ function App() {
 
     loadVideos();
     SoundEffects.preloadSounds();
+    
+    // Add keyboard navigation for global app
+    const handleKeyDown = (e) => {
+      // Use Backspace key to go back to category selection when stuck
+      if (e.key === 'Backspace' && !showWelcome && !showSection) {
+        if (confirm('Return to category selection?')) {
+          setShowSection(true);
+          setSelectedSection(null);
+          setCurrentQuestion(null);
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Fetch question with error handling
@@ -223,7 +250,7 @@ function App() {
 
   // Handle answer submission with time-based scoring
   const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
-    // Enable swiping only in tutorial mode
+    // Enable swiping after answering in tutorial mode
     if (tutorialMode) {
       setSwipeEnabled(true);
     }
@@ -278,7 +305,7 @@ function App() {
         if (videoToPlay) {
           // Prepare the video but wait for user to swipe
           setCurrentVideo(videoToPlay);
-          // Don't automatically change to video - wait for swipe
+          // Don't automatically change to video - wait for swipe in explanation
         }
         
         // Exit tutorial mode after 5 correct answers
@@ -298,7 +325,7 @@ function App() {
           setAvailableVideos(prev => prev + 1);
         }
         
-        // Fetch next question after a delay
+        // In non-tutorial mode, fetch next question automatically after delay
         setTimeout(() => {
           fetchQuestion();
         }, 1500);
@@ -321,12 +348,24 @@ function App() {
   }, [correctAnswers, fetchQuestion, getRandomVideo, streak, timeMode, tutorialMode]);
 
   // Watch a video from rewards
-  const watchVideo = useCallback(() => {
+  const watchVideo = useCallback(async () => {
     if (availableVideos <= 0) return;
     
     try {
+      setIsVideoLoading(true);
+      
       // Get a random video
-      const video = getRandomVideo();
+      let video = getRandomVideo();
+      
+      // If no video is available, try refreshing the videos
+      if (!video) {
+        console.log("No videos available, attempting to refresh...");
+        const refreshedVideos = await YouTubeService.getViralShorts(10);
+        if (refreshedVideos && refreshedVideos.length > 0) {
+          setVideos(refreshedVideos);
+          video = refreshedVideos[0];
+        }
+      }
       
       if (video) {
         setCurrentVideo(video);
@@ -340,6 +379,8 @@ function App() {
     } catch (error) {
       console.error('Error loading video:', error);
       setError("Error loading video: " + error.message);
+    } finally {
+      setIsVideoLoading(false);
     }
   }, [availableVideos, getRandomVideo]);
 
@@ -615,21 +656,29 @@ function App() {
             </div>
           ) : (
             <>
-              <VideoCard 
-                url={currentVideo?.url}
-                onEnd={handleVideoEnd}
-                onSkip={handleVideoSkip}
-                onReady={() => {}}
-                tutorialMode={tutorialMode}
-              />
+              {isVideoLoading ? (
+                <div className="flex items-center justify-center h-full bg-black">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+                </div>
+              ) : (
+                <VideoCard 
+                  url={currentVideo?.url}
+                  onEnd={handleVideoEnd}
+                  onSkip={handleVideoSkip}
+                  onReady={() => {}}
+                  tutorialMode={tutorialMode}
+                />
+              )}
               
               {/* Add swipe navigation for videos */}
-              <SwipeNavigation 
-                onSwipeUp={handleSwipeUpVideo} 
-                isTutorial={tutorialMode} 
-                enabled={true}
-                isVideo={true}
-              />
+              {!isVideoLoading && (
+                <SwipeNavigation 
+                  onSwipeUp={handleSwipeUpVideo} 
+                  isTutorial={tutorialMode} 
+                  enabled={true}
+                  isVideo={true}
+                />
+              )}
             </>
           )}
         </>
@@ -663,6 +712,30 @@ function App() {
         <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
           You're offline. Some features may not work.
         </div>
+      )}
+      
+      {/* Debug button to reset state when stuck - only in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <button
+          onClick={() => {
+            if (confirm('Reset the application state?')) {
+              setShowWelcome(true);
+              setShowSection(false);
+              setSelectedSection(null);
+              setCurrentQuestion(null);
+              setTutorialMode(true);
+              setQuestionsAnswered(0);
+              setCorrectAnswers(0);
+              setStreak(0);
+              setAvailableVideos(0);
+              setTimeMode(false);
+              setScore(0);
+            }
+          }}
+          className="fixed bottom-4 right-4 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-50 hover:opacity-100"
+        >
+          Reset
+        </button>
       )}
     </div>
   );
