@@ -9,7 +9,8 @@ const QuestionCard = ({
   streak = 0, 
   onSelectAnswer,
   tutorialMode = false,
-  onExplanationShow
+  onExplanationShow,
+  onExplanationContinue // Add this prop
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -118,10 +119,18 @@ const QuestionCard = ({
     }, 300);
   };
 
-  // Handle continue from explanation
+  // Handle continue from explanation - UPDATED TO PASS TO PARENT
   const handleContinue = () => {
+    console.log("Handle continue triggered in QuestionCard");
     setShowExplanation(false);
-    onAnswerSubmit(selectedAnswer === question.correctAnswer, 10 - answerTime);
+    
+    if (onExplanationContinue) {
+      // Call the parent's continuation function
+      onExplanationContinue();
+    } else {
+      // Fallback to original behavior
+      onAnswerSubmit(selectedAnswer === question.correctAnswer, 10 - answerTime);
+    }
   };
 
   return (
@@ -184,6 +193,8 @@ const QuestionCard = ({
               explanation={question.explanation}
               correctAnswer={question.options?.[question.correctAnswer] || ""}
               tutorialMode={tutorialMode}
+              onContinue={handleContinue} // Pass the continue handler
+              autoAdvanceDelay={7000} // Auto-advance after 7 seconds
             />
           )}
         </div>
