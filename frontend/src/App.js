@@ -1,4 +1,4 @@
-// App.js with improved swipe and keyboard navigation
+// App.js with all fixes applied
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -139,15 +139,22 @@ function App() {
     loadVideos();
     SoundEffects.preloadSounds();
     
-    // Add keyboard navigation for global app
+    // Add keyboard navigation for global app - FIXED VERSION
     const handleKeyDown = (e) => {
       // Use Backspace key to go back to category selection when stuck
       if (e.key === 'Backspace' && !showWelcome && !showSection) {
-        if (confirm('Return to category selection?')) {
-          setShowSection(true);
-          setSelectedSection(null);
-          setCurrentQuestion(null);
-        }
+        // Using a custom approach instead of window.confirm
+        setError({
+          message: 'Return to category selection?',
+          isConfirm: true,
+          onConfirm: () => {
+            setShowSection(true);
+            setSelectedSection(null);
+            setCurrentQuestion(null);
+            setError(null);
+          },
+          onCancel: () => setError(null)
+        });
       }
     };
     
@@ -523,7 +530,7 @@ function App() {
 
   // Error handling
   useEffect(() => {
-    if (error) {
+    if (error && typeof error === 'string') {
       const timer = setTimeout(() => {
         setError(null);
       }, 5000);
@@ -688,21 +695,43 @@ function App() {
       {error && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-xl font-bold text-red-600 mb-4">Error</h3>
-            <p className="text-gray-700 mb-4">{error}</p>
-            <button 
-              onClick={() => {
-                setError(null);
-                if (selectedSection) {
-                  fetchQuestion();
-                } else {
-                  setShowSection(true);
-                }
-              }}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              Try Again
-            </button>
+            <h3 className="text-xl font-bold text-red-600 mb-4">
+              {error.isConfirm ? 'Confirm' : 'Error'}
+            </h3>
+            <p className="text-gray-700 mb-4">
+              {typeof error === 'string' ? error : error.message}
+            </p>
+            
+            {error.isConfirm ? (
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={error.onCancel}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={error.onConfirm}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  Confirm
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => {
+                  setError(null);
+                  if (selectedSection) {
+                    fetchQuestion();
+                  } else {
+                    setShowSection(true);
+                  }
+                }}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                Try Again
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -718,19 +747,26 @@ function App() {
       {process.env.NODE_ENV === 'development' && (
         <button
           onClick={() => {
-            if (confirm('Reset the application state?')) {
-              setShowWelcome(true);
-              setShowSection(false);
-              setSelectedSection(null);
-              setCurrentQuestion(null);
-              setTutorialMode(true);
-              setQuestionsAnswered(0);
-              setCorrectAnswers(0);
-              setStreak(0);
-              setAvailableVideos(0);
-              setTimeMode(false);
-              setScore(0);
-            }
+            // Using a custom approach instead of window.confirm
+            setError({
+              message: 'Reset the application state?',
+              isConfirm: true,
+              onConfirm: () => {
+                setShowWelcome(true);
+                setShowSection(false);
+                setSelectedSection(null);
+                setCurrentQuestion(null);
+                setTutorialMode(true);
+                setQuestionsAnswered(0);
+                setCorrectAnswers(0);
+                setStreak(0);
+                setAvailableVideos(0);
+                setTimeMode(false);
+                setScore(0);
+                setError(null);
+              },
+              onCancel: () => setError(null)
+            });
           }}
           className="fixed bottom-4 right-4 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-50 hover:opacity-100"
         >
@@ -738,7 +774,4 @@ function App() {
         </button>
       )}
     </div>
-  );
-}
-
 export default App;
