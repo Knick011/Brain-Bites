@@ -88,7 +88,6 @@ const QuestionCard = ({
     return () => window.removeEventListener('keypress', handleKeyPress);
   }, [question, selectedAnswer]);
 
-  // Handle time up function
   const handleTimeUp = () => {
     if (!selectedAnswer) {
       setSelectedAnswer('TIMEOUT');
