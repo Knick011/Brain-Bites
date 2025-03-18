@@ -1,10 +1,10 @@
 // components/VQLN/Video/VideoCard.js
 import React, { useEffect, useState } from 'react';
 import ReactPlayer from 'react-player';
-import { ChevronDown, X, ChevronUp } from 'lucide-react';
+import { ChevronDown, X, ChevronUp, ArrowDown } from 'lucide-react';
 
 /**
- * Video player component with swipe capabilities
+ * Video player component with enhanced keyboard and swipe capabilities
  */
 const VideoCard = ({ 
   url, 
@@ -15,41 +15,47 @@ const VideoCard = ({
   watchingAllRewards = false,
   currentIndex = 1,
   totalVideos = 1,
-  tutorialMode = false // Added tutorial mode flag
+  tutorialMode = false
 }) => {
   const [showControls, setShowControls] = useState(true);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [showKeyboardHint, setShowKeyboardHint] = useState(true);
   
-  // Auto-hide controls after 3 seconds
+  // Auto-hide controls and keyboard hint after 5 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowControls(false);
-    }, 3000);
+      setShowKeyboardHint(false);
+    }, 5000);
     
     return () => clearTimeout(timer);
   }, []);
   
-  // Show controls on touch
-  const handleTouch = (e) => {
-    // Don't trigger controls for swipe movements
-    if (e.type === 'touchstart') {
-      setShowControls(true);
-      
-      // Hide controls again after 3 seconds
-      const timer = setTimeout(() => {
-        setShowControls(false);
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
+  // Show controls on touch or mouse movement
+  const handleInteraction = () => {
+    setShowControls(true);
+    setShowKeyboardHint(true);
+    
+    // Hide controls again after 5 seconds
+    const timer = setTimeout(() => {
+      setShowControls(false);
+      setShowKeyboardHint(false);
+    }, 5000);
+    
+    return () => clearTimeout(timer);
   };
   
   // Setup keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'ArrowDown') {
+      // Down Arrow, Space or Enter to skip
+      if (event.key === 'ArrowDown' || event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
         onSkip && onSkip();
-      } else if (event.key === 'Escape') {
+      } 
+      // Escape to exit when watching all rewards
+      else if (event.key === 'Escape') {
+        event.preventDefault();
         onExit && onExit();
       }
     };
@@ -90,7 +96,11 @@ const VideoCard = ({
   }
 
   return (
-    <div className="video-container swipe-content" onTouchStart={handleTouch}>
+    <div 
+      className="video-container swipe-content" 
+      onTouchStart={handleInteraction}
+      onMouseMove={handleInteraction}
+    >
       <div className="relative flex items-center justify-center w-full h-full">
         {/* Progress indicator for multiple videos */}
         {watchingAllRewards && (
@@ -100,7 +110,15 @@ const VideoCard = ({
           </div>
         )}
         
-        {/* Swipe indicator for tutorial mode */}
+        {/* Keyboard navigation hint */}
+        {showKeyboardHint && (
+          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 px-4 py-2 rounded-full text-white z-10 flex items-center gap-2">
+            <ArrowDown size={16} />
+            <span className="text-sm">Press ↓ key to continue</span>
+          </div>
+        )}
+        
+        {/* Tutorial mode swipe indicator */}
         {tutorialMode && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none animate-pulse">
             <div className="bg-black bg-opacity-50 px-4 py-2 rounded-full text-white flex items-center gap-2">
@@ -163,7 +181,3 @@ const VideoCard = ({
         )}
       </div>
     </div>
-  );
-};
-
-export default VideoCard;
