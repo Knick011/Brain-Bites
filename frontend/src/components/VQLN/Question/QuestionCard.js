@@ -1,6 +1,7 @@
 // components/VQLN/Question/QuestionCard.js
 import React, { useState, useEffect } from 'react';
 import AnswerNotification from './AnswerNotification';
+import SoundEffects from '../../../utils/SoundEffects';
 
 const QuestionCard = ({ 
   question, 
@@ -94,6 +95,9 @@ const QuestionCard = ({
       setSelectedAnswer('TIMEOUT');
       if (onSelectAnswer) onSelectAnswer('TIMEOUT');
       setShowExplanation(true);
+      
+      // Play incorrect sound for timeout
+      SoundEffects.playIncorrect();
     }
   };
 
@@ -103,6 +107,9 @@ const QuestionCard = ({
 
   const handleAnswerClick = (option) => {
     if (selectedAnswer !== null) return;
+    
+    // Play button press sound when selecting an answer
+    SoundEffects.playButtonPress();
     
     // Calculate remaining time for scoring
     const remainingTime = timeMode ? answerTime : null;
@@ -116,6 +123,13 @@ const QuestionCard = ({
     // Show explanation with a short delay
     setTimeout(() => {
       setShowExplanation(true);
+      
+      // Play appropriate sound based on answer correctness
+      if (option === question.correctAnswer) {
+        SoundEffects.playCorrect();
+      } else {
+        SoundEffects.playIncorrect();
+      }
     }, 300);
   };
 
@@ -123,6 +137,9 @@ const QuestionCard = ({
   const handleContinue = () => {
     console.log("Handle continue triggered in QuestionCard");
     setShowExplanation(false);
+    
+    // Play transition sound
+    SoundEffects.playTransition();
     
     if (onExplanationContinue) {
       // Call the parent's continuation function
