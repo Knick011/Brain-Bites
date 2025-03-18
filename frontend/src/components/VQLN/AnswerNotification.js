@@ -18,10 +18,11 @@ const AnswerNotification = ({
   
   // Auto-advance timer
   useEffect(() => {
+    console.log("AnswerNotification mounted, setting up auto-advance timer", { autoAdvanceDelay, onContinue });
     let timer;
     let countdownInterval;
     
-    if (autoAdvanceDelay > 0) {
+    if (autoAdvanceDelay > 0 && onContinue) {
       // Countdown timer for UI feedback
       countdownInterval = setInterval(() => {
         setTimeRemaining(prev => Math.max(0, prev - 1));
@@ -29,15 +30,32 @@ const AnswerNotification = ({
       
       // Auto-advance timer
       timer = setTimeout(() => {
-        if (onContinue) onContinue();
+        console.log("Auto-advance timer triggered, calling onContinue");
+        onContinue();
       }, autoAdvanceDelay);
     }
     
     return () => {
+      console.log("AnswerNotification unmounting, clearing timers");
       if (timer) clearTimeout(timer);
       if (countdownInterval) clearInterval(countdownInterval);
     };
   }, [autoAdvanceDelay, onContinue]);
+  
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Use Down Arrow, Space, or Enter keys for navigation
+      if ((e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') && onContinue) {
+        e.preventDefault(); // Prevent default scrolling behavior
+        console.log("Key press detected in explanation, calling onContinue");
+        onContinue();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onContinue]);
   
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -72,10 +90,10 @@ const AnswerNotification = ({
           {/* Simple swipe instruction with auto-progress indicator */}
           <div className="text-center mt-4 text-gray-500 flex items-center justify-center gap-1">
             <ChevronUp size={16} />
-            <span className="text-sm">Swipe up to continue</span>
+            <span className="text-sm">Swipe up or press ↓ to continue</span>
           </div>
           
-          {/* Hidden auto-advance progress bar */}
+          {/* Progress bar for auto-advance */}
           <div className="w-full h-1 bg-gray-200 mt-4 rounded-full overflow-hidden opacity-40">
             <div 
               className="h-full transition-all duration-1000 ease-linear"
@@ -87,6 +105,24 @@ const AnswerNotification = ({
           </div>
         </div>
       </div>
+      
+      {/* Add touch handler for swipe up */}
+      <div 
+        onClick={onContinue}
+        onTouchStart={(e) => e.currentTarget.dataset.touchStartY = e.touches[0].clientY}
+        onTouchEnd={(e) => {
+          const startY = parseFloat(e.currentTarget.dataset.touchStartY || '0');
+          const endY = e.changedTouches[0].clientY;
+          
+          // If swiped up significantly, continue
+          if (startY - endY > 50 && onContinue) {
+            console.log("Swipe up detected in explanation, calling onContinue");
+            onContinue();
+          }
+        }}
+        className="absolute inset-0 z-40" // Lower z-index to allow buttons to be clicked
+        style={{ touchAction: 'none' }} // Prevent default touch behavior
+      />
     </div>
   );
 };
