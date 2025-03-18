@@ -9,6 +9,24 @@ class YouTubeService {
       shownVideos: new Set()
     };
     this.cacheExpiry = 30 * 60 * 1000; // 30 minutes cache
+    this.fallbackVideos = [
+      {
+        id: "8_gdcaX9Xqk",
+        url: "https://www.youtube.com/shorts/8_gdcaX9Xqk",
+        title: "Would You Split Or Steal $250,000?",
+        channelTitle: "MrBeast",
+        channelHandle: "MrBeast",
+        addedAt: new Date().toISOString()
+      },
+      {
+        id: "c0YNnrHBARc",
+        url: "https://www.youtube.com/shorts/c0YNnrHBARc",
+        title: "How I Start My Mornings - Harvest Edition",
+        channelTitle: "Zach King",
+        channelHandle: "ZachKing",
+        addedAt: new Date().toISOString()
+      }
+    ];
   }
 
   /**
@@ -30,7 +48,9 @@ class YouTubeService {
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
       try {
-        const response = await fetch('/youtube-videos.json', {
+        // Add a random query parameter to prevent caching
+        const cacheBuster = `?_=${Date.now()}`;
+        const response = await fetch('/youtube-videos.json' + cacheBuster, {
           cache: 'no-store',
           headers: { 'Accept': 'application/json' },
           signal: controller.signal
@@ -44,85 +64,106 @@ class YouTubeService {
         
         // Get the text content first to handle potential JSON issues
         const text = await response.text();
-        console.log('Successfully loaded videos from:');
-        console.log('/youtube-videos.json');
+        console.log('Successfully loaded videos text from JSON file');
         
-        // Manual JSON parsing with error handling
+        // Parse the JSON with extensive error handling
         let data;
         try {
-          // First try normal parsing
+          // Try to parse the JSON directly first
           data = JSON.parse(text);
+          console.log('Successfully parsed JSON directly');
         } catch (parseError) {
           console.error('Initial JSON parse failed:', parseError);
           
-          // Try to fix common JSON issues
           try {
-            // More aggressive cleaning - remove any unexpected characters that might cause issues
+            // Try to clean the JSON string first
             const cleanedText = text
-              .replace(/[^\x20-\x7E]/g, '')       // Remove non-printable chars
-              .replace(/[\n\r\t]/g, ' ')          // Replace newlines/tabs with spaces
-              .replace(/\s+/g, ' ')               // Normalize multiple spaces
-              .replace(/,\s*([}\]])/g, '$1')      // Remove trailing commas
-              .replace(/([{[,:])\s*}/g, '$1null') // Replace empty values with null
+              .replace(/[^\x20-\x7E]/g, '') // Remove non-printable chars
+              .replace(/[\n\r\t]/g, ' ')    // Replace newlines/tabs with spaces
+              .replace(/\s+/g, ' ')         // Normalize multiple spaces
+              .replace(/,\s*([}\]])/g, '$1') // Remove trailing commas
               .trim();
               
-            // Check for truncated JSON - sometimes the file might be cut off
-            let processedText = cleanedText;
+            data = JSON.parse(cleanedText);
+            console.log('Successfully parsed JSON after cleaning');
+          } catch (cleanError) {
+            console.error('Cleaned JSON parse failed:', cleanError);
             
-            // Count opening and closing braces to detect imbalance
-            const openBraces = (processedText.match(/{/g) || []).length;
-            const closeBraces = (processedText.match(/}/g) || []).length;
-            
-            // Add missing closing braces if needed
-            for (let i = 0; i < openBraces - closeBraces; i++) {
-              processedText += '}';
-            }
-            
-            // Try parsing again
-            data = JSON.parse(processedText);
-            console.log('Fixed and parsed JSON successfully');
-          } catch (fixError) {
-            console.error('Failed to fix JSON:', fixError);
-            
-            // Try a more drastic approach - extract just the videos array if possible
             try {
-              // Look for the videos array pattern
-              const videosMatch = text.match(/"videos"\s*:\s*\[([\s\S]*?)\]/);
-              if (videosMatch && videosMatch[1]) {
-                const videosArrayText = videosMatch[1];
-                const videosArray = JSON.parse('[' + videosArrayText + ']');
+              // Try to extract just the videos array portion
+              const regex = /"videos"\s*:\s*(\[[\s\S]*?\])(?=\s*,|\s*})/;
+              const match = text.match(regex);
+              
+              if (match && match[1]) {
+                const videosArray = JSON.parse(match[1]);
                 data = { videos: videosArray };
-                console.log('Extracted videos array from malformed JSON');
+                console.log('Successfully extracted videos array from malformed JSON');
               } else {
                 throw new Error('Could not extract videos array');
               }
             } catch (extractError) {
               console.error('Failed to extract videos array:', extractError);
-              // If we still can't parse, try to get videos from localStorage
-              throw new Error('Could not parse JSON after all cleanup attempts');
+              
+              // Try one last approach - manually fixing known issues
+              try {
+                // Replace specific problematic sequences that might occur
+                const manualFix = text
+                  .replace(/\\x[0-9A-Fa-f]{2}/g, '') // Remove escape sequences
+                  .replace(/\\/g, '\\\\') // Escape backslashes properly
+                  .replace(/\\"/g, '\\"') // Fix escaped quotes
+                  .replace(/"/g, '"'); // Replace curly quotes
+                  
+                data = JSON.parse(manualFix);
+                console.log('Successfully parsed JSON after manual fixing');
+              } catch (manualFixError) {
+                console.error('All JSON parse attempts failed. Using fallback videos.');
+                // If all parsing methods fail, use default fallback videos
+                return this.fallbackVideos.slice(0, maxResults);
+              }
             }
           }
         }
         
-        if (!data.videos || !Array.isArray(data.videos) || data.videos.length === 0) {
-          throw new Error('No videos found in response');
+        if (!data || !data.videos || !Array.isArray(data.videos) || data.videos.length === 0) {
+          console.warn('No videos found in response, using storage or fallbacks');
+          // Try localStorage if response doesn't have videos
+          const storedVideos = this.getVideosFromStorage();
+          if (storedVideos.length > 0) {
+            return storedVideos.slice(0, maxResults);
+          }
+          return this.fallbackVideos.slice(0, maxResults);
         }
         
-        // Update cache
-        this.cache.videos = data.videos;
+        // Validate each video object
+        const validVideos = data.videos.filter(video => 
+          video && 
+          typeof video === 'object' && 
+          video.id && 
+          video.url && 
+          video.url.includes('youtube.com/shorts/')
+        );
+        
+        if (validVideos.length === 0) {
+          console.warn('No valid videos in response, using fallbacks');
+          return this.fallbackVideos.slice(0, maxResults);
+        }
+        
+        // Update cache with valid videos
+        this.cache.videos = validVideos;
         this.cache.lastFetched = Date.now();
         this.cache.shownVideos.clear();
         
         // Save to localStorage for backup
         try {
           localStorage.setItem('youtube_cache', JSON.stringify({
-            videos: data.videos.slice(0, 20), // Store a subset to save space
+            videos: validVideos.slice(0, 20), // Store a subset to save space
             lastFetched: Date.now()
           }));
         } catch (storageErr) {
           console.warn('Could not save to localStorage:', storageErr);
         }
         
+        console.log(`Successfully processed ${validVideos.length} valid videos`);
         return this.getUniqueVideosFromCache(maxResults);
       } catch (fetchError) {
         clearTimeout(timeoutId);
@@ -134,7 +175,8 @@ class YouTubeService {
           return storedVideos.slice(0, maxResults);
         }
         
-        throw fetchError;
+        // Last resort: use hardcoded fallbacks
+        return this.fallbackVideos.slice(0, maxResults);
       }
     } catch (error) {
       console.error('Error getting videos:', error);
@@ -145,8 +187,8 @@ class YouTubeService {
         return storedVideos.slice(0, maxResults);
       }
       
-      // If we truly have no videos, return an empty array
-      return [];
+      // If all else fails, return fallback videos
+      return this.fallbackVideos.slice(0, maxResults);
     }
   }
   
