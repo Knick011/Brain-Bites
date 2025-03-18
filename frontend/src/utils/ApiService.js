@@ -97,10 +97,10 @@ class ApiService {
         const question = await response.json();
         
         // Verify the question matches the expected category based on ID
-        // Psychology: IDs 1-30, Fun Facts: IDs 31-60
+        // Updated ID ranges: Psychology: IDs 151-300, Fun Facts: IDs 1-150
         const isValidQuestion = 
-          (category === 'psychology' && question.id >= 1 && question.id <= 30) || 
-          (category === 'funfacts' && question.id >= 31 && question.id <= 60);
+          (category === 'psychology' && question.id >= 151 && question.id <= 300) || 
+          (category === 'funfacts' && question.id >= 1 && question.id <= 150);
         
         if (!isValidQuestion) {
           console.warn(`Question ID ${question.id} doesn't match expected category ${category}`);
@@ -163,14 +163,6 @@ class ApiService {
     } catch (error) {
       console.error(`Error prefetching ${category} questions:`, error);
     }
-  }
-
-  /**
-   * Get a fallback question when API fails
-   */
-  getFallbackQuestion(category) {
-    console.error(`No fallback questions available for ${category}`);
-    throw new Error(`Failed to fetch questions for ${category}`);
   }
 }
 
