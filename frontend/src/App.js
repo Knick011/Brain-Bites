@@ -631,19 +631,19 @@ function App() {
        <>
          {!showQuestion ? (
            <>
-             {isVideoLoading ? (
-               <div className="flex items-center justify-center h-full bg-black">
-                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
-               </div>
-             ) : (
-               <VideoCard 
-                 url={currentVideo?.url}
-                 onEnd={handleVideoEnd}
-                 onSkip={handleVideoSkip}
-                 onReady={() => {}}
-                 tutorialMode={tutorialMode}
-               />
-             )}
+             {!isVideoLoading ? (
+  <VideoCard 
+    url={currentVideo}
+    onEnd={handleVideoEnd}
+    onSkip={handleVideoSkip}
+    onReady={() => {}}
+    tutorialMode={tutorialMode}
+  />
+) : (
+  <div className="flex items-center justify-center h-full bg-black">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+  </div>
+)}
              
              {/* Add swipe navigation for videos with auto-advance */}
              {!isVideoLoading && (
