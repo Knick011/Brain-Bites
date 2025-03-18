@@ -9,24 +9,6 @@ class YouTubeService {
       shownVideos: new Set()
     };
     this.cacheExpiry = 30 * 60 * 1000; // 30 minutes cache
-    this.fallbackVideos = [
-      {
-        id: "8_gdcaX9Xqk",
-        url: "https://www.youtube.com/shorts/8_gdcaX9Xqk",
-        title: "Would You Split Or Steal $250,000?",
-        channelTitle: "MrBeast",
-        channelHandle: "MrBeast",
-        addedAt: new Date().toISOString()
-      },
-      {
-        id: "c0YNnrHBARc",
-        url: "https://www.youtube.com/shorts/c0YNnrHBARc",
-        title: "How I Start My Mornings - Harvest Edition",
-        channelTitle: "Zach King",
-        channelHandle: "ZachKing",
-        addedAt: new Date().toISOString()
-      }
-    ];
   }
 
   /**
@@ -103,50 +85,36 @@ class YouTubeService {
               }
             } catch (extractError) {
               console.error('Failed to extract videos array:', extractError);
-              
-              // Try one last approach - manually fixing known issues
-              try {
-                // Replace specific problematic sequences that might occur
-                const manualFix = text
-                  .replace(/\\x[0-9A-Fa-f]{2}/g, '') // Remove escape sequences
-                  .replace(/\\/g, '\\\\') // Escape backslashes properly
-                  .replace(/\\"/g, '\\"') // Fix escaped quotes
-                  .replace(/"/g, '"'); // Replace curly quotes
-                  
-                data = JSON.parse(manualFix);
-                console.log('Successfully parsed JSON after manual fixing');
-              } catch (manualFixError) {
-                console.error('All JSON parse attempts failed. Using fallback videos.');
-                // If all parsing methods fail, use default fallback videos
-                return this.fallbackVideos.slice(0, maxResults);
-              }
+              throw new Error('All JSON parsing methods failed');
             }
           }
         }
         
         if (!data || !data.videos || !Array.isArray(data.videos) || data.videos.length === 0) {
-          console.warn('No videos found in response, using storage or fallbacks');
+          console.warn('No videos found in response, trying localStorage');
           // Try localStorage if response doesn't have videos
           const storedVideos = this.getVideosFromStorage();
           if (storedVideos.length > 0) {
             return storedVideos.slice(0, maxResults);
           }
-          return this.fallbackVideos.slice(0, maxResults);
+          throw new Error('No videos available');
         }
         
-        // Validate each video object
+        // Validate each video object - less strict validation
         const validVideos = data.videos.filter(video => 
           video && 
           typeof video === 'object' && 
           video.id && 
           video.url && 
-          video.url.includes('youtube.com/shorts/')
+          video.url.includes('youtube.com')
         );
         
         if (validVideos.length === 0) {
-          console.warn('No valid videos in response, using fallbacks');
-          return this.fallbackVideos.slice(0, maxResults);
+          console.warn('No valid videos in response');
+          throw new Error('No valid videos found');
         }
+        
+        console.log(`Found ${validVideos.length} valid videos`);
         
         // Update cache with valid videos
         this.cache.videos = validVideos;
@@ -175,20 +143,11 @@ class YouTubeService {
           return storedVideos.slice(0, maxResults);
         }
         
-        // Last resort: use hardcoded fallbacks
-        return this.fallbackVideos.slice(0, maxResults);
+        throw new Error('Failed to load videos');
       }
     } catch (error) {
       console.error('Error getting videos:', error);
-      
-      // Last resort: check localStorage
-      const storedVideos = this.getVideosFromStorage();
-      if (storedVideos.length > 0) {
-        return storedVideos.slice(0, maxResults);
-      }
-      
-      // If all else fails, return fallback videos
-      return this.fallbackVideos.slice(0, maxResults);
+      throw new Error('Failed to load videos: ' + error.message);
     }
   }
   
