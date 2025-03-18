@@ -15,7 +15,7 @@ const QuestionCard = ({
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [answerTime, setAnswerTime] = useState(10);
-  const [timerActive, setTimerActive] = useState(true);
+  const [timerActive, setTimerActive] = useState(false); // Start as inactive
   const [explanationTimeLeft, setExplanationTimeLeft] = useState(15);
   const [showKeyboardHint, setShowKeyboardHint] = useState(true);
 
@@ -35,16 +35,15 @@ const QuestionCard = ({
     setExplanationTimeLeft(15);
     setShowKeyboardHint(true);
     
-    if (timeMode) {
-      setAnswerTime(10);
-      setTimerActive(true);
-    }
+    // Always set the timer state, but only activate it if in time mode
+    setAnswerTime(10);
+    setTimerActive(!!timeMode);
   }, [question, timeMode]);
 
-  // Timer for question timeout
+  // Timer for question timeout - now this runs unconditionally
   useEffect(() => {
     let timer;
-    if (timerActive && timeMode) {
+    if (timerActive) {
       timer = setInterval(() => {
         setAnswerTime(prev => {
           if (prev <= 1) {
@@ -56,8 +55,10 @@ const QuestionCard = ({
         });
       }, 1000);
     }
-    return () => clearInterval(timer);
-  }, [timerActive, timeMode]);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [timerActive]);
 
   // Update parent component with selected answer
   useEffect(() => {
@@ -73,44 +74,7 @@ const QuestionCard = ({
     }
   }, [showExplanation, onExplanationShow]);
 
-  if (!question) {
-    return <div className="w-full h-full bg-white p-4">Loading question...</div>;
-  }
-
-  const handleTimeUp = () => {
-    if (!selectedAnswer) {
-      setSelectedAnswer('TIMEOUT');
-      if (onSelectAnswer) onSelectAnswer('TIMEOUT');
-      setShowExplanation(true);
-      setExplanationTimeLeft(15);
-    }
-  };
-
-  const handleAnswerClick = (option) => {
-    if (selectedAnswer !== null) return;
-    
-    // Calculate remaining time for scoring
-    const remainingTime = timeMode ? answerTime : null;
-    
-    // Stop the timer
-    setTimerActive(false);
-    
-    setSelectedAnswer(option);
-    if (onSelectAnswer) onSelectAnswer(option);
-    
-    // Always show explanation with a short delay
-    setTimeout(() => {
-      setShowExplanation(true);
-    }, 300);
-  };
-
-  // Handle continue from explanation
-  const handleContinue = () => {
-    setShowExplanation(false);
-    onAnswerSubmit(selectedAnswer === question.correctAnswer, 10 - answerTime);
-  };
-
-  // Handle keyboard navigation
+  // Handle key presses for answer selection
   useEffect(() => {
     const handleKeyPress = (e) => {
       // Only handle key presses if there's a question and no answer selected yet
@@ -140,6 +104,44 @@ const QuestionCard = ({
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
   }, [question, selectedAnswer]);
+
+  // Define handleTimeUp function before it's used
+  const handleTimeUp = () => {
+    if (!selectedAnswer) {
+      setSelectedAnswer('TIMEOUT');
+      if (onSelectAnswer) onSelectAnswer('TIMEOUT');
+      setShowExplanation(true);
+      setExplanationTimeLeft(15);
+    }
+  };
+
+  if (!question) {
+    return <div className="w-full h-full bg-white p-4">Loading question...</div>;
+  }
+
+  const handleAnswerClick = (option) => {
+    if (selectedAnswer !== null) return;
+    
+    // Calculate remaining time for scoring
+    const remainingTime = timeMode ? answerTime : null;
+    
+    // Stop the timer
+    setTimerActive(false);
+    
+    setSelectedAnswer(option);
+    if (onSelectAnswer) onSelectAnswer(option);
+    
+    // Always show explanation with a short delay
+    setTimeout(() => {
+      setShowExplanation(true);
+    }, 300);
+  };
+
+  // Handle continue from explanation
+  const handleContinue = () => {
+    setShowExplanation(false);
+    onAnswerSubmit(selectedAnswer === question.correctAnswer, 10 - answerTime);
+  };
 
   return (
     <div className="bg-[#FFF8E7] h-full">
