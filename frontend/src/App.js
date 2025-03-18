@@ -1,4 +1,4 @@
-// Updated App.js with enhanced swipe navigation
+// Updated App.js with all fixes applied
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -104,8 +104,11 @@ function App() {
    checkApi();
  }, [networkStatus]);
 
- // Load videos on initial mount
+ // Load videos and preload sounds on initial mount
  useEffect(() => {
+   // Preload sounds first thing
+   SoundEffects.preloadSounds();
+   
    const loadVideos = async () => {
      try {
        setIsLoading(true);
@@ -137,7 +140,6 @@ function App() {
    };
 
    loadVideos();
-   SoundEffects.preloadSounds();
    
    // Add keyboard navigation for global app - FIXED VERSION
    const handleKeyDown = (e) => {
@@ -337,15 +339,8 @@ function App() {
          fetchQuestion();
        }, 1500);
      }
-     
-     if (SoundEffects.playCorrect) {
-       SoundEffects.playCorrect();
-     }
    } else {
      setStreak(0);
-     if (SoundEffects.playIncorrect) {
-       SoundEffects.playIncorrect();
-     }
      
      // Fetch a new question after a delay
      setTimeout(() => {
@@ -433,6 +428,9 @@ function App() {
 
  // Handle video to question transition
  const handleVideoToQuestionTransition = useCallback(() => {
+   // Play transition sound when going from video to question
+   SoundEffects.playTransition();
+   
    setShowQuestion(true);
    
    // In tutorial mode, fetch next question after video
@@ -446,18 +444,24 @@ function App() {
 
  // Handle start button click
  const handleStart = useCallback(() => {
-   if (SoundEffects.playTransition) {
-     SoundEffects.playTransition();
-   }
+   // Play transition sound
+   SoundEffects.playTransition();
+   
+   // Also play button press sound
+   SoundEffects.playButtonPress();
+   
    setShowWelcome(false);
    setShowSection(true);
  }, []);
 
  // Handle section selection with tutorial initialization
  const handleMainSelection = useCallback((section) => {
-   if (SoundEffects.playTransition) {
-     SoundEffects.playTransition();
-   }
+   // Play transition sound
+   SoundEffects.playTransition();
+   
+   // Also play button press sound
+   SoundEffects.playButtonPress();
+   
    setSelectedSection(section);
    setShowSection(false);
    
@@ -512,6 +516,9 @@ function App() {
 
  // Handle tutorial navigation
  const handleTutorialNext = useCallback(() => {
+   // Play button press sound
+   SoundEffects.playButtonPress();
+   
    if (tutorialStep < tutorialSteps.length - 1) {
      setTutorialStep(prev => prev + 1);
    } else {
@@ -521,6 +528,9 @@ function App() {
 
  // Handle milestone celebration close
  const handleMilestoneClose = useCallback(() => {
+   // Play button press sound
+   SoundEffects.playButtonPress();
+   
    setShowMilestone(false);
    
    // Continue with the next question
@@ -798,41 +808,39 @@ function App() {
      )}
 
      {/* Additional CSS for video protection */}
-     <style jsx>
-       {`
-         /* Video protection overlay */
-         #video-protection-overlay, #video-swipe-overlay {
-           position: absolute;
-           inset: 0;
-           z-index: 10;
-           cursor: default;
-           touch-action: none; /* Prevents all browser handling of touch events */
-         }
+     <style jsx>{`
+       /* Video protection overlay */
+       #video-protection-overlay, #video-swipe-overlay {
+         position: absolute;
+         inset: 0;
+         z-index: 10;
+         cursor: default;
+         touch-action: none; /* Prevents all browser handling of touch events */
+       }
 
-         /* Makes sure YouTube iframe events don't bubble up and interfere with our swipe */
-         .video-container iframe {
-           pointer-events: none !important;
-         }
+       /* Makes sure YouTube iframe events don't bubble up and interfere with our swipe */
+       .video-container iframe {
+         pointer-events: none !important;
+       }
 
-         /* Enable pointer events only on controls */
-         .video-container .react-player > div > div {
-           pointer-events: none !important; 
-         }
+       /* Enable pointer events only on controls */
+       .video-container .react-player > div > div {
+         pointer-events: none !important; 
+       }
 
-         /* Enhanced swipe transition */
-         .swipe-content {
-           position: relative;
-           transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-         }
+       /* Enhanced swipe transition */
+       .swipe-content {
+         position: relative;
+         transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+       }
 
-         @media (max-width: 768px) {
-           /* Make sure the video stays within boundaries on mobile */
-           .video-container .react-player {
-             max-height: 80vh !important;
-           }
+       @media (max-width: 768px) {
+         /* Make sure the video stays within boundaries on mobile */
+         .video-container .react-player {
+           max-height: 80vh !important;
          }
-       `}
-     </style>
+       }
+     `}</style>
    </div>
  );
 }
