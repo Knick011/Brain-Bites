@@ -1,5 +1,5 @@
 // components/VQLN/Video/VideoCard.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
 
 /**
@@ -18,19 +18,43 @@ const VideoCard = ({
   tutorialMode = false
 }) => {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [isValidUrl, setIsValidUrl] = useState(true);
+  const skipTimeoutRef = useRef(null);
   
-  // Setup keyboard shortcuts - now unconditional
+  // Check URL validity immediately - no conditional returns
+  useEffect(() => {
+    if (!url || !url.includes('youtube.com/shorts/')) {
+      console.error('Invalid YouTube Shorts URL:', url);
+      setIsValidUrl(false);
+      
+      // Use ref to store timeout and clear it on unmount
+      skipTimeoutRef.current = setTimeout(() => {
+        if (onSkip) onSkip();
+      }, 0);
+    } else {
+      setIsValidUrl(true);
+    }
+    
+    // Cleanup function
+    return () => {
+      if (skipTimeoutRef.current) {
+        clearTimeout(skipTimeoutRef.current);
+      }
+    };
+  }, [url, onSkip]);
+  
+  // Setup keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event) => {
       // Down Arrow to skip
       if (event.key === 'ArrowDown') {
         event.preventDefault();
-        onSkip && onSkip();
+        if (onSkip) onSkip();
       } 
       // Escape to exit when watching all rewards
-      else if (event.key === 'Escape' && onExit) {
+      else if (event.key === 'Escape') {
         event.preventDefault();
-        onExit();
+        if (onExit) onExit();
       }
     };
 
@@ -50,14 +74,8 @@ const VideoCard = ({
     if (onSkip) onSkip();
   };
 
-  // Early return for invalid URL - moved after hooks to avoid conditional hook calls
-  if (!url || !url.includes('youtube.com/shorts/')) {
-    console.error('Invalid YouTube Shorts URL:', url);
-    // Use effect instead of setTimeout for side effects
-    useEffect(() => {
-      if (onSkip) onSkip();
-    }, [onSkip]);
-    
+  // Render invalid URL message if needed
+  if (!isValidUrl) {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-black">
         <div className="text-white text-center p-4">
