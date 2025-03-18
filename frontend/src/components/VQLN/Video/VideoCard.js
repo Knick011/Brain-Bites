@@ -1,5 +1,5 @@
 // components/VQLN/Video/VideoCard.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
 
 /**
@@ -17,6 +17,30 @@ const VideoCard = ({
   tutorialMode = false
 }) => {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [isValidUrl, setIsValidUrl] = useState(true);
+  const skipTimeoutRef = useRef(null);
+  
+  // Check URL validity first thing in a useEffect
+  useEffect(() => {
+    if (!url || !url.includes('youtube.com/shorts/')) {
+      console.error('Invalid YouTube Shorts URL:', url);
+      setIsValidUrl(false);
+      
+      // Use a ref to track the timeout for cleanup
+      skipTimeoutRef.current = setTimeout(() => {
+        if (onSkip) onSkip();
+      }, 0);
+    } else {
+      setIsValidUrl(true);
+    }
+    
+    // Cleanup timeout on unmount
+    return () => {
+      if (skipTimeoutRef.current) {
+        clearTimeout(skipTimeoutRef.current);
+      }
+    };
+  }, [url, onSkip]);
   
   // Setup keyboard shortcuts
   useEffect(() => {
@@ -24,12 +48,12 @@ const VideoCard = ({
       // Down Arrow to skip
       if (event.key === 'ArrowDown') {
         event.preventDefault();
-        onSkip && onSkip();
+        if (onSkip) onSkip();
       } 
       // Escape to exit when watching all rewards
       else if (event.key === 'Escape') {
         event.preventDefault();
-        onExit && onExit();
+        if (onExit) onExit();
       }
     };
 
@@ -49,17 +73,8 @@ const VideoCard = ({
     if (onSkip) onSkip();
   };
 
-  // Early check for invalid URL
-  if (!url || !url.includes('youtube.com/shorts/')) {
-    console.error('Invalid YouTube Shorts URL:', url);
-    // Use useEffect for side effects
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        if (onSkip) onSkip();
-      }, 0);
-      return () => clearTimeout(timer);
-    }, [onSkip]);
-    
+  // If URL is invalid, show placeholder
+  if (!isValidUrl) {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-black">
         <div className="text-white text-center p-4">
