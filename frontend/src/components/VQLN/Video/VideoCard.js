@@ -19,20 +19,7 @@ const VideoCard = ({
 }) => {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   
-  // Early return for invalid URL
-  if (!url || !url.includes('youtube.com/shorts/')) {
-    console.error('Invalid YouTube Shorts URL:', url);
-    setTimeout(() => onSkip && onSkip(), 0);
-    return (
-      <div className="absolute inset-0 flex items-center justify-center bg-black">
-        <div className="text-white text-center p-4">
-          <p>Invalid video URL.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Setup keyboard shortcuts
+  // Setup keyboard shortcuts - now unconditional
   useEffect(() => {
     const handleKeyDown = (event) => {
       // Down Arrow to skip
@@ -41,9 +28,9 @@ const VideoCard = ({
         onSkip && onSkip();
       } 
       // Escape to exit when watching all rewards
-      else if (event.key === 'Escape') {
+      else if (event.key === 'Escape' && onExit) {
         event.preventDefault();
-        onExit && onExit();
+        onExit();
       }
     };
 
@@ -62,6 +49,23 @@ const VideoCard = ({
     console.error('Video playback error:', error);
     if (onSkip) onSkip();
   };
+
+  // Early return for invalid URL - moved after hooks to avoid conditional hook calls
+  if (!url || !url.includes('youtube.com/shorts/')) {
+    console.error('Invalid YouTube Shorts URL:', url);
+    // Use effect instead of setTimeout for side effects
+    useEffect(() => {
+      if (onSkip) onSkip();
+    }, [onSkip]);
+    
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-black">
+        <div className="text-white text-center p-4">
+          <p>Invalid video URL.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="video-container swipe-content">
