@@ -1,14 +1,13 @@
 // components/VQLN/SwipeNavigation.js
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronUp } from 'lucide-react';
+import { ChevronUp, ArrowDown } from 'lucide-react';
 
 /**
- * Enhanced SwipeNavigation component with TikTok-style transitions
- * Only enabled after user answers a question and only on the explanation popup
+ * Enhanced SwipeNavigation component with better touch and keyboard support
  */
 const SwipeNavigation = ({ 
   onSwipeUp, 
-  threshold = 100, 
+  threshold = 70, 
   isTutorial = false, 
   enabled = false,
   isVideo = false
@@ -18,9 +17,9 @@ const SwipeNavigation = ({
   const [swiping, setSwiping] = useState(false);
   const [showIndicator, setShowIndicator] = useState(false);
   
-  // Show indicator automatically in tutorial mode
+  // Show indicator based on mode
   useEffect(() => {
-    if (isTutorial && enabled) {
+    if (enabled) {
       setShowIndicator(true);
       
       // Auto-hide after 5 seconds
@@ -32,78 +31,27 @@ const SwipeNavigation = ({
     } else {
       setShowIndicator(false);
     }
-  }, [isTutorial, enabled]);
+  }, [enabled]);
   
-  // Set up swipe handlers and keyboard navigation
+  // Handle keyboard navigation
   useEffect(() => {
-    // Don't add event listeners if not enabled
     if (!enabled) return;
     
-    // Add TikTok-style class to the body for global styling
-    document.body.classList.add('tiktok-style');
-    
-    // Apply necessary class to current content
-    const content = document.querySelector('.swipe-content');
-    if (content) {
-      content.classList.add('current-content');
-    }
-    
-    // Add keyboard event listener for down arrow key
     const handleKeyDown = (e) => {
-      if (e.key === 'ArrowDown') {
-        // Trigger the same animation and callback as a swipe up
-        const content = document.querySelector('.current-content');
-        if (content) {
-          // Add smooth transition
-          content.style.transition = 'transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
-          
-          // Execute animation
-          content.style.transform = 'translateY(-100%) scale(0.8)';
-          content.style.opacity = '0';
-          
-          // Create next content container that will come from bottom
-          const nextContent = document.createElement('div');
-          nextContent.className = 'next-content swipe-content';
-          nextContent.style.transform = 'translateY(100%) scale(0.9)';
-          nextContent.style.opacity = '0';
-          document.body.appendChild(nextContent);
-          
-          // Trigger the swipe action after animation
-          setTimeout(() => {
-            // Execute the callback
-            onSwipeUp();
-            
-            // Remove the temporary element
-            if (document.body.contains(nextContent)) {
-              document.body.removeChild(nextContent);
-            }
-            
-            // Wait a bit then set up the new content with TikTok entrance animation
-            setTimeout(() => {
-              const newContent = document.querySelector('.swipe-content');
-              if (newContent) {
-                newContent.classList.add('current-content');
-                newContent.style.transition = 'transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
-                newContent.style.transform = 'translateY(0) scale(1)';
-                newContent.style.opacity = '1';
-              }
-            }, 100);
-          }, 450);
-        }
+      // Use Down Arrow, Space, or Enter keys for navigation
+      if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault(); // Prevent default scrolling behavior
+        console.log("Key pressed for navigation:", e.key);
+        onSwipeUp && onSwipeUp();
       }
     };
     
-    // Add keyboard event listener
     window.addEventListener('keydown', handleKeyDown);
-    
-    return () => {
-      document.body.classList.remove('tiktok-style');
-      window.removeEventListener('keydown', handleKeyDown);
-    };
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [enabled, onSwipeUp]);
   
+  // Handle touch events
   useEffect(() => {
-    // Don't add event listeners if not enabled
     if (!enabled) return;
     
     // Handle touch start
@@ -121,20 +69,19 @@ const SwipeNavigation = ({
       const distance = touchStartRef.current - touchMoveRef.current;
       
       // Only respond to upward swipes
-      if (distance > 0) {
+      if (distance > 20) {
         setSwiping(true);
         
-        // Apply TikTok-style transform to current content
-        const content = document.querySelector('.current-content');
+        // Apply visual feedback during swipe
+        const content = document.querySelector('.swipe-content');
         if (content) {
-          // Scale and translate with opacity change
-          const movePercent = Math.min((distance / window.innerHeight) * 100, 25);
+          const movePercent = Math.min((distance / window.innerHeight) * 100, 20);
           const scaleValue = 1 - (movePercent / 100);
           const opacityValue = 1 - (movePercent / 25);
           
           content.style.transform = `translateY(-${movePercent}%) scale(${scaleValue})`;
           content.style.opacity = opacityValue;
-          content.style.transition = 'none'; // No transition during manual drag
+          content.style.transition = 'none'; // No transition during drag
         }
         
         // Prevent default to avoid page scrolling
@@ -147,47 +94,37 @@ const SwipeNavigation = ({
       if (!touchStartRef.current || !touchMoveRef.current) return;
       
       const distance = touchStartRef.current - touchMoveRef.current;
-      const content = document.querySelector('.current-content');
+      const content = document.querySelector('.swipe-content');
       
+      // Add transition for smooth animation
       if (content) {
-        // Add smooth transition for the completion of the swipe
-        content.style.transition = 'transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
-        
-        if (distance > threshold) {
-          // Complete the exit animation with TikTok-style
+        content.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+      }
+      
+      if (distance > threshold) {
+        // Complete the swipe animation
+        if (content) {
           content.style.transform = 'translateY(-100%) scale(0.8)';
           content.style.opacity = '0';
+        }
+        
+        // Flash effect for feedback
+        const flash = document.createElement('div');
+        flash.className = 'swipe-flash active';
+        document.body.appendChild(flash);
+        
+        // Call the swipe callback after animation
+        setTimeout(() => {
+          onSwipeUp && onSwipeUp();
           
-          // Create next content container that will come from bottom
-          const nextContent = document.createElement('div');
-          nextContent.className = 'next-content swipe-content';
-          nextContent.style.transform = 'translateY(100%) scale(0.9)';
-          nextContent.style.opacity = '0';
-          document.body.appendChild(nextContent);
-          
-          // Trigger the swipe action after animation
-          setTimeout(() => {
-            // Execute the callback
-            onSwipeUp();
-            
-            // Remove the temporary element
-            if (document.body.contains(nextContent)) {
-              document.body.removeChild(nextContent);
-            }
-            
-            // Wait a bit then set up the new content with TikTok entrance animation
-            setTimeout(() => {
-              const newContent = document.querySelector('.swipe-content');
-              if (newContent) {
-                newContent.classList.add('current-content');
-                newContent.style.transition = 'transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
-                newContent.style.transform = 'translateY(0) scale(1)';
-                newContent.style.opacity = '1';
-              }
-            }, 100);
-          }, 450); // Slightly longer to let the animation complete
-        } else {
-          // Reset if swipe was not strong enough
+          // Remove flash effect
+          if (document.body.contains(flash)) {
+            document.body.removeChild(flash);
+          }
+        }, 300);
+      } else {
+        // Reset if swipe was not strong enough
+        if (content) {
           content.style.transform = 'translateY(0) scale(1)';
           content.style.opacity = '1';
         }
@@ -199,7 +136,7 @@ const SwipeNavigation = ({
       setSwiping(false);
     };
     
-    // Add event listeners to entire document or to video element for videos
+    // Add event listeners
     const targetElement = isVideo ? 
       document.querySelector('.video-container') : 
       document;
@@ -217,22 +154,42 @@ const SwipeNavigation = ({
         targetElement.removeEventListener('touchend', handleTouchEnd);
       }
     };
-  }, [onSwipeUp, threshold, enabled, isVideo]);
+  }, [threshold, enabled, onSwipeUp, isVideo]);
   
   return (
     <>
-      {/* Show swipe indicator only when enabled */}
+      {/* Visual indicator for swipe/keyboard navigation */}
       {showIndicator && enabled && (
-        <div className="fun-swipe-indicator-container">
-          <div className="fun-swipe-indicator">
-            <div className="indicator-ring"></div>
-            <div className="indicator-arrow">
-              <ChevronUp size={24} strokeWidth={3} />
-            </div>
-            <div className="indicator-text">Swipe up to continue</div>
+        <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 text-center">
+          <div className="bg-black bg-opacity-60 text-white px-4 py-2 rounded-full flex items-center gap-2 animate-pulse shadow-lg">
+            <ChevronUp size={20} />
+            <span className="text-sm font-medium">Swipe up or press ↓ to continue</span>
+            <ArrowDown size={20} />
           </div>
         </div>
       )}
+      
+      {/* Add CSS for the flash effect */}
+      <style jsx>{`
+        .swipe-flash {
+          position: fixed;
+          inset: 0;
+          background-color: rgba(255, 255, 255, 0.15);
+          z-index: 999;
+          pointer-events: none;
+          opacity: 0;
+        }
+        
+        .swipe-flash.active {
+          animation: flash 0.3s forwards;
+        }
+        
+        @keyframes flash {
+          0% { opacity: 0; }
+          50% { opacity: 0.7; }
+          100% { opacity: 0; }
+        }
+      `}</style>
     </>
   );
 };
