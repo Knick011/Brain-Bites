@@ -24,15 +24,17 @@ const VideoCard = ({
   
   // Check URL validity first thing in a useEffect
   useEffect(() => {
-    if (!url || !url.includes('youtube.com/shorts/')) {
+    // Improved URL validation - checking if URL is a string and contains youtube
+    if (!url || typeof url !== 'string' || !url.includes('youtube.com')) {
       console.error('Invalid YouTube Shorts URL:', url);
       setIsValidUrl(false);
       
       // Use a ref to track the timeout for cleanup
       skipTimeoutRef.current = setTimeout(() => {
         if (onSkip) onSkip();
-      }, 0);
+      }, 1000); // Slightly longer delay to show the error
     } else {
+      console.log("Valid URL detected:", url);
       setIsValidUrl(true);
     }
     
@@ -114,7 +116,8 @@ const VideoCard = ({
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-black">
         <div className="text-white text-center p-4">
-          <p>Invalid video URL.</p>
+          <p>Loading video...</p>
+          <div className="mt-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white mx-auto"></div>
         </div>
       </div>
     );
