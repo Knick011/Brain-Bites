@@ -22,11 +22,47 @@ const VideoCard = ({
   const skipTimeoutRef = useRef(null);
   const autoAdvanceTimerRef = useRef(null);
   
+  // Transform URL for ReactPlayer compatibility
+  const transformYouTubeUrl = (inputUrl) => {
+    if (!inputUrl || typeof inputUrl !== 'string') return null;
+    
+    // If URL is a YouTube Shorts URL, convert it to standard format
+    if (inputUrl.includes('youtube.com/shorts/')) {
+      // Extract the video ID
+      const videoIdMatch = inputUrl.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
+      if (videoIdMatch && videoIdMatch[1]) {
+        // Convert to standard YouTube embed URL format
+        return `https://www.youtube.com/watch?v=${videoIdMatch[1]}`;
+      }
+    }
+    
+    // If already in watch format, return as is
+    if (inputUrl.includes('youtube.com/watch?v=')) {
+      return inputUrl;
+    }
+    
+    // For any other YouTube URL, try to extract ID
+    const generalIdMatch = inputUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+    if (generalIdMatch && generalIdMatch[1]) {
+      return `https://www.youtube.com/watch?v=${generalIdMatch[1]}`;
+    }
+    
+    // Return original if we couldn't transform
+    console.log("Couldn't transform URL, using original:", inputUrl);
+    return inputUrl;
+  };
+  
+  // The transformed URL for ReactPlayer
+  const playerUrl = transformYouTubeUrl(url);
+  
   // Check URL validity first thing in a useEffect
   useEffect(() => {
-    // Less strict URL validation - just check if it's a string and contains youtube
-    if (!url || typeof url !== 'string' || !url.includes('youtube.com')) {
-      console.error('Invalid YouTube URL:', url);
+    console.log("Checking URL validity:", url);
+    console.log("Transformed URL:", playerUrl);
+    
+    // Check if we have a valid transformed URL
+    if (!playerUrl) {
+      console.error('Invalid or untransformable YouTube URL:', url);
       setIsValidUrl(false);
       
       // Use a ref to track the timeout for cleanup
@@ -34,7 +70,7 @@ const VideoCard = ({
         if (onSkip) onSkip();
       }, 1000); // Slightly longer delay to show the error
     } else {
-      console.log("Valid YouTube URL detected:", url);
+      console.log("Valid YouTube URL detected:", playerUrl);
       setIsValidUrl(true);
     }
     
@@ -44,7 +80,7 @@ const VideoCard = ({
         clearTimeout(skipTimeoutRef.current);
       }
     };
-  }, [url, onSkip]);
+  }, [url, playerUrl, onSkip]);
   
   // Auto-advance timer
   useEffect(() => {
@@ -123,12 +159,6 @@ const VideoCard = ({
     );
   }
 
-  // Ensure URL is properly formatted for YouTube Shorts
-  const getFormattedUrl = (videoUrl) => {
-    // If it already has a proper format, return as is
-    return videoUrl;
-  };
-
   return (
     <div className="video-container swipe-content">
       {/* Touch handler for swipes */}
@@ -163,9 +193,9 @@ const VideoCard = ({
         
         <div className="w-full max-w-md h-full max-h-screen flex items-center justify-center">
           <div className="relative w-full h-full max-h-[85vh] rounded-lg overflow-hidden">
-            {/* Video player */}
+            {/* Video player with transformed URL */}
             <ReactPlayer
-              url={getFormattedUrl(url)}
+              url={playerUrl}
               width="100%"
               height="100%"
               playing={true}
