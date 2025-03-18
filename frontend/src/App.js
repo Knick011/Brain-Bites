@@ -1,4 +1,4 @@
-// Updated App.js with all modifications applied
+// Updated App.js with enhanced swipe navigation
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -354,6 +354,28 @@ function App() {
    }
  }, [correctAnswers, fetchQuestion, getRandomVideo, streak, timeMode, tutorialMode]);
 
+ // Handle explanation continue
+ const handleExplanationContinue = useCallback(() => {
+   console.log("Handling explanation continue...");
+   
+   if (tutorialMode && selectedAnswer) {
+     // Check if the answer was correct
+     const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
+     
+     if (isCorrect) {
+       // For correct answers in tutorial mode, transition to video
+       setShowQuestion(false);
+     } else {
+       // For incorrect answers in tutorial mode, fetch next question
+       fetchQuestion();
+     }
+     
+     // Reset explanation visibility
+     setExplanationVisible(false);
+     setSwipeEnabled(false);
+   }
+ }, [tutorialMode, selectedAnswer, currentQuestion, fetchQuestion]);
+
  // Watch a video from rewards
  const watchVideo = useCallback(async () => {
    if (availableVideos <= 0) return;
@@ -407,6 +429,19 @@ function App() {
    if (tutorialMode) {
      fetchQuestion();
    }
+ }, [tutorialMode, fetchQuestion]);
+
+ // Handle video to question transition
+ const handleVideoToQuestionTransition = useCallback(() => {
+   setShowQuestion(true);
+   
+   // In tutorial mode, fetch next question after video
+   if (tutorialMode) {
+     fetchQuestion();
+   }
+   
+   // Reset swipe enabled
+   setSwipeEnabled(false);
  }, [tutorialMode, fetchQuestion]);
 
  // Handle start button click
@@ -510,19 +545,6 @@ function App() {
    }
  }, [tutorialMode, selectedAnswer, currentQuestion, fetchQuestion]);
 
- // Handle swipe from video to question
- const handleSwipeUpVideo = useCallback(() => {
-   setShowQuestion(true);
-   
-   // In tutorial mode, fetch next question after video
-   if (tutorialMode) {
-     fetchQuestion();
-   }
-   
-   // Reset swipe enabled
-   setSwipeEnabled(false);
- }, [tutorialMode, fetchQuestion]);
-
  // Track explanation visibility
  const handleExplanationVisibility = useCallback((isVisible) => {
    setExplanationVisible(isVisible);
@@ -613,13 +635,13 @@ function App() {
                />
              )}
              
-             {/* Add swipe navigation for videos with minimal UI */}
+             {/* Add swipe navigation for videos with auto-advance */}
              {!isVideoLoading && (
                <SwipeNavigation 
-                 onSwipeUp={handleSwipeUpVideo} 
+                 onSwipeUp={handleVideoToQuestionTransition} 
                  enabled={true}
                  isVideo={true}
-                 minimalUI={true}
+                 autoAdvanceDelay={30000} // Auto-advance after 30 seconds
                />
              )}
            </>
@@ -664,14 +686,15 @@ function App() {
                    onSelectAnswer={setSelectedAnswer}
                    tutorialMode={tutorialMode}
                    onExplanationShow={handleExplanationVisibility}
+                   onExplanationContinue={handleExplanationContinue}
                  />
                  
-                 {/* Add swipe navigation in tutorial mode after answering a question and explanation is shown */}
+                 {/* Add swipe navigation in tutorial mode after answering a question with auto-advance */}
                  {tutorialMode && swipeEnabled && explanationVisible && (
                    <SwipeNavigation 
-                     onSwipeUp={handleSwipeUpExplanation} 
+                     onSwipeUp={handleExplanationContinue} 
                      enabled={true}
-                     minimalUI={true}
+                     autoAdvanceDelay={7000} // Auto-advance after 7 seconds
                    />
                  )}
                </>
