@@ -24,15 +24,20 @@ const VideoCard = ({
   
   // Directly create a working YouTube URL based on ID
   const getVideoUrl = () => {
-    if (!url) return null;
+    if (!url) {
+      console.warn('URL is null or undefined, cannot create player URL');
+      return null;
+    }
     
     // If we have an object with id property
     if (typeof url === 'object' && url.id) {
+      console.log('URL is an object with ID property:', url.id);
       return `https://www.youtube.com/watch?v=${url.id}`;
     }
     
     // If it's a string URL, try to extract ID
     if (typeof url === 'string') {
+      console.log('URL is a string:', url);
       let videoId = null;
       
       // YouTube shorts URL
@@ -51,11 +56,13 @@ const VideoCard = ({
       }
       
       if (videoId) {
+        console.log('Extracted video ID:', videoId);
         return `https://www.youtube.com/watch?v=${videoId}`;
       }
     }
     
     // Fallback to original URL
+    console.log('Using original URL as fallback:', url);
     return url;
   };
   
@@ -154,13 +161,22 @@ const VideoCard = ({
     if (onEnd) onEnd();
   };
 
-  // If URL is invalid, show placeholder
-  if (!isValidUrl) {
+  // If URL is invalid, show placeholder with skip option
+  if (!isValidUrl || !playerUrl) {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-black">
-        <div className="text-white text-center p-4">
-          <p>Loading next video...</p>
-          <div className="mt-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white mx-auto"></div>
+        <div className="text-white text-center p-6">
+          <p className="text-xl mb-2">Video Unavailable</p>
+          <p className="mb-4">We're having trouble loading this video.</p>
+          
+          <button 
+            onClick={() => onSkip && onSkip()}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors mt-4"
+          >
+            Skip to Next Question
+          </button>
+          
+          <div className="text-xs mt-4 text-gray-400">Video will automatically skip in a few seconds...</div>
         </div>
       </div>
     );
