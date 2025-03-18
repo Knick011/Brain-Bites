@@ -1,6 +1,7 @@
 // components/VQLN/Question/QuestionCard.js
 import React, { useState, useEffect } from 'react';
 import AnswerNotification from './AnswerNotification';
+import { ArrowDown } from 'lucide-react';
 
 const QuestionCard = ({ 
   question, 
@@ -16,12 +17,23 @@ const QuestionCard = ({
   const [answerTime, setAnswerTime] = useState(10);
   const [timerActive, setTimerActive] = useState(true);
   const [explanationTimeLeft, setExplanationTimeLeft] = useState(15);
+  const [showKeyboardHint, setShowKeyboardHint] = useState(true);
+
+  // Auto-hide keyboard hint after 10 seconds
+  useEffect(() => {
+    const hintTimer = setTimeout(() => {
+      setShowKeyboardHint(false);
+    }, 10000);
+    
+    return () => clearTimeout(hintTimer);
+  }, []);
 
   // Reset states when a new question is loaded
   useEffect(() => {
     setSelectedAnswer(null);
     setShowExplanation(false);
     setExplanationTimeLeft(15);
+    setShowKeyboardHint(true);
     
     if (timeMode) {
       setAnswerTime(10);
@@ -98,9 +110,52 @@ const QuestionCard = ({
     onAnswerSubmit(selectedAnswer === question.correctAnswer, 10 - answerTime);
   };
 
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // Only handle key presses if there's a question and no answer selected yet
+      if (!question || selectedAnswer !== null) return;
+      
+      const key = e.key.toUpperCase();
+      
+      // Check if key matches an option key (A, B, C, D, etc.)
+      if (question.options && question.options[key]) {
+        handleAnswerClick(key);
+      }
+      
+      // Use number keys as alternate option selectors (1=A, 2=B, etc.)
+      const numberMap = {
+        '1': 'A',
+        '2': 'B',
+        '3': 'C',
+        '4': 'D',
+        '5': 'E'
+      };
+      
+      if (numberMap[e.key] && question.options && question.options[numberMap[e.key]]) {
+        handleAnswerClick(numberMap[e.key]);
+      }
+    };
+    
+    window.addEventListener('keypress', handleKeyPress);
+    return () => window.removeEventListener('keypress', handleKeyPress);
+  }, [question, selectedAnswer]);
+
   return (
     <div className="bg-[#FFF8E7] h-full">
       <div className="w-full mx-auto max-w-3xl p-4">
+        {/* Keyboard hint */}
+        {showKeyboardHint && !selectedAnswer && (
+          <div className="bg-orange-100 rounded-lg px-4 py-2 text-sm mb-4 flex items-center justify-between">
+            <span className="text-orange-800">
+              <span className="font-bold">Tip:</span> Use keyboard to select answers (A, B, C, D keys or 1, 2, 3, 4 keys)
+            </span>
+            <button onClick={() => setShowKeyboardHint(false)} className="text-orange-500">
+              ✕
+            </button>
+          </div>
+        )}
+        
         <div className="bg-white rounded-lg shadow-md p-6 mt-4">
           {/* Streak Display */}
           <div className="flex justify-between items-center mb-4">
@@ -150,7 +205,15 @@ const QuestionCard = ({
             </div>
           </div>
           
-          {/* Explanation Popup - Using tutorialMode flag */}
+          {/* Keyboard navigation instructions for tutorial mode */}
+          {tutorialMode && !selectedAnswer && (
+            <div className="text-center mt-4 p-2 bg-gray-100 rounded-lg text-gray-600 flex items-center justify-center gap-2">
+              <ArrowDown size={16} className="text-orange-500" />
+              <span>You can also use keyboard keys to select answers</span>
+            </div>
+          )}
+          
+          {/* Explanation Popup */}
           {showExplanation && (
             <AnswerNotification 
               isCorrect={selectedAnswer === question.correctAnswer}
@@ -159,7 +222,7 @@ const QuestionCard = ({
               correctAnswer={question.options?.[question.correctAnswer] || ""}
               onContinue={handleContinue}
               timeLeft={explanationTimeLeft}
-              tutorialMode={tutorialMode} // Pass tutorial mode flag
+              tutorialMode={tutorialMode}
             />
           )}
         </div>
