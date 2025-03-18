@@ -2,18 +2,33 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 /**
- * SwipeNavigation component - original functionality restored, with UI indicators removed
+ * Enhanced SwipeNavigation component - with auto-advance functionality
  */
 const SwipeNavigation = ({ 
   onSwipeUp, 
   threshold = 70, 
   isTutorial = false, 
   enabled = false,
-  isVideo = false
+  isVideo = false,
+  autoAdvanceDelay = 2500 // Default auto-advance delay of 2.5 seconds
 }) => {
   const touchStartRef = useRef(null);
   const touchMoveRef = useRef(null);
   const [swiping, setSwiping] = useState(false);
+  
+  // Auto-advance timer
+  useEffect(() => {
+    let timer;
+    if (enabled && autoAdvanceDelay > 0) {
+      timer = setTimeout(() => {
+        onSwipeUp && onSwipeUp();
+      }, autoAdvanceDelay);
+    }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [enabled, onSwipeUp, autoAdvanceDelay]);
   
   // Handle keyboard navigation
   useEffect(() => {
@@ -131,7 +146,7 @@ const SwipeNavigation = ({
   
   return (
     <>
-      {/* No visible indicators */}
+      {/* No visible indicators, keeping the UI clean as requested */}
       <style jsx>{`
         .swipe-flash {
           position: fixed;
