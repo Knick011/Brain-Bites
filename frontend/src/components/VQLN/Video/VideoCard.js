@@ -24,32 +24,44 @@ const VideoCard = ({
   
   // Transform URL for ReactPlayer compatibility
   const transformYouTubeUrl = (inputUrl) => {
-    if (!inputUrl || typeof inputUrl !== 'string') return null;
+    // Handle case when inputUrl is null, undefined or not a string
+    if (!inputUrl || typeof inputUrl !== 'string') {
+      console.error('Invalid URL input:', inputUrl);
+      return null;
+    }
     
-    // If URL is a YouTube Shorts URL, convert it to standard format
-    if (inputUrl.includes('youtube.com/shorts/')) {
-      // Extract the video ID
-      const videoIdMatch = inputUrl.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
-      if (videoIdMatch && videoIdMatch[1]) {
-        // Convert to standard YouTube embed URL format
-        return `https://www.youtube.com/watch?v=${videoIdMatch[1]}`;
+    try {
+      // If URL is a YouTube Shorts URL, convert it to standard format
+      if (inputUrl.includes('youtube.com/shorts/')) {
+        const videoIdMatch = inputUrl.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
+        if (videoIdMatch && videoIdMatch[1]) {
+          return `https://www.youtube.com/watch?v=${videoIdMatch[1]}`;
+        }
       }
-    }
-    
-    // If already in watch format, return as is
-    if (inputUrl.includes('youtube.com/watch?v=')) {
+      
+      // If already in watch format, return as is
+      if (inputUrl.includes('youtube.com/watch?v=')) {
+        return inputUrl;
+      }
+      
+      // For any other YouTube URL, try to extract ID
+      const generalIdMatch = inputUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+      if (generalIdMatch && generalIdMatch[1]) {
+        return `https://www.youtube.com/watch?v=${generalIdMatch[1]}`;
+      }
+      
+      // Simple ID extraction - if URL contains what looks like just an 11-character YouTube ID
+      const simpleIdMatch = /^[a-zA-Z0-9_-]{11}$/.test(inputUrl);
+      if (simpleIdMatch) {
+        return `https://www.youtube.com/watch?v=${inputUrl}`;
+      }
+      
+      console.log("Couldn't transform URL, using original:", inputUrl);
       return inputUrl;
+    } catch (error) {
+      console.error('Error transforming URL:', error);
+      return inputUrl; // Return original on error
     }
-    
-    // For any other YouTube URL, try to extract ID
-    const generalIdMatch = inputUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-    if (generalIdMatch && generalIdMatch[1]) {
-      return `https://www.youtube.com/watch?v=${generalIdMatch[1]}`;
-    }
-    
-    // Return original if we couldn't transform
-    console.log("Couldn't transform URL, using original:", inputUrl);
-    return inputUrl;
   };
   
   // The transformed URL for ReactPlayer
@@ -138,7 +150,10 @@ const VideoCard = ({
   // Handle player error
   const handlePlayerError = (error) => {
     console.error('Video playback error:', error);
-    if (onSkip) onSkip();
+    // Add a small delay before skipping to avoid rapid skipping
+    setTimeout(() => {
+      if (onSkip) onSkip();
+    }, 500);
   };
 
   // Handle player ended
