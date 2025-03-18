@@ -739,3 +739,39 @@
 .fixed.inset-0.z-50.flex.items-center.justify-center {
   padding-bottom: 80px;
 }
+/* Add this CSS to your application to help with video interactions */
+
+/* Make video player container respect touch events for swipe */
+.video-container {
+  position: relative;
+  touch-action: none; /* Prevents browser handling of all touch events */
+}
+
+/* Ensure YouTube iframe doesn't interfere with swipe gesture */
+.video-container iframe {
+  pointer-events: none !important; /* Prevent iframe from capturing touch */
+}
+
+/* Enhanced swipe transition */
+.swipe-content {
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Flash effect animation */
+@keyframes flash {
+  0% { opacity: 0; }
+  50% { opacity: 0.3; }
+  100% { opacity: 0; }
+}
+
+.swipe-flash.active {
+  animation: flash 0.3s forwards;
+}
+
+/* Ensure video player dimensions are correct on mobile */
+@media (max-width: 768px) {
+  .video-container .react-player {
+    max-height: 80vh !important;
+  }
+}
