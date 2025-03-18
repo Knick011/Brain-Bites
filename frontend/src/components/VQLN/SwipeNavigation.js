@@ -1,16 +1,16 @@
-// components/VQLN/SwipeNavigation.js
 import React, { useEffect, useRef, useState } from 'react';
-import { ChevronUp, ArrowDown } from 'lucide-react';
+import { ChevronUp } from 'lucide-react';
 
 /**
- * Enhanced SwipeNavigation component with better touch and keyboard support
+ * Enhanced SwipeNavigation component that captures swipes on top of videos
+ * and prevents interaction with video elements
  */
 const SwipeNavigation = ({ 
   onSwipeUp, 
   threshold = 70, 
-  isTutorial = false, 
   enabled = false,
-  isVideo = false
+  isVideo = false,
+  minimalUI = true  // New prop to control UI visibility
 }) => {
   const touchStartRef = useRef(null);
   const touchMoveRef = useRef(null);
@@ -22,26 +22,25 @@ const SwipeNavigation = ({
     if (enabled) {
       setShowIndicator(true);
       
-      // Auto-hide after 5 seconds
+      // Auto-hide after 3 seconds for minimal UI experience
       const timer = setTimeout(() => {
-        setShowIndicator(false);
-      }, 5000);
+        setShowIndicator(minimalUI ? false : true);
+      }, 3000);
       
       return () => clearTimeout(timer);
     } else {
       setShowIndicator(false);
     }
-  }, [enabled]);
+  }, [enabled, minimalUI]);
   
   // Handle keyboard navigation
   useEffect(() => {
     if (!enabled) return;
     
     const handleKeyDown = (e) => {
-      // Use Down Arrow, Space, or Enter keys for navigation
-      if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
+      // Use Down Arrow key for navigation
+      if (e.key === 'ArrowDown') {
         e.preventDefault(); // Prevent default scrolling behavior
-        console.log("Key pressed for navigation:", e.key);
         onSwipeUp && onSwipeUp();
       }
     };
@@ -136,35 +135,64 @@ const SwipeNavigation = ({
       setSwiping(false);
     };
     
-    // Add event listeners
-    const targetElement = isVideo ? 
-      document.querySelector('.video-container') : 
-      document;
-    
-    if (targetElement) {
-      targetElement.addEventListener('touchstart', handleTouchStart, { passive: true });
-      targetElement.addEventListener('touchmove', handleTouchMove, { passive: false });
-      targetElement.addEventListener('touchend', handleTouchEnd);
-    }
-    
-    return () => {
-      if (targetElement) {
-        targetElement.removeEventListener('touchstart', handleTouchStart);
-        targetElement.removeEventListener('touchmove', handleTouchMove);
-        targetElement.removeEventListener('touchend', handleTouchEnd);
+    // Create an invisible overlay for video container to prevent interaction
+    if (isVideo) {
+      const videoContainer = document.querySelector('.video-container');
+      
+      if (videoContainer) {
+        // Check if overlay already exists
+        let swipeOverlay = document.getElementById('video-swipe-overlay');
+        
+        if (!swipeOverlay) {
+          // Create overlay if it doesn't exist
+          swipeOverlay = document.createElement('div');
+          swipeOverlay.id = 'video-swipe-overlay';
+          swipeOverlay.style.position = 'absolute';
+          swipeOverlay.style.inset = '0';
+          swipeOverlay.style.zIndex = '10';
+          swipeOverlay.style.cursor = 'default';
+          
+          videoContainer.style.position = 'relative';
+          videoContainer.appendChild(swipeOverlay);
+          
+          // Add event listeners to the overlay
+          swipeOverlay.addEventListener('touchstart', handleTouchStart, { passive: true });
+          swipeOverlay.addEventListener('touchmove', handleTouchMove, { passive: false });
+          swipeOverlay.addEventListener('touchend', handleTouchEnd);
+          
+          // Return cleanup function
+          return () => {
+            if (swipeOverlay && videoContainer.contains(swipeOverlay)) {
+              swipeOverlay.removeEventListener('touchstart', handleTouchStart);
+              swipeOverlay.removeEventListener('touchmove', handleTouchMove);
+              swipeOverlay.removeEventListener('touchend', handleTouchEnd);
+              videoContainer.removeChild(swipeOverlay);
+            }
+          };
+        }
       }
-    };
+    } else {
+      // Add event listeners to document for non-video content
+      document.addEventListener('touchstart', handleTouchStart, { passive: true });
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+      
+      return () => {
+        document.removeEventListener('touchstart', handleTouchStart);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+      };
+    }
   }, [threshold, enabled, onSwipeUp, isVideo]);
   
   return (
     <>
-      {/* Visual indicator for swipe/keyboard navigation */}
+      {/* Simplified visual indicator for swipe navigation */}
       {showIndicator && enabled && (
         <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 text-center">
-          <div className="bg-black bg-opacity-60 text-white px-4 py-2 rounded-full flex items-center gap-2 animate-pulse shadow-lg">
+          <div className="bg-black bg-opacity-60 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg animate-pulse">
             <ChevronUp size={20} />
-            <span className="text-sm font-medium">Swipe up or press ↓ to continue</span>
-            <ArrowDown size={20} />
+            <span className="text-sm font-medium">Swipe up to continue</span>
           </div>
         </div>
       )}
@@ -186,7 +214,7 @@ const SwipeNavigation = ({
         
         @keyframes flash {
           0% { opacity: 0; }
-          50% { opacity: 0.7; }
+          50% { opacity: 0.3; }
           100% { opacity: 0; }
         }
       `}</style>
