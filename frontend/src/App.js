@@ -375,28 +375,30 @@ function App() {
 
   // Watch a video from rewards - improved error handling
   const watchVideo = useCallback(async () => {
-    if (availableVideos <= 0) return;
+ if (availableVideos <= 0) return;
+  
+  try {
+    setIsVideoLoading(true);
     
-    try {
-      setIsVideoLoading(true);
-      
-      // Get a random video
-      let video = getRandomVideo();
-      console.log("video selected:", video);
-      
-      // If no video is available, try refreshing the videos
-       if (!video || !video.id) {
+    // Get a random video
+    let video = getRandomVideo();
+    console.log("Video selected:", video); // Log the actual video object
+    
+    // CRITICAL: Check if video exists and has an id
+    if (!video || !video.id) {
       // Try to refresh the video list
       const refreshedVideos = await YouTubeService.getViralShorts(10);
       console.log("Got refreshed videos:", refreshedVideos.length);
-        
-       if (refreshedVideos && refreshedVideos.length > 0) {
+      
+      if (refreshedVideos && refreshedVideos.length > 0) {
         setVideos(refreshedVideos);
         video = refreshedVideos[0];
       } else {
         throw new Error("No videos available");
-        }
       }
+    }
+    
+    // Now we can be sure video exists and has necessary properties
     setCurrentVideo(video);
     setShowQuestion(false);
     setAvailableVideos(prev => prev - 1);
@@ -408,32 +410,7 @@ function App() {
     setIsVideoLoading(false);
   }
 }, [availableVideos, getRandomVideo, fetchQuestion]);
-
-
-      
-      if (video && (video.id || (typeof video === 'string' && video.includes('youtube')))) {
-        console.log("Setting current video and showing video player:", video);
-        setCurrentVideo(video);
-        setShowQuestion(false);
-        setAvailableVideos(prev => prev - 1);
-        // Enable swipe for videos
-        setSwipeEnabled(true);
-      } else {
-        console.error("Invalid video format or missing video:", video);
-        setError("Couldn't load video. Please try again later.");
-        // Fetch a question instead since video failed
-        fetchQuestion();
-      }
-    } catch (error) {
-      console.error('Error loading video:', error);
-      setError("Error loading video: " + error.message);
-      // Fetch a question instead since video failed
-      fetchQuestion();
-    } finally {
-      setIsVideoLoading(false);
-    }
-  }, [availableVideos, getRandomVideo, fetchQuestion]);
-
+  
   // Handle video ending and transitions
   const handleVideoEnd = useCallback(() => {
     // Don't automatically transition in tutorial mode - wait for swipe
