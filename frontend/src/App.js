@@ -1,4 +1,4 @@
-// Condensed App.js with improved video handling
+// Fully fixed App.js with non-repeating videos
 import React, { useState, useEffect, useCallback } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -18,7 +18,6 @@ import './styles/GameStyles.css';
 import './styles/popup-animations.css';
 
 function App() {
-  // Organize state variables by functionality groups
   // UI & navigation states
   const [showWelcome, setShowWelcome] = useState(true);
   const [showSection, setShowSection] = useState(false);
@@ -30,6 +29,7 @@ function App() {
   const [videos, setVideos] = useState([]);
   const [currentVideo, setCurrentVideo] = useState(null);
   const [usedQuestionIds, setUsedQuestionIds] = useState(new Set());
+  const [viewedVideoIds, setViewedVideoIds] = useState(new Set());
   
   // Loading states
   const [isLoading, setIsLoading] = useState(true);
@@ -108,6 +108,14 @@ function App() {
     checkApi();
   }, [networkStatus]);
 
+  // Reset currentVideo when returning to questions
+  useEffect(() => {
+    if (showQuestion) {
+      // Clear current video when showing questions to prevent reuse
+      setCurrentVideo(null);
+    }
+  }, [showQuestion]);
+
   // Load videos and preload sounds on initial mount
   useEffect(() => {
     // Preload sounds
@@ -117,14 +125,13 @@ function App() {
       try {
         setIsLoading(true);
         console.log('Loading videos from YouTube service');
-        const loadedVideos = await YouTubeService.getViralShorts(15); // Load more videos upfront
+        const loadedVideos = await YouTubeService.getViralShorts(15);
         console.log(`Loaded ${loadedVideos.length} videos`);
         
         if (loadedVideos && loadedVideos.length > 0) {
           setVideos(loadedVideos);
         } else {
           console.warn('No videos were loaded, will retry');
-          // Retry after a short delay
           setTimeout(async () => {
             const retryVideos = await YouTubeService.getViralShorts(10);
             if (retryVideos && retryVideos.length > 0) {
@@ -250,36 +257,38 @@ function App() {
     }
   }, [selectedSection, usedQuestionIds]);
 
-  // Get a random video
+  // Get a random video that hasn't been viewed
   const getRandomVideo = useCallback(() => {
     if (!videos || videos.length === 0) {
       return null;
     }
     
-    const randomIndex = Math.floor(Math.random() * videos.length);
-    return videos[randomIndex];
-  }, [videos]);
+    // Filter out videos that have already been viewed
+    const unwatchedVideos = videos.filter(video => !viewedVideoIds.has(video.id));
+    
+    // If too many videos watched, reset
+    if (unwatchedVideos.length === 0) {
+      // Keep track of last viewed video to avoid immediate repetition
+      const lastVideoId = Array.from(viewedVideoIds).pop();
+      setViewedVideoIds(new Set(lastVideoId ? [lastVideoId] : []));
+      
+      // Return random video not matching last viewed
+      const availableVideos = videos.filter(video => video.id !== lastVideoId);
+      const randomIndex = Math.floor(Math.random() * availableVideos.length);
+      return availableVideos[randomIndex] || videos[0];
+    }
+    
+    // Get random unwatched video
+    const randomIndex = Math.floor(Math.random() * unwatchedVideos.length);
+    return unwatchedVideos[randomIndex];
+  }, [videos, viewedVideoIds]);
 
   // Handle answer submission with time-based scoring
   const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
     // Enable swiping after answering in tutorial mode
     if (tutorialMode) {
-      const videoToPlay = getRandomVideo();
-  
-  if (videoToPlay) {
-    console.log("Setting current video:", videoToPlay); // Add logging
-    setCurrentVideo(videoToPlay);
-  } else {
-    console.error("Failed to get a random video");
-    // Load videos directly as fallback
-    YouTubeService.getViralShorts(5).then(videos => {
-      if (videos && videos.length > 0) {
-        console.log("Setting fallback video");
-        setCurrentVideo(videos[0]);
-      }
-    });
-  }
-}
+      setSwipeEnabled(true);
+    }
     
     // Save the answer time for points calculation
     setAnswerTime(answerTimeValue);
@@ -329,8 +338,11 @@ function App() {
         const videoToPlay = getRandomVideo();
         
         if (videoToPlay) {
-          // Prepare the video but wait for user to swipe
+          console.log("Setting current video in tutorial mode:", videoToPlay.id);
           setCurrentVideo(videoToPlay);
+          
+          // Mark as viewed
+          setViewedVideoIds(prev => new Set([...prev, videoToPlay.id]));
         }
         
         // Exit tutorial mode after 5 correct answers
@@ -366,114 +378,158 @@ function App() {
   }, [correctAnswers, fetchQuestion, getRandomVideo, streak, timeMode, tutorialMode]);
 
   // Handle explanation continue
- const handleExplanationContinue = useCallback(() => {
-  console.log("Handling explanation continue...");
-  
-  if (tutorialMode && selectedAnswer) {
-    // Check if the answer was correct
-    const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
+  const handleExplanationContinue = useCallback(() => {
+    console.log("Handling explanation continue...");
     
-    if (isCorrect) {
-      // CRITICAL FIX: Verify we have a valid video before transitioning
-      if (!currentVideo) {
-        console.log("No video available, getting one now");
-        const videoToPlay = getRandomVideo();
-        
-        if (videoToPlay) {
-          // Set the video and then transition
-          setCurrentVideo(videoToPlay);
-          // Small delay to ensure state updates before transition
-          setTimeout(() => {
-            setShowQuestion(false);
-          }, 50);
+    if (tutorialMode && selectedAnswer) {
+      // Check if the answer was correct
+      const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
+      
+      if (isCorrect) {
+        // For correct answers in tutorial mode, verify we have a valid video
+        if (!currentVideo) {
+          console.log("No video available, getting one now");
+          const videoToPlay = getRandomVideo();
+          
+          if (videoToPlay) {
+            // Set the video and then transition
+            setCurrentVideo(videoToPlay);
+            // Mark as viewed
+            setViewedVideoIds(prev => new Set([...prev, videoToPlay.id]));
+            
+            // Small delay to ensure state updates before transition
+            setTimeout(() => {
+              setShowQuestion(false);
+            }, 50);
+          } else {
+            // No videos available, stay on question view and show error
+            console.error("No videos available to play");
+            setError("Couldn't load a video reward. Try again later.");
+            fetchQuestion();
+          }
         } else {
-          // No videos available, stay on question view and show error
-          console.error("No videos available to play");
-          setError("Couldn't load a video reward. Try again later.");
-          fetchQuestion();
+          // We already have a video, safe to transition
+          setShowQuestion(false);
         }
       } else {
-        // We already have a video, safe to transition
-        setShowQuestion(false);
+        // For incorrect answers in tutorial mode, fetch next question
+        fetchQuestion();
       }
-    } else {
-      // For incorrect answers in tutorial mode, fetch next question
-      fetchQuestion();
+      
+      // Reset explanation visibility
+      setExplanationVisible(false);
+      setSwipeEnabled(false);
     }
-    
-    // Reset explanation visibility
-    setExplanationVisible(false);
-    setSwipeEnabled(false);
-  }
-}, [tutorialMode, selectedAnswer, currentQuestion, currentVideo, fetchQuestion, getRandomVideo]);
-  // Watch a video from rewards - improved error handling
+  }, [tutorialMode, selectedAnswer, currentQuestion, currentVideo, fetchQuestion, getRandomVideo]);
+
+  // FIXED: Watch a video from rewards - always get a fresh video
   const watchVideo = useCallback(async () => {
-  if (availableVideos <= 0) return;
-  
-  try {
-    setIsVideoLoading(true);
+    if (availableVideos <= 0) return;
     
-    // Force refresh videos list occasionally to get variety
-    const shouldRefreshVideos = Math.random() < 0.3; // 30% chance
-    
-    if (shouldRefreshVideos) {
-      console.log("Refreshing videos to increase variety");
-      const freshVideos = await YouTubeService.getViralShorts(10);
+    try {
+      setIsVideoLoading(true);
+      
+      // Get fresh videos directly from service to ensure variety
+      const freshVideos = await YouTubeService.getViralShorts(3);
+      console.log(`Got ${freshVideos.length} fresh videos`);
+      
       if (freshVideos && freshVideos.length > 0) {
-        setVideos(freshVideos);
+        // Find a video that hasn't been viewed recently
+        let newVideo = freshVideos.find(video => !viewedVideoIds.has(video.id));
+        
+        // If all videos viewed, reset tracking and use first
+        if (!newVideo) {
+          console.log("All videos viewed, resetting tracking");
+          // Keep track of very last video to avoid immediate repetition
+          const lastVideoId = Array.from(viewedVideoIds).pop();
+          setViewedVideoIds(new Set());
+          
+          // Find a video that isn't the last one watched
+          newVideo = freshVideos.find(video => video.id !== lastVideoId) || freshVideos[0];
+        }
+        
+        console.log("Selected video:", newVideo.id, newVideo.title);
+        
+        // Update video list with new videos
+        setVideos(prevVideos => {
+          // Create a set of existing video IDs
+          const existingIds = new Set(prevVideos.map(v => v.id));
+          
+          // Filter out duplicates and append new videos
+          const uniqueNewVideos = freshVideos.filter(v => !existingIds.has(v.id));
+          
+          if (uniqueNewVideos.length > 0) {
+            console.log(`Adding ${uniqueNewVideos.length} new videos to list`);
+            return [...prevVideos, ...uniqueNewVideos];
+          }
+          
+          return prevVideos;
+        });
+        
+        // Mark this video as viewed
+        setViewedVideoIds(prev => new Set([...prev, newVideo.id]));
+        
+        // Set video and switch view
+        setCurrentVideo(newVideo);
+        setShowQuestion(false);
+        setAvailableVideos(prev => prev - 1);
+        setSwipeEnabled(true);
+      } else {
+        throw new Error("No videos available");
       }
+    } catch (error) {
+      console.error('Error loading video:', error);
+      setError("Couldn't load video: " + error.message);
+      fetchQuestion();
+    } finally {
+      setIsVideoLoading(false);
     }
-    
-    // Get a random video
-    let video = getRandomVideo();
-    console.log("Selected video:", video?.id, video?.title);
-    
-    if (!video) {
-      // Try to refresh videos if none available
-      const refreshedVideos = await YouTubeService.getViralShorts(10);
-      if (refreshedVideos && refreshedVideos.length > 0) {
-        setVideos(refreshedVideos);
-        video = refreshedVideos[0];
-      }
-    }
-    
-    if (video) {
-      setCurrentVideo(video);
-      setShowQuestion(false);
-      setAvailableVideos(prev => prev - 1);
-      setSwipeEnabled(true);
-    } else {
-      throw new Error("No videos available");
-    }
-  } catch (error) {
-    console.error('Error loading video:', error);
-    setError("Couldn't load video: " + error.message);
-    fetchQuestion();
-  } finally {
-    setIsVideoLoading(false);
-  }
-}, [availableVideos, getRandomVideo, fetchQuestion]);
-  // Handle video ending and transitions
-  const handleVideoEnd = useCallback(() => {
-    // Don't automatically transition in tutorial mode - wait for swipe
-    if (!tutorialMode) {
-      setShowQuestion(true);
-    }
-  }, [tutorialMode]);
-  
+  }, [availableVideos, fetchQuestion]);
+
+  // FIXED: Handle video skip - get a different video on next view
   const handleVideoSkip = useCallback(() => {
+    // If we have a current video, mark it as viewed
+    if (currentVideo && currentVideo.id) {
+      setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
+    }
+    
+    // Clear current video to force a refresh next time
+    setCurrentVideo(null);
     setShowQuestion(true);
     
     // In tutorial mode, fetch next question after video
     if (tutorialMode) {
       fetchQuestion();
     }
-  }, [tutorialMode, fetchQuestion]);
+  }, [tutorialMode, fetchQuestion, currentVideo]);
   
+  // Handle video ending
+  const handleVideoEnd = useCallback(() => {
+    // Don't automatically transition in tutorial mode - wait for swipe
+    if (!tutorialMode) {
+      // Mark video as viewed before moving on
+      if (currentVideo && currentVideo.id) {
+        setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
+      }
+      
+      // Clear current video to force a fresh one next time
+      setCurrentVideo(null);
+      setShowQuestion(true);
+    }
+  }, [tutorialMode, currentVideo]);
+  
+  // Handle transition from video to question
   const handleVideoToQuestionTransition = useCallback(() => {
-    // Play transition sound when going from video to question
+    // Play transition sound
     SoundEffects.playTransition();
     
+    // Mark video as viewed
+    if (currentVideo && currentVideo.id) {
+      setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
+    }
+    
+    // Clear current video to force a fresh one next time
+    setCurrentVideo(null);
     setShowQuestion(true);
     
     // In tutorial mode, fetch next question after video
@@ -483,7 +539,7 @@ function App() {
     
     // Reset swipe enabled
     setSwipeEnabled(false);
-  }, [tutorialMode, fetchQuestion]);
+  }, [tutorialMode, fetchQuestion, currentVideo]);
 
   // Navigation handlers
   const handleStart = useCallback(() => {
@@ -805,6 +861,7 @@ function App() {
                 setAvailableVideos(0);
                 setTimeMode(false);
                 setScore(0);
+                setViewedVideoIds(new Set());
                 setError(null);
               },
               onCancel: () => setError(null)
