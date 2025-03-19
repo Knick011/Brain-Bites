@@ -1,5 +1,5 @@
 /**
- * Service for managing YouTube videos
+ * Enhanced service for managing YouTube videos with improved error handling
  */
 class YouTubeService {
   constructor() {
@@ -9,145 +9,166 @@ class YouTubeService {
       shownVideos: new Set()
     };
     this.cacheExpiry = 30 * 60 * 1000; // 30 minutes cache
+    this.isLoading = false;
   }
 
   /**
-   * Get YouTube Shorts videos for the app
+   * Get YouTube Shorts videos for the app with robust error handling
    */
   async getViralShorts(maxResults = 10) {
+    // Prevent concurrent fetches
+    if (this.isLoading) {
+      console.log('Already fetching videos, waiting...');
+      // Wait for current fetch to complete
+      await new Promise(resolve => {
+        const checkInterval = setInterval(() => {
+          if (!this.isLoading) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 100);
+      });
+      
+      // Return cached videos if available after waiting
+      if (this.isValidCache()) {
+        console.log('Using cached videos after waiting for fetch');
+        return this.getUniqueVideosFromCache(maxResults);
+      }
+    }
+
     try {
+      this.isLoading = true;
+      
       // Use cache if valid
       if (this.isValidCache()) {
         console.log('Using cached videos');
         return this.getUniqueVideosFromCache(maxResults);
       }
 
-      console.log('Trying to fetch videos from:');
-      console.log('/youtube-videos.json');
-
-      // Attempt to fetch the file with a longer timeout
+      console.log('Fetching videos from youtube-videos.json');
+      
+      // Add cache buster to prevent browser caching
+      const cacheBuster = `?_=${Date.now()}`;
+      const url = '/youtube-videos.json' + cacheBuster;
+      
+      // Set up timeout handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       
       try {
-        // Add a random query parameter to prevent caching
-        const cacheBuster = `?_=${Date.now()}`;
-        const response = await fetch('/youtube-videos.json' + cacheBuster, {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: { 
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          },
           cache: 'no-store',
-          headers: { 'Accept': 'application/json' },
           signal: controller.signal
         });
         
         clearTimeout(timeoutId);
         
         if (!response.ok) {
-          throw new Error(`Failed to load videos: ${response.status}`);
+          throw new Error(`Failed to fetch videos: HTTP ${response.status}`);
         }
         
-        // Get the text content first to handle potential JSON issues
+        // Get response as text first to handle potential JSON parse errors
         const text = await response.text();
-        console.log('Successfully loaded videos text from JSON file');
         
-        // Parse the JSON with extensive error handling
+        if (!text || text.trim() === '') {
+          throw new Error('Empty response received');
+        }
+        
+        console.log(`Received ${text.length} bytes of data`);
+        console.log('Response preview:', text.substring(0, 100) + '...');
+        
+        // Parse JSON with error handling
         let data;
         try {
-          // Try to parse the JSON directly first
           data = JSON.parse(text);
-          console.log('Successfully parsed JSON directly');
         } catch (parseError) {
-          console.error('Initial JSON parse failed:', parseError);
+          console.error('JSON parse error:', parseError);
           
-          try {
-            // Try to clean the JSON string first
-            const cleanedText = text
-              .replace(/[^\x20-\x7E]/g, '') // Remove non-printable chars
-              .replace(/[\n\r\t]/g, ' ')    // Replace newlines/tabs with spaces
-              .replace(/\s+/g, ' ')         // Normalize multiple spaces
-              .replace(/,\s*([}\]])/g, '$1') // Remove trailing commas
-              .trim();
-              
-            data = JSON.parse(cleanedText);
-            console.log('Successfully parsed JSON after cleaning');
-          } catch (cleanError) {
-            console.error('Cleaned JSON parse failed:', cleanError);
-            
+          // Try to extract videos array from malformed JSON as fallback
+          const matches = text.match(/"videos"\s*:\s*(\[[\s\S]*?\])/);
+          if (matches && matches[1]) {
             try {
-              // Try to extract just the videos array portion
-              const regex = /"videos"\s*:\s*(\[[\s\S]*?\])(?=\s*,|\s*})/;
-              const match = text.match(regex);
-              
-              if (match && match[1]) {
-                const videosArray = JSON.parse(match[1]);
-                data = { videos: videosArray };
-                console.log('Successfully extracted videos array from malformed JSON');
-              } else {
-                throw new Error('Could not extract videos array');
-              }
-            } catch (extractError) {
-              console.error('Failed to extract videos array:', extractError);
-              throw new Error('All JSON parsing methods failed');
+              const videosArray = JSON.parse(matches[1]);
+              data = { videos: videosArray };
+              console.log('Extracted videos array from malformed JSON');
+            } catch (e) {
+              console.error('Failed to extract videos array:', e);
+              throw new Error('Invalid JSON response');
             }
+          } else {
+            throw new Error('Failed to parse response as JSON');
           }
         }
         
-        if (!data || !data.videos || !Array.isArray(data.videos) || data.videos.length === 0) {
-          console.warn('No videos found in response, trying localStorage');
-          // Try localStorage if response doesn't have videos
-          const storedVideos = this.getVideosFromStorage();
-          if (storedVideos.length > 0) {
-            return storedVideos.slice(0, maxResults);
-          }
-          throw new Error('No videos available');
+        // Validate data structure
+        if (!data || !data.videos || !Array.isArray(data.videos)) {
+          throw new Error('Invalid data structure: missing videos array');
         }
         
-        // Validate each video object - less strict validation
+        if (data.videos.length === 0) {
+          console.warn('No videos found in response');
+          return [];
+        }
+        
+        // Validate and filter videos
         const validVideos = data.videos.filter(video => 
           video && 
           typeof video === 'object' && 
           video.id && 
-          video.url && 
-          video.url.includes('youtube.com')
+          (video.url || `https://www.youtube.com/shorts/${video.id}`)
         );
         
+        console.log(`Found ${validVideos.length} valid videos out of ${data.videos.length}`);
+        
         if (validVideos.length === 0) {
-          console.warn('No valid videos in response');
-          throw new Error('No valid videos found');
+          throw new Error('No valid videos in response');
         }
         
-        console.log(`Found ${validVideos.length} valid videos`);
+        // Ensure all videos have a URL
+        const processedVideos = validVideos.map(video => ({
+          ...video,
+          url: video.url || `https://www.youtube.com/shorts/${video.id}`
+        }));
         
-        // Update cache with valid videos
-        this.cache.videos = validVideos;
+        // Update cache
+        this.cache.videos = processedVideos;
         this.cache.lastFetched = Date.now();
         this.cache.shownVideos.clear();
         
-        // Save to localStorage for backup
+        // Save to localStorage as backup
         try {
           localStorage.setItem('youtube_cache', JSON.stringify({
-            videos: validVideos.slice(0, 20), // Store a subset to save space
+            videos: processedVideos.slice(0, 20), // Store a subset
             lastFetched: Date.now()
           }));
         } catch (storageErr) {
-          console.warn('Could not save to localStorage:', storageErr);
+          console.warn('Failed to save to localStorage:', storageErr);
         }
         
-        console.log(`Successfully processed ${validVideos.length} valid videos`);
         return this.getUniqueVideosFromCache(maxResults);
       } catch (fetchError) {
         clearTimeout(timeoutId);
-        console.error('Error fetching videos from JSON file:', fetchError);
+        console.error('Fetch error:', fetchError);
         
-        // Try localStorage if fetch fails
+        // Try localStorage backup
         const storedVideos = this.getVideosFromStorage();
         if (storedVideos.length > 0) {
+          console.log('Using videos from localStorage backup');
           return storedVideos.slice(0, maxResults);
         }
         
-        throw new Error('Failed to load videos');
+        throw fetchError;
       }
     } catch (error) {
       console.error('Error getting videos:', error);
-      throw new Error('Failed to load videos: ' + error.message);
+      return []; // Return empty array instead of throwing
+    } finally {
+      this.isLoading = false;
     }
   }
   
@@ -160,7 +181,7 @@ class YouTubeService {
       if (storedCache) {
         const parsedCache = JSON.parse(storedCache);
         if (parsedCache.videos && parsedCache.videos.length > 0) {
-          console.log('Using videos from localStorage');
+          console.log('Loading videos from localStorage');
           this.cache.videos = parsedCache.videos;
           this.cache.lastFetched = parsedCache.lastFetched;
           return this.cache.videos;
@@ -189,36 +210,34 @@ class YouTubeService {
    * Get unique videos from cache
    */
   getUniqueVideosFromCache(count) {
-    // Ensure we have videos in cache before proceeding
+    // Ensure we have videos in cache
     if (!this.cache.videos || this.cache.videos.length === 0) {
       console.warn('No videos in cache');
       return [];
     }
 
-    // Additional validation - make sure all videos have IDs
-    const validVideos = this.cache.videos.filter(video => video && video.id);
-    if (validVideos.length < this.cache.videos.length) {
-      console.warn(`Filtered out ${this.cache.videos.length - validVideos.length} invalid videos`);
-      this.cache.videos = validVideos;
+    // Validate videos
+    const validVideos = this.cache.videos.filter(video => 
+      video && typeof video === 'object' && video.id
+    );
+    
+    if (validVideos.length === 0) {
+      console.warn('No valid videos in cache');
+      return [];
     }
     
-    // Filter out videos that have already been shown
-    const availableVideos = this.cache.videos.filter(video => 
+    // Filter out shown videos
+    const availableVideos = validVideos.filter(video => 
       !this.cache.shownVideos.has(video.id)
     );
     
-    console.log(`Found ${availableVideos.length} available videos that haven't been shown yet`);
-    
-    // If we don't have enough videos, reset the shown videos tracker
+    // If we don't have enough videos, reset shown videos
     if (availableVideos.length < count) {
-      console.log('Not enough videos available, resetting shown videos cache');
+      console.log('Resetting shown videos cache');
       this.cache.shownVideos.clear();
-      
-      // Return random videos from the full cache
-      return this.getRandomVideos(this.cache.videos, count);
+      return this.getRandomVideos(validVideos, count);
     }
     
-    // Get random videos from available ones
     return this.getRandomVideos(availableVideos, count);
   }
   
@@ -226,39 +245,23 @@ class YouTubeService {
    * Select random videos from an array
    */
   getRandomVideos(videoArray, count) {
-    const results = [];
-    
-    // First validate and ensure we have a usable array
     if (!videoArray || !Array.isArray(videoArray) || videoArray.length === 0) {
-      console.error('Invalid or empty video array provided to getRandomVideos');
-      return results;
+      return [];
     }
     
-    // Make a defensive copy of the array and filter out invalid videos
-    const validVideos = videoArray.filter(video => video && video.id && typeof video.id === 'string');
+    const results = [];
+    const available = [...videoArray];
     
-    if (validVideos.length === 0) {
-      console.error('No valid videos found in provided array');
-      return results;
-    }
-    
-    console.log(`Found ${validVideos.length} valid videos out of ${videoArray.length} total`);
-    const tempAvailable = [...validVideos];
-    
-    while (results.length < count && tempAvailable.length > 0) {
-      const randomIndex = Math.floor(Math.random() * tempAvailable.length);
-      const video = tempAvailable[randomIndex];
-      
-      tempAvailable.splice(randomIndex, 1);
+    while (results.length < count && available.length > 0) {
+      const randomIndex = Math.floor(Math.random() * available.length);
+      const video = available.splice(randomIndex, 1)[0];
       
       if (video && video.id) {
         this.cache.shownVideos.add(video.id);
         results.push(video);
-        console.log(`Added video ID ${video.id} to results (${results.length}/${count})`);
       }
     }
     
-    console.log(`Returning ${results.length} random videos`);
     return results;
   }
 
@@ -270,7 +273,6 @@ class YouTubeService {
     this.cache.lastFetched = null;
     this.cache.shownVideos.clear();
     localStorage.removeItem('youtube_cache');
-    console.log('Cache cleared');
   }
 }
 
