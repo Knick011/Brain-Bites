@@ -11,7 +11,7 @@ const QuestionCard = ({
   onSelectAnswer,
   tutorialMode = false,
   onExplanationShow,
-  onExplanationContinue // Add this prop
+  onExplanationContinue
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -117,6 +117,12 @@ const QuestionCard = ({
     // Stop the timer
     setTimerActive(false);
     
+    // Check if the answer is correct - add explicit logging
+    const isCorrect = option === question.correctAnswer;
+    console.log("Selected answer:", option);
+    console.log("Correct answer:", question.correctAnswer);
+    console.log("Is correct?", isCorrect);
+    
     setSelectedAnswer(option);
     if (onSelectAnswer) onSelectAnswer(option);
     
@@ -125,7 +131,7 @@ const QuestionCard = ({
       setShowExplanation(true);
       
       // Play appropriate sound based on answer correctness
-      if (option === question.correctAnswer) {
+      if (isCorrect) {
         SoundEffects.playCorrect();
       } else {
         SoundEffects.playIncorrect();
@@ -133,10 +139,16 @@ const QuestionCard = ({
     }, 300);
   };
 
-  // Handle continue from explanation - UPDATED TO PASS TO PARENT
+  // Handle continue from explanation - UPDATED TO PROPERLY CHECK CORRECTNESS
   const handleContinue = () => {
     console.log("Handle continue triggered in QuestionCard");
     setShowExplanation(false);
+    
+    // Directly check if answer was correct
+    const isCorrect = selectedAnswer === question.correctAnswer;
+    console.log("Answer submitted from QuestionCard:", selectedAnswer);
+    console.log("Correct answer:", question.correctAnswer);
+    console.log("Is correct?", isCorrect);
     
     // Play transition sound
     SoundEffects.playTransition();
@@ -145,8 +157,8 @@ const QuestionCard = ({
       // Call the parent's continuation function
       onExplanationContinue();
     } else {
-      // Fallback to original behavior
-      onAnswerSubmit(selectedAnswer === question.correctAnswer, 10 - answerTime);
+      // Explicitly pass the isCorrect value to the parent
+      onAnswerSubmit(isCorrect, 10 - answerTime);
     }
   };
 
