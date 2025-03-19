@@ -286,8 +286,10 @@ function App() {
     return unwatchedVideos[randomIndex];
   }, [videos, viewedVideoIds]);
 
-  // Handle answer submission with time-based scoring
+  // FIXED: Handle answer submission with time-based scoring
   const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
+    console.log("Answer submitted! Is correct:", isCorrect);
+    
     // Enable swiping after answering in tutorial mode
     if (tutorialMode) {
       setSwipeEnabled(true);
@@ -296,16 +298,18 @@ function App() {
     // Save the answer time for points calculation
     setAnswerTime(answerTimeValue);
     
-    if (isCorrect) {
-      // FIXED: Use function updater to ensure latest value and perform exit check inside
+    // Ensure we're properly checking the boolean value
+    if (isCorrect === true) {
+      console.log("CORRECT ANSWER DETECTED!");
+      
+      // Update correct answers count with explicit function updater
       setCorrectAnswers(prevCorrect => {
         const newCorrectAnswers = prevCorrect + 1;
-        console.log(`Correct answers: ${newCorrectAnswers}/5`);
+        console.log(`Correct answers updated: ${prevCorrect} → ${newCorrectAnswers}`);
         
-        // Exit tutorial mode after 5 correct answers
+        // Exit tutorial mode check
         if (tutorialMode && newCorrectAnswers >= 5) {
-          console.log("Tutorial completed! Exiting tutorial mode");
-          // Use setTimeout to ensure state updates have time to propagate
+          console.log("🎉 Tutorial complete! Exiting tutorial mode");
           setTimeout(() => {
             setTutorialMode(false);
             setShowGameModePopup(true);
@@ -317,6 +321,13 @@ function App() {
         }
         
         return newCorrectAnswers;
+      });
+      
+      // Update streak with function updater too
+      setStreak(prevStreak => {
+        const newStreak = prevStreak + 1;
+        console.log(`Streak updated: ${prevStreak} → ${newStreak}`);
+        return newStreak;
       });
       
       // Calculate time-based score if in time mode
@@ -340,13 +351,10 @@ function App() {
         setScore(prevScore => prevScore + finalScore);
       }
       
-      // Update streak
-      const newStreak = streak + 1;
-      setStreak(newStreak);
-      
       // Check for milestone achievements (every 5)
-      if (newStreak > 0 && newStreak % 5 === 0 && !tutorialMode) {
-        setCurrentMilestone(newStreak);
+      if (streak > 0 && (streak + 1) % 5 === 0 && !tutorialMode) {
+        const milestone = streak + 1;
+        setCurrentMilestone(milestone);
         setShowMilestone(true);
         setAvailableVideos(prev => prev + 1); // Bonus video for milestone
         if (SoundEffects.playStreak) {
@@ -368,7 +376,7 @@ function App() {
         }
       } else {
         // Game mode reward logic
-        if (newStreak % 2 === 0) {
+        if ((streak + 1) % 2 === 0) {
           // Standard reward: 1 video every 2 questions
           setAvailableVideos(prev => prev + 1);
         }
@@ -379,6 +387,7 @@ function App() {
         }, 1500);
       }
     } else {
+      console.log("Incorrect answer received");
       setStreak(0);
       
       // Fetch a new question after a delay
@@ -388,34 +397,26 @@ function App() {
     }
   }, [fetchQuestion, getRandomVideo, streak, timeMode, tutorialMode]);
 
-  // FIXED: Handle explanation continue
+  // SIMPLIFIED: Handle explanation continue to avoid conflicts with answer handling
   const handleExplanationContinue = useCallback(() => {
-    console.log("Handling explanation continue...");
-    console.log("Tutorial mode:", tutorialMode);
-    console.log("Correct answers:", correctAnswers);
+    console.log("Explanation continue handler triggered");
     
-    if (tutorialMode && selectedAnswer) {
-      // Check if the answer was correct
+    if (tutorialMode) {
+      // In tutorial mode, decide whether to show video or next question
+      // (the correctness check was already handled in QuestionCard)
       const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
       
       if (isCorrect) {
-        // For correct answers in tutorial mode, verify we have a valid video
+        // For correct answers in tutorial mode, show video
         if (!currentVideo) {
           console.log("No video available, getting one now");
           const videoToPlay = getRandomVideo();
           
           if (videoToPlay) {
-            // Set the video and then transition
             setCurrentVideo(videoToPlay);
-            // Mark as viewed
             setViewedVideoIds(prev => new Set([...prev, videoToPlay.id]));
-            
-            // Small delay to ensure state updates before transition
-            setTimeout(() => {
-              setShowQuestion(false);
-            }, 50);
+            setTimeout(() => setShowQuestion(false), 50);
           } else {
-            // No videos available, stay on question view and show error
             console.error("No videos available to play");
             setError("Couldn't load a video reward. Try again later.");
             fetchQuestion();
@@ -428,22 +429,18 @@ function App() {
         // For incorrect answers in tutorial mode, fetch next question
         fetchQuestion();
       }
-      
-      // Reset explanation visibility
-      setExplanationVisible(false);
-      setSwipeEnabled(false);
     } else {
       // Non-tutorial mode behavior
       console.log("In normal mode, fetching next question");
       fetchQuestion();
-      
-      // Reset states
-      setExplanationVisible(false);
-      setSwipeEnabled(false);
     }
-  }, [tutorialMode, selectedAnswer, currentQuestion, currentVideo, fetchQuestion, getRandomVideo, correctAnswers]);
+    
+    // Reset states
+    setExplanationVisible(false);
+    setSwipeEnabled(false);
+  }, [tutorialMode, selectedAnswer, currentQuestion, currentVideo, fetchQuestion, getRandomVideo]);
 
-  // FIXED: Watch a video from rewards - always get a fresh video
+  // Watch a video from rewards - always get a fresh video
   const watchVideo = useCallback(async () => {
     if (availableVideos <= 0) return;
     
@@ -507,7 +504,7 @@ function App() {
     }
   }, [availableVideos, fetchQuestion, viewedVideoIds]);
 
-  // FIXED: Handle video skip - get a different video on next view
+  // Handle video skip - get a different video on next view
   const handleVideoSkip = useCallback(() => {
     // If we have a current video, mark it as viewed
     if (currentVideo && currentVideo.id) {
@@ -660,7 +657,7 @@ function App() {
     }
   }, [error]);
 
-  // FIXED: Performance optimization to fix forced reflow
+  // Performance optimization to fix forced reflow
   useEffect(() => {
     if (contentRef.current && swipeEnabled) {
       // Read layout properties first
@@ -879,7 +876,7 @@ function App() {
         </div>
       )}
       
-      {/* ADDED: Debug panel to track tutorial mode issues */}
+      {/* Debug panel to track tutorial mode issues */}
       <div className="fixed bottom-4 left-4 bg-black bg-opacity-60 text-white text-xs p-2 rounded z-50 max-w-xs">
         <div>Tutorial: {tutorialMode ? 'ON' : 'OFF'}</div>
         <div>Correct: {correctAnswers}/5</div>
