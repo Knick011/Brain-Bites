@@ -1,29 +1,57 @@
 // VideoCard.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactPlayer from 'react-player/youtube';
 
 const VideoCard = ({ url, onEnd, onSkip }) => {
-  // Get the video URL - if url is an object, use url.url, otherwise use the string
-  const videoUrl = typeof url === 'object' ? url.url : url;
+  // Debug logging
+  useEffect(() => {
+    console.log('Video data received:', url);
+  }, [url]);
 
-  // Handle keyboard navigation
-  React.useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowDown' && onSkip) {
-        e.preventDefault();
-        onSkip();
+  // Safely get video URL
+  const getVideoUrl = () => {
+    // Log the incoming data
+    console.log('Processing URL:', url);
+    
+    try {
+      // If it's null/undefined, throw error
+      if (!url) {
+        throw new Error('No URL provided');
       }
-    };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onSkip]);
+      // If it's an object with url property
+      if (typeof url === 'object') {
+        console.log('URL is an object:', url);
+        if (!url.url) {
+          throw new Error('No URL in object');
+        }
+        return url.url;
+      }
 
+      // If it's a string
+      if (typeof url === 'string') {
+        console.log('URL is a string:', url);
+        return url;
+      }
+
+      throw new Error('Invalid URL format');
+    } catch (error) {
+      console.error('Error processing video URL:', error);
+      return null;
+    }
+  };
+
+  const videoUrl = getVideoUrl();
+  console.log('Final video URL:', videoUrl);
+
+  // If no valid URL, show error state
   if (!videoUrl) {
+    console.log('No valid URL, showing error state');
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black">
         <div className="text-center text-white">
           <p className="mb-4">Unable to load video</p>
+          <p className="mb-4 text-sm text-gray-400">Received data: {JSON.stringify(url)}</p>
           <button
             onClick={onSkip}
             className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg"
@@ -45,8 +73,15 @@ const VideoCard = ({ url, onEnd, onSkip }) => {
             height="100%"
             playing
             controls
-            onEnded={onEnd}
-            onError={onSkip}
+            onEnded={() => {
+              console.log('Video ended');
+              if (onEnd) onEnd();
+            }}
+            onError={(error) => {
+              console.error('Video playback error:', error);
+              if (onSkip) onSkip();
+            }}
+            onReady={() => console.log('Player ready')}
             config={{
               youtube: {
                 playerVars: {
