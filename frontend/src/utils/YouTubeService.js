@@ -10,6 +10,7 @@ class YouTubeService {
     };
     this.cacheExpiry = 30 * 60 * 1000; // 30 minutes cache
     this.isLoading = false;
+    this.lastVideoId = null; // Track last played video to avoid repetition
   }
 
   /**
@@ -39,8 +40,8 @@ class YouTubeService {
     try {
       this.isLoading = true;
       
-      // Use cache if valid
-      if (this.isValidCache()) {
+      // Use cache if valid and we have enough videos
+      if (this.isValidCache() && this.cache.videos.length >= maxResults * 2) {
         console.log('Using cached videos');
         return this.getUniqueVideosFromCache(maxResults);
       }
@@ -115,6 +116,9 @@ class YouTubeService {
           return [];
         }
         
+        // Log sample of videos for debugging
+        console.log('Video data sample:', data.videos.slice(0, 3));
+        
         // Validate and filter videos
         const validVideos = data.videos.filter(video => 
           video && 
@@ -138,7 +142,14 @@ class YouTubeService {
         // Update cache
         this.cache.videos = processedVideos;
         this.cache.lastFetched = Date.now();
-        this.cache.shownVideos.clear();
+        
+        // Reset shown videos to avoid getting stuck with the same videos
+        // Only keep track of the last video played to avoid immediate repetition
+        if (this.lastVideoId) {
+          this.cache.shownVideos = new Set([this.lastVideoId]);
+        } else {
+          this.cache.shownVideos.clear();
+        }
         
         // Save to localStorage as backup
         try {
@@ -198,12 +209,16 @@ class YouTubeService {
    * Check if cache is still valid
    */
   isValidCache() {
-    return (
-      this.cache.lastFetched && 
-      this.cache.videos.length > 0 && 
-      (Date.now() - this.cache.lastFetched) < this.cacheExpiry &&
-      this.cache.videos.length > this.cache.shownVideos.size
-    );
+    const hasValidVideos = this.cache.lastFetched && 
+                          this.cache.videos.length > 0 && 
+                          (Date.now() - this.cache.lastFetched) < this.cacheExpiry;
+    
+    const hasUnshownVideos = this.cache.videos.length > this.cache.shownVideos.size;
+    
+    console.log(`Cache validity: hasValidVideos=${hasValidVideos}, hasUnshownVideos=${hasUnshownVideos}`);
+    console.log(`Total videos: ${this.cache.videos.length}, Shown videos: ${this.cache.shownVideos.size}`);
+    
+    return hasValidVideos && hasUnshownVideos;
   }
 
   /**
@@ -226,16 +241,33 @@ class YouTubeService {
       return [];
     }
     
+    console.log(`Valid videos: ${validVideos.length}, Shown videos: ${this.cache.shownVideos.size}`);
+    
     // Filter out shown videos
     const availableVideos = validVideos.filter(video => 
       !this.cache.shownVideos.has(video.id)
     );
     
-    // If we don't have enough videos, reset shown videos
-    if (availableVideos.length < count) {
-      console.log('Resetting shown videos cache');
+    console.log(`Available videos after filtering shown: ${availableVideos.length}`);
+    
+    // If we don't have enough videos or if we've shown too many, reset (except last video)
+    if (availableVideos.length < count || this.cache.shownVideos.size > validVideos.length * 0.7) {
+      console.log('Resetting shown videos cache to increase variety');
+      
+      // Keep only the last video ID to avoid immediate repetition
+      const lastVideoId = this.lastVideoId;
       this.cache.shownVideos.clear();
-      return this.getRandomVideos(validVideos, count);
+      
+      if (lastVideoId) {
+        this.cache.shownVideos.add(lastVideoId);
+      }
+      
+      // Get from all valid videos except the last one shown
+      const refreshedAvailable = validVideos.filter(video => 
+        video.id !== lastVideoId
+      );
+      
+      return this.getRandomVideos(refreshedAvailable, count);
     }
     
     return this.getRandomVideos(availableVideos, count);
@@ -246,8 +278,11 @@ class YouTubeService {
    */
   getRandomVideos(videoArray, count) {
     if (!videoArray || !Array.isArray(videoArray) || videoArray.length === 0) {
+      console.warn('No videos available to select from');
       return [];
     }
+    
+    console.log(`Selecting from ${videoArray.length} videos`);
     
     const results = [];
     const available = [...videoArray];
@@ -257,11 +292,15 @@ class YouTubeService {
       const video = available.splice(randomIndex, 1)[0];
       
       if (video && video.id) {
+        // Log the selected video
+        console.log(`Selected video: ${video.id} (${video.title || 'Untitled'})`);
         this.cache.shownVideos.add(video.id);
+        this.lastVideoId = video.id; // Remember this as the last video
         results.push(video);
       }
     }
     
+    console.log(`Returning ${results.length} videos`);
     return results;
   }
 
@@ -272,7 +311,9 @@ class YouTubeService {
     this.cache.videos = [];
     this.cache.lastFetched = null;
     this.cache.shownVideos.clear();
+    this.lastVideoId = null;
     localStorage.removeItem('youtube_cache');
+    console.log('Video cache cleared');
   }
 }
 
