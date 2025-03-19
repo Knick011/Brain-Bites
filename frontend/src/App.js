@@ -382,20 +382,34 @@ function App() {
       
       // Get a random video
       let video = getRandomVideo();
-      console.log("Random video selected:", video);
+      console.log("video selected:", video);
       
       // If no video is available, try refreshing the videos
-      if (!video) {
-        console.log("No videos available, attempting to refresh...");
-        const refreshedVideos = await YouTubeService.getViralShorts(10);
-        console.log(`Retrieved ${refreshedVideos?.length || 0} videos from service`);
+       if (!video || !video.id) {
+      // Try to refresh the video list
+      const refreshedVideos = await YouTubeService.getViralShorts(10);
+      console.log("Got refreshed videos:", refreshedVideos.length);
         
-        if (refreshedVideos && refreshedVideos.length > 0) {
-          setVideos(refreshedVideos);
-          video = refreshedVideos[0];
-          console.log("Using first video from refreshed list:", video);
+       if (refreshedVideos && refreshedVideos.length > 0) {
+        setVideos(refreshedVideos);
+        video = refreshedVideos[0];
+      } else {
+        throw new Error("No videos available");
         }
       }
+    setCurrentVideo(video);
+    setShowQuestion(false);
+    setAvailableVideos(prev => prev - 1);
+  } catch (error) {
+    console.error("Video error:", error);
+    setError("Couldn't load video: " + error.message);
+    fetchQuestion(); // Fall back to a question
+  } finally {
+    setIsVideoLoading(false);
+  }
+}, [availableVideos, getRandomVideo, fetchQuestion]);
+
+
       
       if (video && (video.id || (typeof video === 'string' && video.includes('youtube')))) {
         console.log("Setting current video and showing video player:", video);
