@@ -264,8 +264,22 @@ function App() {
   const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
     // Enable swiping after answering in tutorial mode
     if (tutorialMode) {
-      setSwipeEnabled(true);
-    }
+      const videoToPlay = getRandomVideo();
+  
+  if (videoToPlay) {
+    console.log("Setting current video:", videoToPlay); // Add logging
+    setCurrentVideo(videoToPlay);
+  } else {
+    console.error("Failed to get a random video");
+    // Load videos directly as fallback
+    YouTubeService.getViralShorts(5).then(videos => {
+      if (videos && videos.length > 0) {
+        console.log("Setting fallback video");
+        setCurrentVideo(videos[0]);
+      }
+    });
+  }
+}
     
     // Save the answer time for points calculation
     setAnswerTime(answerTimeValue);
@@ -352,27 +366,46 @@ function App() {
   }, [correctAnswers, fetchQuestion, getRandomVideo, streak, timeMode, tutorialMode]);
 
   // Handle explanation continue
-  const handleExplanationContinue = useCallback(() => {
-    console.log("Handling explanation continue...");
+ const handleExplanationContinue = useCallback(() => {
+  console.log("Handling explanation continue...");
+  
+  if (tutorialMode && selectedAnswer) {
+    // Check if the answer was correct
+    const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
     
-    if (tutorialMode && selectedAnswer) {
-      // Check if the answer was correct
-      const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
-      
-      if (isCorrect) {
-        // For correct answers in tutorial mode, transition to video
-        setShowQuestion(false);
+    if (isCorrect) {
+      // CRITICAL FIX: Verify we have a valid video before transitioning
+      if (!currentVideo) {
+        console.log("No video available, getting one now");
+        const videoToPlay = getRandomVideo();
+        
+        if (videoToPlay) {
+          // Set the video and then transition
+          setCurrentVideo(videoToPlay);
+          // Small delay to ensure state updates before transition
+          setTimeout(() => {
+            setShowQuestion(false);
+          }, 50);
+        } else {
+          // No videos available, stay on question view and show error
+          console.error("No videos available to play");
+          setError("Couldn't load a video reward. Try again later.");
+          fetchQuestion();
+        }
       } else {
-        // For incorrect answers in tutorial mode, fetch next question
-        fetchQuestion();
+        // We already have a video, safe to transition
+        setShowQuestion(false);
       }
-      
-      // Reset explanation visibility
-      setExplanationVisible(false);
-      setSwipeEnabled(false);
+    } else {
+      // For incorrect answers in tutorial mode, fetch next question
+      fetchQuestion();
     }
-  }, [tutorialMode, selectedAnswer, currentQuestion, fetchQuestion]);
-
+    
+    // Reset explanation visibility
+    setExplanationVisible(false);
+    setSwipeEnabled(false);
+  }
+}, [tutorialMode, selectedAnswer, currentQuestion, currentVideo, fetchQuestion, getRandomVideo]);
   // Watch a video from rewards - improved error handling
   const watchVideo = useCallback(async () => {
  if (availableVideos <= 0) return;
