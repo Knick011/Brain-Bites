@@ -1,5 +1,5 @@
 // Fully fixed App.js with non-repeating videos
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
 import InitialWelcome from './components/VQLN/Welcome/InitialWelcome';
@@ -59,6 +59,9 @@ function App() {
   const [pointsEarned, setPointsEarned] = useState(0);
   const [swipeEnabled, setSwipeEnabled] = useState(false);
   const [explanationVisible, setExplanationVisible] = useState(false);
+
+  // Refs for performance optimization
+  const contentRef = useRef(null);
 
   // Define tutorial steps
   const tutorialSteps = [
@@ -284,192 +287,162 @@ function App() {
   }, [videos, viewedVideoIds]);
 
   // Handle answer submission with time-based scoring
-// The issue is in the handleAnswerSubmit function
-// Here's the updated section of the code:
-
-const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
-  // Enable swiping after answering in tutorial mode
-  if (tutorialMode) {
-    setSwipeEnabled(true);
-  }
-  
-  // Save the answer time for points calculation
-  setAnswerTime(answerTimeValue);
-  
-  if (isCorrect) {
-    // Update correct answers count
-    const newCorrectAnswers = correctAnswers + 1;
-    setCorrectAnswers(newCorrectAnswers);
-    console.log(`Correct answer! Total: ${newCorrectAnswers} out of 5 needed`);
-    
-    // Calculate time-based score if in time mode
-    if (timeMode) {
-      // Default time score if not provided
-      const timeScore = (answerTimeValue !== null) 
-        ? Math.max(20, Math.floor(100 - (answerTimeValue * 9)))
-        : 50;
-      
-      // Apply time multiplier for faster answers
-      const timeRatio = answerTimeValue !== null ? 1 - (answerTimeValue / 10) : 0.5;
-      const timeMultiplier = 1 + timeRatio; // 1.0 to 2.0 multiplier
-      const finalScore = Math.floor(timeScore * timeMultiplier);
-      
-      // Show points animation
-      setPointsEarned(finalScore);
-      setShowPointsAnimation(true);
-      setTimeout(() => setShowPointsAnimation(false), 1500);
-      
-      // Update total score
-      setScore(prevScore => prevScore + finalScore);
-    }
-    
-    // Update streak
-    const newStreak = streak + 1;
-    setStreak(newStreak);
-    
-    // Check for milestone achievements (every 5)
-    if (newStreak > 0 && newStreak % 5 === 0 && !tutorialMode) {
-      setCurrentMilestone(newStreak);
-      setShowMilestone(true);
-      setAvailableVideos(prev => prev + 1); // Bonus video for milestone
-      if (SoundEffects.playStreak) {
-        SoundEffects.playStreak();
-      }
-    }
-    
-    // Tutorial mode - prepare the video but don't show it automatically
+  const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
+    // Enable swiping after answering in tutorial mode
     if (tutorialMode) {
-      // Get a random video
-      const videoToPlay = getRandomVideo();
-      
-      if (videoToPlay) {
-        console.log("Setting current video in tutorial mode:", videoToPlay.id);
-        setCurrentVideo(videoToPlay);
+      setSwipeEnabled(true);
+    }
+    
+    // Save the answer time for points calculation
+    setAnswerTime(answerTimeValue);
+    
+    if (isCorrect) {
+      // FIXED: Use function updater to ensure latest value and perform exit check inside
+      setCorrectAnswers(prevCorrect => {
+        const newCorrectAnswers = prevCorrect + 1;
+        console.log(`Correct answers: ${newCorrectAnswers}/5`);
         
-        // Mark as viewed
-        setViewedVideoIds(prev => new Set([...prev, videoToPlay.id]));
+        // Exit tutorial mode after 5 correct answers
+        if (tutorialMode && newCorrectAnswers >= 5) {
+          console.log("Tutorial completed! Exiting tutorial mode");
+          // Use setTimeout to ensure state updates have time to propagate
+          setTimeout(() => {
+            setTutorialMode(false);
+            setShowGameModePopup(true);
+            setTimeout(() => {
+              setTimeMode(true);
+              console.log("Time mode activated!");
+            }, 1000);
+          }, 500);
+        }
+        
+        return newCorrectAnswers;
+      });
+      
+      // Calculate time-based score if in time mode
+      if (timeMode) {
+        // Default time score if not provided
+        const timeScore = (answerTimeValue !== null) 
+          ? Math.max(20, Math.floor(100 - (answerTimeValue * 9)))
+          : 50;
+        
+        // Apply time multiplier for faster answers
+        const timeRatio = answerTimeValue !== null ? 1 - (answerTimeValue / 10) : 0.5;
+        const timeMultiplier = 1 + timeRatio; // 1.0 to 2.0 multiplier
+        const finalScore = Math.floor(timeScore * timeMultiplier);
+        
+        // Show points animation
+        setPointsEarned(finalScore);
+        setShowPointsAnimation(true);
+        setTimeout(() => setShowPointsAnimation(false), 1500);
+        
+        // Update total score
+        setScore(prevScore => prevScore + finalScore);
       }
       
-      // Exit tutorial mode after 5 correct answers
-      // FIX: Use the updated newCorrectAnswers value instead of correctAnswers + 1
-      // FIX: Also ensure we're using >= 5 to exit after exactly 5 correct answers
-      console.log(`Checking tutorial exit: ${newCorrectAnswers} >= 5`);
-      if (newCorrectAnswers >= 5) {
-        console.log("Exiting tutorial mode!");
-        // Immediately exit tutorial mode
-        setTutorialMode(false);
-        // Show game mode popup
-        setShowGameModePopup(true);
-        // Enable time mode after a short delay
+      // Update streak
+      const newStreak = streak + 1;
+      setStreak(newStreak);
+      
+      // Check for milestone achievements (every 5)
+      if (newStreak > 0 && newStreak % 5 === 0 && !tutorialMode) {
+        setCurrentMilestone(newStreak);
+        setShowMilestone(true);
+        setAvailableVideos(prev => prev + 1); // Bonus video for milestone
+        if (SoundEffects.playStreak) {
+          SoundEffects.playStreak();
+        }
+      }
+      
+      // Tutorial mode - prepare the video but don't show it automatically
+      if (tutorialMode) {
+        // Get a random video
+        const videoToPlay = getRandomVideo();
+        
+        if (videoToPlay) {
+          console.log("Setting current video in tutorial mode:", videoToPlay.id);
+          setCurrentVideo(videoToPlay);
+          
+          // Mark as viewed
+          setViewedVideoIds(prev => new Set([...prev, videoToPlay.id]));
+        }
+      } else {
+        // Game mode reward logic
+        if (newStreak % 2 === 0) {
+          // Standard reward: 1 video every 2 questions
+          setAvailableVideos(prev => prev + 1);
+        }
+        
+        // In non-tutorial mode, fetch next question automatically after delay
         setTimeout(() => {
-          setTimeMode(true);
-          console.log("Time mode activated!");
-        }, 3000);
+          fetchQuestion();
+        }, 1500);
       }
     } else {
-      // Game mode reward logic
-      if (newStreak % 2 === 0) {
-        // Standard reward: 1 video every 2 questions
-        setAvailableVideos(prev => prev + 1);
-      }
+      setStreak(0);
       
-      // In non-tutorial mode, fetch next question automatically after delay
+      // Fetch a new question after a delay
       setTimeout(() => {
         fetchQuestion();
       }, 1500);
     }
-  } else {
-    setStreak(0);
-    
-    // Fetch a new question after a delay
-    setTimeout(() => {
-      fetchQuestion();
-    }, 1500);
-  }
-}, [correctAnswers, fetchQuestion, getRandomVideo, streak, timeMode, tutorialMode]);
+  }, [fetchQuestion, getRandomVideo, streak, timeMode, tutorialMode]);
 
-// The fix also requires updating the handleExplanationContinue function to ensure
-// tutorial mode progresses correctly:
-
-const handleExplanationContinue = useCallback(() => {
-  console.log("Handling explanation continue...");
-  
-  if (tutorialMode && selectedAnswer) {
-    // Check if the answer was correct
-    const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
+  // FIXED: Handle explanation continue
+  const handleExplanationContinue = useCallback(() => {
+    console.log("Handling explanation continue...");
+    console.log("Tutorial mode:", tutorialMode);
+    console.log("Correct answers:", correctAnswers);
     
-    if (isCorrect) {
-      // For correct answers in tutorial mode, verify we have a valid video
-      if (!currentVideo) {
-        console.log("No video available, getting one now");
-        const videoToPlay = getRandomVideo();
-        
-        if (videoToPlay) {
-          // Set the video and then transition
-          setCurrentVideo(videoToPlay);
-          // Mark as viewed
-          setViewedVideoIds(prev => new Set([...prev, videoToPlay.id]));
+    if (tutorialMode && selectedAnswer) {
+      // Check if the answer was correct
+      const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
+      
+      if (isCorrect) {
+        // For correct answers in tutorial mode, verify we have a valid video
+        if (!currentVideo) {
+          console.log("No video available, getting one now");
+          const videoToPlay = getRandomVideo();
           
-          // Small delay to ensure state updates before transition
-          setTimeout(() => {
-            setShowQuestion(false);
-          }, 50);
+          if (videoToPlay) {
+            // Set the video and then transition
+            setCurrentVideo(videoToPlay);
+            // Mark as viewed
+            setViewedVideoIds(prev => new Set([...prev, videoToPlay.id]));
+            
+            // Small delay to ensure state updates before transition
+            setTimeout(() => {
+              setShowQuestion(false);
+            }, 50);
+          } else {
+            // No videos available, stay on question view and show error
+            console.error("No videos available to play");
+            setError("Couldn't load a video reward. Try again later.");
+            fetchQuestion();
+          }
         } else {
-          // No videos available, stay on question view and show error
-          console.error("No videos available to play");
-          setError("Couldn't load a video reward. Try again later.");
-          fetchQuestion();
+          // We already have a video, safe to transition
+          setShowQuestion(false);
         }
       } else {
-        // We already have a video, safe to transition
-        setShowQuestion(false);
+        // For incorrect answers in tutorial mode, fetch next question
+        fetchQuestion();
       }
+      
+      // Reset explanation visibility
+      setExplanationVisible(false);
+      setSwipeEnabled(false);
     } else {
-      // For incorrect answers in tutorial mode, fetch next question
+      // Non-tutorial mode behavior
+      console.log("In normal mode, fetching next question");
       fetchQuestion();
+      
+      // Reset states
+      setExplanationVisible(false);
+      setSwipeEnabled(false);
     }
-    
-    // Reset explanation visibility
-    setExplanationVisible(false);
-    setSwipeEnabled(false);
-  } else if (!tutorialMode) {
-    // Ensure we continue with the game flow in non-tutorial mode
-    // This is important when transitioning from tutorial to game mode
-    fetchQuestion();
-  }
-}, [tutorialMode, selectedAnswer, currentQuestion, currentVideo, fetchQuestion, getRandomVideo]);
+  }, [tutorialMode, selectedAnswer, currentQuestion, currentVideo, fetchQuestion, getRandomVideo, correctAnswers]);
 
-// Also, for debugging and to ensure the app doesn't get stuck, add a reset button
-// that's always visible (not just in development mode):
-
-{/* Debug/Reset button - always visible */}
-<button
-  onClick={() => {
-    setError({
-      message: 'Reset the application state?',
-      isConfirm: true,
-      onConfirm: () => {
-        setShowWelcome(true);
-        setShowSection(false);
-        setSelectedSection(null);
-        setCurrentQuestion(null);
-        setTutorialMode(true);
-        setQuestionsAnswered(0);
-        setCorrectAnswers(0);
-        setStreak(0);
-        setAvailableVideos(0);
-        setTimeMode(false);
-        setScore(0);
-        setViewedVideoIds(new Set());
-        setError(null);
-      },
-      onCancel: () => setError(null)
-    });
-  }}
-  className="fixed bottom-4 right-4 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-70 hover:opacity-100 z-50"
->
-  Reset
-</button>
   // FIXED: Watch a video from rewards - always get a fresh video
   const watchVideo = useCallback(async () => {
     if (availableVideos <= 0) return;
@@ -532,7 +505,7 @@ const handleExplanationContinue = useCallback(() => {
     } finally {
       setIsVideoLoading(false);
     }
-  }, [availableVideos, fetchQuestion]);
+  }, [availableVideos, fetchQuestion, viewedVideoIds]);
 
   // FIXED: Handle video skip - get a different video on next view
   const handleVideoSkip = useCallback(() => {
@@ -687,6 +660,22 @@ const handleExplanationContinue = useCallback(() => {
     }
   }, [error]);
 
+  // FIXED: Performance optimization to fix forced reflow
+  useEffect(() => {
+    if (contentRef.current && swipeEnabled) {
+      // Read layout properties first
+      const width = contentRef.current.offsetWidth;
+      const height = contentRef.current.offsetHeight;
+      
+      // Then batch any writes/mutations
+      requestAnimationFrame(() => {
+        if (contentRef.current) {
+          contentRef.current.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+        }
+      });
+    }
+  }, [swipeEnabled]);
+
   return (
     <div className="app">
       {/* Login/Rewards buttons visibility */}
@@ -770,7 +759,7 @@ const handleExplanationContinue = useCallback(() => {
               )}
             </>
           ) : (
-            <div className="question-container swipe-content">
+            <div className="question-container swipe-content" ref={contentRef}>
               {tutorialMode ? (
                 <div className="w-full bg-orange-500 text-white py-2 px-4 text-center font-bold">
                   Tutorial Mode: Question {questionsAnswered} of 5
@@ -890,36 +879,54 @@ const handleExplanationContinue = useCallback(() => {
         </div>
       )}
       
-      {/* Debug button - only in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <button
-          onClick={() => {
-            setError({
-              message: 'Reset the application state?',
-              isConfirm: true,
-              onConfirm: () => {
-                setShowWelcome(true);
-                setShowSection(false);
-                setSelectedSection(null);
-                setCurrentQuestion(null);
-                setTutorialMode(true);
-                setQuestionsAnswered(0);
-                setCorrectAnswers(0);
-                setStreak(0);
-                setAvailableVideos(0);
-                setTimeMode(false);
-                setScore(0);
-                setViewedVideoIds(new Set());
-                setError(null);
-              },
-              onCancel: () => setError(null)
-            });
-          }}
-          className="fixed bottom-4 right-4 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-50 hover:opacity-100"
-        >
-          Reset
-        </button>
-      )}
+      {/* ADDED: Debug panel to track tutorial mode issues */}
+      <div className="fixed bottom-4 left-4 bg-black bg-opacity-60 text-white text-xs p-2 rounded z-50 max-w-xs">
+        <div>Tutorial: {tutorialMode ? 'ON' : 'OFF'}</div>
+        <div>Correct: {correctAnswers}/5</div>
+        <div>Time Mode: {timeMode ? 'ON' : 'OFF'}</div>
+        <div>
+          <button 
+            onClick={() => {
+              setTutorialMode(false);
+              setTimeMode(true);
+              setShowQuestion(true);
+              console.log("Forced exit from tutorial mode");
+            }}
+            className="bg-red-500 text-white px-2 py-1 rounded text-xs mt-1"
+          >
+            Force Exit Tutorial
+          </button>
+        </div>
+      </div>
+      
+      {/* Reset button - visible always for testing */}
+      <button
+        onClick={() => {
+          setError({
+            message: 'Reset the application state?',
+            isConfirm: true,
+            onConfirm: () => {
+              setShowWelcome(true);
+              setShowSection(false);
+              setSelectedSection(null);
+              setCurrentQuestion(null);
+              setTutorialMode(true);
+              setQuestionsAnswered(0);
+              setCorrectAnswers(0);
+              setStreak(0);
+              setAvailableVideos(0);
+              setTimeMode(false);
+              setScore(0);
+              setViewedVideoIds(new Set());
+              setError(null);
+            },
+            onCancel: () => setError(null)
+          });
+        }}
+        className="fixed bottom-4 right-4 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-70 hover:opacity-100 z-50"
+      >
+        Reset
+      </button>
 
       {/* CSS for video protection */}
       <style jsx>{`
