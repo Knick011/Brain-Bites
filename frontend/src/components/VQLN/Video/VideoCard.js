@@ -1,40 +1,10 @@
-// components/VQLN/Video/VideoCard.js
+// VideoCard.js
 import React from 'react';
-import ReactPlayer from 'react-player';
+import ReactPlayer from 'react-player/youtube';
 
 const VideoCard = ({ url, onEnd, onSkip }) => {
-  // Function to get proper YouTube URL
-  const getVideoUrl = (inputUrl) => {
-    if (!inputUrl) return null;
-    
-    // Handle object with id
-    if (typeof inputUrl === 'object' && inputUrl.id) {
-      return `https://www.youtube.com/watch?v=${inputUrl.id}`;
-    }
-    
-    // Handle string URL
-    if (typeof inputUrl === 'string') {
-      // Handle Shorts URL
-      if (inputUrl.includes('/shorts/')) {
-        const id = inputUrl.split('/shorts/')[1];
-        return `https://www.youtube.com/watch?v=${id}`;
-      }
-      
-      // Already a watch URL
-      if (inputUrl.includes('watch?v=')) {
-        return inputUrl;
-      }
-      
-      // Direct video ID
-      if (/^[a-zA-Z0-9_-]{11}$/.test(inputUrl)) {
-        return `https://www.youtube.com/watch?v=${inputUrl}`;
-      }
-    }
-    
-    return inputUrl;
-  };
-
-  const playerUrl = getVideoUrl(url);
+  // Get the video URL - if url is an object, use url.url, otherwise use the string
+  const videoUrl = typeof url === 'object' ? url.url : url;
 
   // Handle keyboard navigation
   React.useEffect(() => {
@@ -49,14 +19,14 @@ const VideoCard = ({ url, onEnd, onSkip }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onSkip]);
 
-  if (!playerUrl) {
+  if (!videoUrl) {
     return (
-      <div className="flex items-center justify-center h-screen bg-black text-white">
-        <div className="text-center">
-          <p>Unable to load video</p>
-          <button 
+      <div className="fixed inset-0 flex items-center justify-center bg-black">
+        <div className="text-center text-white">
+          <p className="mb-4">Unable to load video</p>
+          <button
             onClick={onSkip}
-            className="mt-4 px-4 py-2 bg-orange-500 rounded-lg"
+            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg"
           >
             Skip
           </button>
@@ -66,22 +36,23 @@ const VideoCard = ({ url, onEnd, onSkip }) => {
   }
 
   return (
-    <div className="relative w-full h-screen bg-black">
+    <div className="fixed inset-0 bg-black">
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-full max-w-3xl aspect-video">
+        <div className="w-full max-w-4xl aspect-video">
           <ReactPlayer
-            url={playerUrl}
+            url={videoUrl}
             width="100%"
             height="100%"
-            playing={true}
-            controls={true}
+            playing
+            controls
             onEnded={onEnd}
             onError={onSkip}
             config={{
               youtube: {
                 playerVars: {
                   modestbranding: 1,
-                  rel: 0
+                  rel: 0,
+                  showinfo: 0
                 }
               }
             }}
@@ -89,19 +60,19 @@ const VideoCard = ({ url, onEnd, onSkip }) => {
         </div>
       </div>
 
-      {/* Swipe/click area for navigation */}
       <div
-        className="absolute inset-0 z-10"
-        onClick={(e) => e.stopPropagation()}
-        onTouchStart={(e) => e.currentTarget.dataset.touchY = e.touches[0].clientY}
-        onTouchEnd={(e) => {
+        className="absolute inset-0"
+        onClick={e => e.stopPropagation()}
+        onTouchStart={e => {
+          e.currentTarget.dataset.touchY = e.touches[0].clientY;
+        }}
+        onTouchEnd={e => {
           const startY = parseFloat(e.currentTarget.dataset.touchY || '0');
           const endY = e.changedTouches[0].clientY;
           if (startY - endY > 50 && onSkip) {
             onSkip();
           }
         }}
-        style={{ touchAction: 'none' }}
       />
     </div>
   );
