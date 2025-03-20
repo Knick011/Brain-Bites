@@ -1,9 +1,10 @@
-// components/VQLN/Video/VideoCard.js
+// Updated VideoCard.js component with rewards flow support
 import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
 
 /**
  * Enhanced video player component with better error handling and URL processing
+ * Now includes support for continuous rewards flow
  */
 const VideoCard = ({ 
   url, 
@@ -12,6 +13,9 @@ const VideoCard = ({
   onReady,
   onExit,
   tutorialMode = false,
+  inRewardsFlow = false,
+  currentVideoIndex = 1,
+  totalVideos = 1,
   autoAdvanceDelay = 30000 // Auto-advance after 30 seconds by default
 }) => {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
@@ -134,13 +138,19 @@ const VideoCard = ({
       // Escape to exit 
       else if (event.key === 'Escape') {
         event.preventDefault();
-        if (onExit) onExit();
+        if (inRewardsFlow) {
+          // In rewards flow, Escape shows the confirmation dialog
+          if (onExit) onExit();
+        } else {
+          // Normal mode, Escape skips
+          if (onSkip) onSkip();
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onSkip, onExit]);
+  }, [onSkip, onExit, inRewardsFlow]);
 
   // Handle player ready
   const handlePlayerReady = () => {
@@ -162,6 +172,35 @@ const VideoCard = ({
     if (onEnd) onEnd();
   };
 
+  // Video rewards progress component
+  const VideoRewardsProgress = () => {
+    return (
+      <div className="absolute bottom-10 left-0 right-0 z-30 flex justify-center">
+        <div className="bg-black bg-opacity-50 backdrop-blur-sm rounded-full px-5 py-2 flex items-center gap-4">
+          <div className="text-white text-sm">
+            <span className="font-bold">{currentVideoIndex}</span>
+            <span className="mx-1">/</span>
+            <span>{totalVideos}</span>
+          </div>
+          
+          <div className="w-40 h-1.5 bg-white bg-opacity-20 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-orange-500 rounded-full transition-all duration-300"
+              style={{ width: `${(currentVideoIndex / totalVideos) * 100}%` }}
+            ></div>
+          </div>
+          
+          <button
+            onClick={() => onSkip && onSkip()}
+            className="text-white hover:text-orange-300 transition-colors text-sm"
+          >
+            Skip
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   // If URL is invalid or there's an error, show error state
   if (!isValidUrl || !playerUrl || playerError) {
     return (
@@ -176,7 +215,7 @@ const VideoCard = ({
             onClick={() => onSkip && onSkip()}
             className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors mt-4"
           >
-            Skip to Next Question
+            Skip
           </button>
           
           <div className="text-xs mt-4 text-gray-400">
@@ -259,6 +298,11 @@ const VideoCard = ({
             Skip
           </button>
         </div>
+        
+        {/* Rewards Progress Indicator */}
+        {inRewardsFlow && (
+          <VideoRewardsProgress />
+        )}
       </div>
     </div>
   );
