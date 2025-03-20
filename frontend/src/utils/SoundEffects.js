@@ -1,5 +1,5 @@
 /**
- * Service for managing sound effects
+ * Service for managing sound effects with callback system
  */
 class SoundEffects {
   static sounds = {
@@ -9,6 +9,9 @@ class SoundEffects {
     transition: null,
     streak: null
   };
+
+  // Add callback tracking
+  static correctCallbacks = [];
 
   static preloadSounds() {
     try {
@@ -41,6 +44,15 @@ class SoundEffects {
     } catch (error) {
       console.warn('Error preloading sounds:', error);
     }
+  }
+
+  // Register a callback for correct answers
+  static onCorrectAnswer(callback) {
+    this.correctCallbacks.push(callback);
+    // Return a function to unregister
+    return () => {
+      this.correctCallbacks = this.correctCallbacks.filter(cb => cb !== callback);
+    };
   }
 
   static playSound(sound) {
@@ -77,8 +89,17 @@ class SoundEffects {
   }
 
   static playCorrect() {
-    console.log('Playing correct sound');
+    console.log('Playing correct sound and triggering callbacks');
     this.playSound('correct');
+    
+    // Call all registered callbacks
+    this.correctCallbacks.forEach(callback => {
+      try {
+        callback();
+      } catch (error) {
+        console.error('Error in correct answer callback:', error);
+      }
+    });
   }
 
   static playIncorrect() {
