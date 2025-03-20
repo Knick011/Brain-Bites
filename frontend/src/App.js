@@ -1091,37 +1091,7 @@ function App() {
         </div>
       )}
       
-      {/* Reset button - visible always for testing */}
-      <button
-        onClick={() => {
-          setError({
-            message: 'Reset the application state?',
-            isConfirm: true,
-            onConfirm: () => {
-              // Also clear storage
-              StorageService.clearAllData();
-              
-              setShowWelcome(true);
-              setShowSection(false);
-              setSelectedSection(null);
-              setCurrentQuestion(null);
-              setTutorialMode(true);
-              setQuestionsAnswered(0);
-              setCorrectAnswers(0);
-              setStreak(0);
-              setAvailableVideos(0);
-              setTimeMode(false);
-              setScore(0);
-              setViewedVideoIds(new Set());
-              setError(null);
-            },
-            onCancel: () => setError(null)
-          });
-        }}
-        className="fixed bottom-4 right-4 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-70 hover:opacity-100 z-50"
-      >
-        Reset
-      </button>
+
 
       {/* CSS for video protection */}
       <style jsx>{`
