@@ -1,4 +1,4 @@
-// Fully fixed App.js with non-repeating videos
+// Fully fixed App.js with sound callback for tracking correct answers
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -62,6 +62,64 @@ function App() {
 
   // Refs for performance optimization
   const contentRef = useRef(null);
+
+  // NEW: Register callback for correct answers
+  useEffect(() => {
+    console.log("Setting up correct answer sound callback");
+    
+    const unregister = SoundEffects.onCorrectAnswer(() => {
+      console.log("CORRECT ANSWER DETECTED via sound callback!");
+      
+      // Update correct answers directly
+      setCorrectAnswers(prev => {
+        const newCount = prev + 1;
+        console.log(`Correct answers incremented: ${prev} → ${newCount}`);
+        
+        // Check for tutorial completion
+        if (tutorialMode && newCount >= 5) {
+          console.log("Tutorial complete via sound callback! Exiting tutorial mode");
+          setTimeout(() => {
+            setTutorialMode(false);
+            setShowGameModePopup(true);
+            setTimeout(() => {
+              setTimeMode(true);
+              console.log("Time mode activated!");
+            }, 1000);
+          }, 500);
+        }
+        
+        return newCount;
+      });
+      
+      // Update streak directly
+      setStreak(prev => {
+        const newStreak = prev + 1;
+        console.log(`Streak incremented: ${prev} → ${newStreak}`);
+        
+        // Calculate rewards in non-tutorial mode
+        if (!tutorialMode) {
+          // Check for milestone achievements (every 5)
+          if (newStreak % 5 === 0) {
+            setTimeout(() => {
+              setCurrentMilestone(newStreak);
+              setShowMilestone(true);
+              setAvailableVideos(prevVideos => prevVideos + 1); // Bonus video for milestone
+            }, 500);
+          }
+          
+          // Standard reward: 1 video every 2 questions
+          if (newStreak % 2 === 0) {
+            setAvailableVideos(prevVideos => prevVideos + 1);
+          }
+        }
+        
+        return newStreak;
+      });
+    });
+    
+    // Cleanup the callback when component unmounts
+    return () => unregister();
+  }, [tutorialMode]);
 
   // Define tutorial steps
   const tutorialSteps = [
@@ -286,9 +344,9 @@ function App() {
     return unwatchedVideos[randomIndex];
   }, [videos, viewedVideoIds]);
 
-  // FIXED: Handle answer submission with time-based scoring
+  // Simplified handle answer submission (less important now with sound callback)
   const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
-    console.log("Answer submitted! Is correct:", isCorrect);
+    console.log("Answer submitted, isCorrect:", isCorrect);
     
     // Enable swiping after answering in tutorial mode
     if (tutorialMode) {
@@ -298,147 +356,66 @@ function App() {
     // Save the answer time for points calculation
     setAnswerTime(answerTimeValue);
     
-    // Ensure we're properly checking the boolean value
-    if (isCorrect === true) {
-      console.log("CORRECT ANSWER DETECTED!");
+    // Calculate time-based score if in time mode
+    if (timeMode && isCorrect) {
+      // Default time score if not provided
+      const timeScore = (answerTimeValue !== null) 
+        ? Math.max(20, Math.floor(100 - (answerTimeValue * 9)))
+        : 50;
       
-      // Update correct answers count with explicit function updater
-      setCorrectAnswers(prevCorrect => {
-        const newCorrectAnswers = prevCorrect + 1;
-        console.log(`Correct answers updated: ${prevCorrect} → ${newCorrectAnswers}`);
-        
-        // Exit tutorial mode check
-        if (tutorialMode && newCorrectAnswers >= 5) {
-          console.log("🎉 Tutorial complete! Exiting tutorial mode");
-          setTimeout(() => {
-            setTutorialMode(false);
-            setShowGameModePopup(true);
-            setTimeout(() => {
-              setTimeMode(true);
-              console.log("Time mode activated!");
-            }, 1000);
-          }, 500);
-        }
-        
-        return newCorrectAnswers;
-      });
+      // Apply time multiplier for faster answers
+      const timeRatio = answerTimeValue !== null ? 1 - (answerTimeValue / 10) : 0.5;
+      const timeMultiplier = 1 + timeRatio; // 1.0 to 2.0 multiplier
+      const finalScore = Math.floor(timeScore * timeMultiplier);
       
-      // Update streak with function updater too
-      setStreak(prevStreak => {
-        const newStreak = prevStreak + 1;
-        console.log(`Streak updated: ${prevStreak} → ${newStreak}`);
-        return newStreak;
-      });
+      // Show points animation
+      setPointsEarned(finalScore);
+      setShowPointsAnimation(true);
+      setTimeout(() => setShowPointsAnimation(false), 1500);
       
-      // Calculate time-based score if in time mode
-      if (timeMode) {
-        // Default time score if not provided
-        const timeScore = (answerTimeValue !== null) 
-          ? Math.max(20, Math.floor(100 - (answerTimeValue * 9)))
-          : 50;
-        
-        // Apply time multiplier for faster answers
-        const timeRatio = answerTimeValue !== null ? 1 - (answerTimeValue / 10) : 0.5;
-        const timeMultiplier = 1 + timeRatio; // 1.0 to 2.0 multiplier
-        const finalScore = Math.floor(timeScore * timeMultiplier);
-        
-        // Show points animation
-        setPointsEarned(finalScore);
-        setShowPointsAnimation(true);
-        setTimeout(() => setShowPointsAnimation(false), 1500);
-        
-        // Update total score
-        setScore(prevScore => prevScore + finalScore);
-      }
-      
-      // Check for milestone achievements (every 5)
-      if (streak > 0 && (streak + 1) % 5 === 0 && !tutorialMode) {
-        const milestone = streak + 1;
-        setCurrentMilestone(milestone);
-        setShowMilestone(true);
-        setAvailableVideos(prev => prev + 1); // Bonus video for milestone
-        if (SoundEffects.playStreak) {
-          SoundEffects.playStreak();
-        }
-      }
-      
-      // Tutorial mode - prepare the video but don't show it automatically
-      if (tutorialMode) {
-        // Get a random video
-        const videoToPlay = getRandomVideo();
-        
-        if (videoToPlay) {
-          console.log("Setting current video in tutorial mode:", videoToPlay.id);
-          setCurrentVideo(videoToPlay);
-          
-          // Mark as viewed
-          setViewedVideoIds(prev => new Set([...prev, videoToPlay.id]));
-        }
-      } else {
-        // Game mode reward logic
-        if ((streak + 1) % 2 === 0) {
-          // Standard reward: 1 video every 2 questions
-          setAvailableVideos(prev => prev + 1);
-        }
-        
-        // In non-tutorial mode, fetch next question automatically after delay
-        setTimeout(() => {
-          fetchQuestion();
-        }, 1500);
-      }
-    } else {
-      console.log("Incorrect answer received");
-      setStreak(0);
-      
-      // Fetch a new question after a delay
+      // Update total score
+      setScore(prevScore => prevScore + finalScore);
+    }
+    
+    // Note: We don't need to update streak or correctAnswers here
+    // anymore since it's handled by the sound callback
+    
+    // For incorrect answers, just fetch next question after delay
+    if (!isCorrect) {
       setTimeout(() => {
         fetchQuestion();
       }, 1500);
     }
-  }, [fetchQuestion, getRandomVideo, streak, timeMode, tutorialMode]);
+  }, [fetchQuestion, timeMode, tutorialMode]);
 
-  // SIMPLIFIED: Handle explanation continue to avoid conflicts with answer handling
+  // SIMPLIFIED: Handle explanation continue to focus only on UI transitions
   const handleExplanationContinue = useCallback(() => {
     console.log("Explanation continue handler triggered");
     
     if (tutorialMode) {
-      // In tutorial mode, decide whether to show video or next question
-      // (the correctness check was already handled in QuestionCard)
-      const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
-      
-      if (isCorrect) {
-        // For correct answers in tutorial mode, show video
-        if (!currentVideo) {
-          console.log("No video available, getting one now");
-          const videoToPlay = getRandomVideo();
-          
-          if (videoToPlay) {
-            setCurrentVideo(videoToPlay);
-            setViewedVideoIds(prev => new Set([...prev, videoToPlay.id]));
-            setTimeout(() => setShowQuestion(false), 50);
-          } else {
-            console.error("No videos available to play");
-            setError("Couldn't load a video reward. Try again later.");
-            fetchQuestion();
-          }
-        } else {
-          // We already have a video, safe to transition
-          setShowQuestion(false);
-        }
+      // For tutorial mode, just show the video if available
+      if (currentVideo) {
+        setShowQuestion(false);
       } else {
-        // For incorrect answers in tutorial mode, fetch next question
-        fetchQuestion();
+        // Get and show a video
+        const videoToPlay = getRandomVideo();
+        if (videoToPlay) {
+          setCurrentVideo(videoToPlay);
+          setViewedVideoIds(prev => new Set([...prev, videoToPlay.id]));
+          setTimeout(() => setShowQuestion(false), 50);
+        } else {
+          fetchQuestion();
+        }
       }
     } else {
-      // Non-tutorial mode behavior
-      console.log("In normal mode, fetching next question");
+      // For regular mode, just fetch the next question
       fetchQuestion();
     }
     
-    // Reset states
+    // Reset explanation state
     setExplanationVisible(false);
     setSwipeEnabled(false);
-  }, [tutorialMode, selectedAnswer, currentQuestion, currentVideo, fetchQuestion, getRandomVideo]);
+  }, [tutorialMode, currentVideo, fetchQuestion, getRandomVideo]);
 
   // Watch a video from rewards - always get a fresh video
   const watchVideo = useCallback(async () => {
