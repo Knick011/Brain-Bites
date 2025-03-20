@@ -1,4 +1,4 @@
-// Updated App.js with score and streak fixes
+// Fixed App.js - Complete version with simplified state management
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -62,59 +62,11 @@ function App() {
 
   // Refs for performance optimization
   const contentRef = useRef(null);
-
-  // Register callback for sound effects
-  useEffect(() => {
-    console.log("Setting up correct answer sound callback");
-    
-    const unregister = SoundEffects.onCorrectAnswer(() => {
-      console.log("CORRECT ANSWER DETECTED via sound callback!");
-      
-      // Only check for tutorial completion here
-      if (tutorialMode) {
-        setCorrectAnswers(prev => {
-          const newCount = prev + 1;
-          // Check for tutorial completion
-          if (tutorialMode && newCount >= 5) {
-            console.log("Tutorial complete via sound callback! Exiting tutorial mode");
-            setTimeout(() => {
-              setTutorialMode(false);
-              setShowGameModePopup(true);
-              setTimeout(() => {
-                setTimeMode(true);
-                console.log("Time mode activated!");
-              }, 1000);
-            }, 500);
-          }
-          return newCount;
-        });
-      }
-      
-      // Calculate rewards based on streak in non-tutorial mode
-      if (!tutorialMode) {
-        // Get the current streak value after the increment
-        // that will be applied in handleAnswerSubmit
-        const currentStreak = streak + 1;
-        
-        // Check for milestone achievements (every 5)
-        if (currentStreak % 5 === 0) {
-          setTimeout(() => {
-            setCurrentMilestone(currentStreak);
-            setShowMilestone(true);
-            setAvailableVideos(prevVideos => prevVideos + 1); // Bonus video for milestone
-          }, 500);
-        }
-        
-        // Standard reward: 1 video every 2 questions
-        if (currentStreak % 2 === 0) {
-          setAvailableVideos(prevVideos => prevVideos + 1);
-        }
-      }
-    });
-    
-    // Cleanup the callback when component unmounts
-    return () => unregister();
-  }, [tutorialMode, streak]);
+  
+  // Debug helper function
+  const debugLog = (message, data) => {
+    console.log(`[DEBUG] ${message}`, data);
+  };
 
   // Define tutorial steps
   const tutorialSteps = [
@@ -135,6 +87,119 @@ function App() {
       content: "After the tutorial, Time Mode activates! Answer quickly for more points - up to 2x for super-fast answers!"
     }
   ];
+
+  // IMPORTANT: Completely rewired streak and rewards logic to fix issues
+  // We'll handle everything in handleAnswerSubmit and remove duplicated logic
+  
+  // Handle correct answer processing
+  const processCorrectAnswer = useCallback((answerTimeValue) => {
+    debugLog("Processing correct answer", { tutorialMode, timeMode, streak: streak + 1 });
+    
+    // Increment streak
+    setStreak(prevStreak => {
+      const newStreak = prevStreak + 1;
+      debugLog("Streak updated", { prevStreak, newStreak });
+      return newStreak;
+    });
+    
+    // Increment correct answers
+    setCorrectAnswers(prevCorrect => {
+      const newCorrect = prevCorrect + 1;
+      debugLog("Correct answers updated", { prevCorrect, newCorrect });
+      
+      // Check for tutorial completion
+      if (tutorialMode && newCorrect >= 5) {
+        debugLog("Tutorial complete! Activating game mode", { newCorrect });
+        
+        setTimeout(() => {
+          setTutorialMode(false);
+          setShowGameModePopup(true);
+          setTimeout(() => {
+            setTimeMode(true);
+            console.log("Time mode activated!");
+          }, 1000);
+        }, 500);
+      }
+      
+      return newCorrect;
+    });
+    
+    // Handle reward logic in non-tutorial mode
+    if (!tutorialMode) {
+      // Check if we should add videos
+      const newStreak = streak + 1;
+      
+      // Every 2 correct answers, award a video
+      if (newStreak % 2 === 0) {
+        debugLog("Adding standard video reward", { newStreak });
+        setAvailableVideos(prev => {
+          const newAvailable = prev + 1;
+          debugLog("Available videos updated", { prev, newAvailable });
+          return newAvailable;
+        });
+      }
+      
+      // Milestone bonuses (every 5)
+      if (newStreak % 5 === 0) {
+        debugLog("Adding milestone bonus", { newStreak });
+        setTimeout(() => {
+          setCurrentMilestone(newStreak);
+          setShowMilestone(true);
+          setAvailableVideos(prev => {
+            const newAvailable = prev + 1;
+            debugLog("Milestone videos added", { prev, newAvailable });
+            return newAvailable;
+          });
+        }, 500);
+      }
+    }
+    
+    // Calculate score in time mode
+    if (timeMode) {
+      debugLog("Calculating time-based score", { answerTimeValue, timeMode });
+      
+      // Default time score if not provided
+      const timeScore = (answerTimeValue !== null) 
+        ? Math.max(20, Math.floor(100 - (answerTimeValue * 9)))
+        : 50;
+      
+      // Apply time multiplier for faster answers
+      const timeRatio = answerTimeValue !== null ? 1 - (answerTimeValue / 10) : 0.5;
+      const timeMultiplier = 1 + timeRatio; // 1.0 to 2.0 multiplier
+      const finalScore = Math.floor(timeScore * timeMultiplier);
+      
+      // Show points animation
+      setPointsEarned(finalScore);
+      setShowPointsAnimation(true);
+      setTimeout(() => setShowPointsAnimation(false), 1500);
+      
+      // Update total score
+      setScore(prevScore => {
+        const newScore = prevScore + finalScore;
+        debugLog("Score updated", { prevScore, newScore, finalScore });
+        return newScore;
+      });
+    }
+    
+    // Play the correct sound
+    SoundEffects.playCorrect();
+  }, [streak, tutorialMode, timeMode]);
+  
+  // Handle incorrect answer processing
+  const processIncorrectAnswer = useCallback(() => {
+    debugLog("Processing incorrect answer");
+    
+    // Reset streak
+    setStreak(0);
+    
+    // Play the incorrect sound
+    SoundEffects.playIncorrect();
+    
+    // Fetch next question after delay
+    setTimeout(() => {
+      fetchQuestion();
+    }, 1500);
+  }, []);
 
   // Monitor network status
   useEffect(() => {
@@ -339,9 +404,9 @@ function App() {
     return unwatchedVideos[randomIndex];
   }, [videos, viewedVideoIds]);
 
-  // FIXED: Handle answer submission with proper score and streak management
+  // SIMPLIFIED AND FIXED: Handle answer submission function
   const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
-    console.log("Answer submitted, isCorrect:", isCorrect);
+    debugLog("Answer submitted", { isCorrect, answerTimeValue, timeMode, tutorialMode });
     
     // Enable swiping after answering in tutorial mode
     if (tutorialMode) {
@@ -351,49 +416,15 @@ function App() {
     // Save the answer time for points calculation
     setAnswerTime(answerTimeValue);
     
+    // Process correct or incorrect answer
     if (isCorrect) {
-      // Update streak for correct answers
-      setStreak(prevStreak => prevStreak + 1);
-      setCorrectAnswers(prevCount => prevCount + 1);
-      
-      // Calculate time-based score if in time mode
-      if (timeMode) {
-        // Default time score if not provided
-        const timeScore = (answerTimeValue !== null) 
-          ? Math.max(20, Math.floor(100 - (answerTimeValue * 9)))
-          : 50;
-        
-        // Apply time multiplier for faster answers
-        const timeRatio = answerTimeValue !== null ? 1 - (answerTimeValue / 10) : 0.5;
-        const timeMultiplier = 1 + timeRatio; // 1.0 to 2.0 multiplier
-        const finalScore = Math.floor(timeScore * timeMultiplier);
-        
-        // Show points animation
-        setPointsEarned(finalScore);
-        setShowPointsAnimation(true);
-        setTimeout(() => setShowPointsAnimation(false), 1500);
-        
-        // Update total score - FIX: This is the key fix for score issue
-        setScore(prevScore => {
-          const newScore = prevScore + finalScore;
-          console.log(`Score updated: ${prevScore} → ${newScore}`);
-          return newScore;
-        });
-      }
+      processCorrectAnswer(answerTimeValue);
     } else {
-      // IMPORTANT FIX: Reset streak for incorrect answers
-      setStreak(0);
+      processIncorrectAnswer();
     }
-    
-    // For incorrect answers, fetch next question after delay
-    if (!isCorrect) {
-      setTimeout(() => {
-        fetchQuestion();
-      }, 1500);
-    }
-  }, [fetchQuestion, timeMode, tutorialMode]);
+  }, [processCorrectAnswer, processIncorrectAnswer, tutorialMode]);
 
-  // SIMPLIFIED: Handle explanation continue to focus only on UI transitions
+  // Handle explanation continue
   const handleExplanationContinue = useCallback(() => {
     console.log("Explanation continue handler triggered");
     
@@ -863,6 +894,9 @@ function App() {
         <div>Tutorial: {tutorialMode ? 'ON' : 'OFF'}</div>
         <div>Correct: {correctAnswers}/5</div>
         <div>Time Mode: {timeMode ? 'ON' : 'OFF'}</div>
+        <div>Streak: {streak}</div>
+        <div>Score: {score}</div>
+        <div>Videos: {availableVideos}</div>
         <div>
           <button 
             onClick={() => {
