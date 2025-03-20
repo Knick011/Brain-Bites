@@ -1,4 +1,4 @@
-// Final Updated App.js with all requested changes
+// Complete Updated App.js with all new features
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -13,6 +13,11 @@ import TutorialPopup from './components/VQLN/Tutorial/TutorialPopup';
 import GameModePopup from './components/VQLN/GameModePopup';
 import MilestoneCelebration from './components/VQLN/MilestoneCelebration';
 import PointsAnimation from './components/VQLN/Question/PointsAnimation';
+import YouTubeLogin from './components/VQLN/YouTubeLogin';
+import RewardsConfirmation from './components/VQLN/RewardsConfirmation';
+import AllDoneMessage from './components/VQLN/AllDoneMessage';
+import StorageService from './utils/StorageService';
+import { Home } from 'lucide-react';
 import './styles/theme.css';
 import './styles/GameStyles.css';
 import './styles/popup-animations.css';
@@ -59,9 +64,16 @@ function App() {
   const [pointsEarned, setPointsEarned] = useState(0);
   const [swipeEnabled, setSwipeEnabled] = useState(false);
   const [explanationVisible, setExplanationVisible] = useState(false);
+  
+  // New state variables for added features
+  const [isYouTubeSignedIn, setIsYouTubeSignedIn] = useState(false);
+  const [showRewardsConfirmation, setShowRewardsConfirmation] = useState(false);
+  const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
 
   // Refs for performance optimization
   const contentRef = useRef(null);
+  // Add this ref to track tutorial mode changes
+  const prevTutorialMode = useRef(true);
   
   // Debug helper function
   const debugLog = (message, data) => {
@@ -87,6 +99,70 @@ function App() {
       content: "After the tutorial, Time Mode activates! Answer quickly for more points - up to 2x for super-fast answers!"
     }
   ];
+
+  // Add effect to load saved state on mount
+  useEffect(() => {
+    const loadSavedState = () => {
+      // Check if tutorial already completed
+      const tutorialCompleted = StorageService.isTutorialCompleted();
+      if (tutorialCompleted) {
+        setTutorialMode(false);
+      }
+      
+      // Load saved score
+      const savedScore = StorageService.getScore();
+      if (savedScore > 0) {
+        setScore(savedScore);
+      }
+      
+      // Load available videos
+      const savedVideos = StorageService.getAvailableVideos();
+      if (savedVideos > 0) {
+        setAvailableVideos(savedVideos);
+      }
+      
+      // Load other stats for display
+      const questionsAnswered = StorageService.getTotalQuestionsAnswered();
+      if (questionsAnswered > 0) {
+        setQuestionsAnswered(questionsAnswered);
+      }
+      
+      const correctAnswers = StorageService.getTotalCorrectAnswers();
+      if (correctAnswers > 0) {
+        setCorrectAnswers(correctAnswers);
+      }
+    };
+    
+    loadSavedState();
+  }, []);
+
+  // Add effect to save state when it changes
+  useEffect(() => {
+    // Don't save during tutorial mode
+    if (!tutorialMode) {
+      // Save score
+      StorageService.saveScore(score);
+      StorageService.saveHighScore(score);
+      
+      // Save available videos
+      StorageService.saveAvailableVideos(availableVideos);
+      
+      // Save highest streak
+      StorageService.saveHighestStreak(streak);
+      
+      // Save total questions answered and correct answers
+      StorageService.saveTotalQuestionsAnswered(questionsAnswered);
+      StorageService.saveTotalCorrectAnswers(correctAnswers);
+    }
+    
+    // Mark tutorial as completed when exiting tutorial mode
+    if (!tutorialMode && prevTutorialMode.current) {
+      StorageService.setTutorialCompleted(true);
+    }
+    
+    // Keep track of previous tutorial mode state
+    prevTutorialMode.current = tutorialMode;
+  }, [score, availableVideos, streak, questionsAnswered, correctAnswers, tutorialMode]);
   
   // Handle correct answer processing
   const processCorrectAnswer = useCallback((answerTimeValue) => {
@@ -450,7 +526,7 @@ function App() {
     setSwipeEnabled(false);
   }, [tutorialMode, currentVideo, fetchQuestion, getRandomVideo]);
 
-  // Watch a video from rewards - always get a fresh video
+  // Enhanced watchVideo function
   const watchVideo = useCallback(async () => {
     if (availableVideos <= 0) return;
     
@@ -458,8 +534,8 @@ function App() {
       setIsVideoLoading(true);
       
       // Get fresh videos directly from service to ensure variety
-      const freshVideos = await YouTubeService.getViralShorts(3);
-      console.log(`Got ${freshVideos.length} fresh videos`);
+      const freshVideos = await YouTubeService.getViralShorts(Math.min(availableVideos, 5));
+      console.log(`Got ${freshVideos.length} fresh videos for reward watching`);
       
       if (freshVideos && freshVideos.length > 0) {
         // Find a video that hasn't been viewed recently
@@ -470,7 +546,7 @@ function App() {
           console.log("All videos viewed, resetting tracking");
           // Keep track of very last video to avoid immediate repetition
           const lastVideoId = Array.from(viewedVideoIds).pop();
-          setViewedVideoIds(new Set());
+          setViewedVideoIds(new Set(lastVideoId ? [lastVideoId] : []));
           
           // Find a video that isn't the last one watched
           newVideo = freshVideos.find(video => video.id !== lastVideoId) || freshVideos[0];
@@ -500,6 +576,9 @@ function App() {
         // Set video and switch view
         setCurrentVideo(newVideo);
         setShowQuestion(false);
+        
+        // Decrement available videos only when viewing
+        // This is important to allow exiting without losing rewards
         setAvailableVideos(prev => prev - 1);
         setSwipeEnabled(true);
       } else {
@@ -514,14 +593,38 @@ function App() {
     }
   }, [availableVideos, fetchQuestion, viewedVideoIds]);
 
-  // Handle video skip - get a different video on next view
+  // Enhanced handleVideoSkip for confirmations
   const handleVideoSkip = useCallback(() => {
     // If we have a current video, mark it as viewed
     if (currentVideo && currentVideo.id) {
       setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
     }
     
-    // Clear current video to force a refresh next time
+    // If there are more videos and not in tutorial mode, show confirmation
+    if (availableVideos > 0 && !tutorialMode) {
+      setShowRewardsConfirmation(true);
+      return;
+    }
+    
+    // If no more videos, show completion message
+    if (availableVideos === 0 && !tutorialMode) {
+      setShowAllDoneMessage(true);
+      
+      // Clear current video and go back to questions after delay
+      setTimeout(() => {
+        setCurrentVideo(null);
+        setShowQuestion(true);
+        setShowAllDoneMessage(false);
+        
+        // In tutorial mode, fetch next question after video
+        if (tutorialMode) {
+          fetchQuestion();
+        }
+      }, 3000);
+      return;
+    }
+    
+    // Default behavior for tutorial mode or single video
     setCurrentVideo(null);
     setShowQuestion(true);
     
@@ -529,7 +632,7 @@ function App() {
     if (tutorialMode) {
       fetchQuestion();
     }
-  }, [tutorialMode, fetchQuestion, currentVideo]);
+  }, [tutorialMode, fetchQuestion, currentVideo, availableVideos]);
   
   // Handle video ending
   const handleVideoEnd = useCallback(() => {
@@ -569,6 +672,82 @@ function App() {
     setSwipeEnabled(false);
   }, [tutorialMode, fetchQuestion, currentVideo]);
 
+  // Handle rewards confirmation responses
+  const handleConfirmExitRewards = useCallback(() => {
+    setShowRewardsConfirmation(false);
+    
+    // Clear current video to force a refresh next time
+    setCurrentVideo(null);
+    setShowQuestion(true);
+    
+    // Save state after exiting
+    if (!tutorialMode) {
+      StorageService.saveAvailableVideos(availableVideos);
+    }
+  }, [tutorialMode, availableVideos]);
+
+  const handleCancelExitRewards = useCallback(() => {
+    setShowRewardsConfirmation(false);
+    // Continue with the current video
+  }, []);
+
+  // Handle YouTube login status change
+  const handleYouTubeLoginStatusChange = useCallback((isSignedIn, videos = []) => {
+    setIsYouTubeSignedIn(isSignedIn);
+    
+    // In a real implementation, this would use the personalized videos
+    // For now, just show a message
+    if (isSignedIn) {
+      setError({
+        message: 'YouTube connected! This feature is in beta.',
+        isConfirm: false,
+        onConfirm: () => setError(null)
+      });
+      
+      // Add any obtained videos to the list if there are any
+      if (videos && videos.length > 0) {
+        setVideos(prevVideos => {
+          // Filter out duplicates
+          const existingIds = new Set(prevVideos.map(v => v.id));
+          const newVideos = videos.filter(v => !existingIds.has(v.id));
+          
+          return [...prevVideos, ...newVideos];
+        });
+      }
+    }
+  }, []);
+
+  // Add "Go Home" handler
+  const handleGoHome = useCallback(() => {
+    SoundEffects.playTransition();
+    
+    // Confirm if user wants to go back to section selection
+    setError({
+      message: 'Return to main menu? Your progress will be saved.',
+      isConfirm: true,
+      onConfirm: () => {
+        // Save current state before navigating
+        if (!tutorialMode) {
+          StorageService.saveGameState({
+            score,
+            availableVideos,
+            questionsAnswered,
+            correctAnswers,
+            streak,
+            selectedSection
+          });
+        }
+        
+        // Navigate to section selection
+        setShowSection(true);
+        setSelectedSection(null);
+        setCurrentQuestion(null);
+        setError(null);
+      },
+      onCancel: () => setError(null)
+    });
+  }, [tutorialMode, score, availableVideos, questionsAnswered, correctAnswers, streak, selectedSection]);
+
   // Navigation handlers
   const handleStart = useCallback(() => {
     SoundEffects.playTransition();
@@ -585,9 +764,11 @@ function App() {
     setSelectedSection(section);
     setShowSection(false);
     
-    // Show first tutorial step
-    setTutorialStep(0);
-    setShowTutorial(true);
+    // Show first tutorial step if tutorial hasn't been completed
+    if (tutorialMode) {
+      setTutorialStep(0);
+      setShowTutorial(true);
+    }
     
     // Load first question in background
     try {
@@ -632,7 +813,7 @@ function App() {
       console.error("Error in initial question fetch:", error);
       setIsQuestionLoading(false);
     }
-  }, []);
+  }, [tutorialMode]);
 
   // UI interaction handlers
   const handleTutorialNext = useCallback(() => {
@@ -708,6 +889,22 @@ function App() {
             </div>
           )}
         </>
+      )}
+      
+      {/* YouTube Login Button */}
+      {!showWelcome && !showSection && (
+        <YouTubeLogin onLoginStatusChange={handleYouTubeLoginStatusChange} />
+      )}
+
+      {/* Home Button */}
+      {!showWelcome && !showSection && (
+        <button
+          onClick={handleGoHome}
+          className="fixed bottom-16 right-4 z-50 bg-white text-orange-500 p-3 rounded-full shadow-md hover:bg-gray-100 transition-colors"
+          aria-label="Go to home screen"
+        >
+          <Home size={24} />
+        </button>
       )}
       
       {/* Welcome Screen */}
@@ -830,6 +1027,18 @@ function App() {
         </>
       )}
       
+      {/* Rewards Confirmation Dialog */}
+      {showRewardsConfirmation && (
+        <RewardsConfirmation
+          onConfirm={handleConfirmExitRewards}
+          onCancel={handleCancelExitRewards}
+          remainingVideos={availableVideos}
+        />
+      )}
+
+      {/* All Done Message */}
+      {showAllDoneMessage && <AllDoneMessage />}
+      
       {/* Error message */}
       {error && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -882,16 +1091,6 @@ function App() {
         </div>
       )}
       
-      {/* Debug panel to track tutorial mode issues */}
-      <div className="fixed bottom-4 left-4 bg-black bg-opacity-60 text-white text-xs p-2 rounded z-50 max-w-xs">
-        <div>Tutorial: {tutorialMode ? 'ON' : 'OFF'}</div>
-        <div>Correct: {correctAnswers}/5</div>
-        <div>Time Mode: {timeMode ? 'ON' : 'OFF'}</div>
-        <div>Streak: {streak}</div>
-        <div>Score: {score}</div>
-        <div>Videos: {availableVideos}</div>
-      </div>
-      
       {/* Reset button - visible always for testing */}
       <button
         onClick={() => {
@@ -899,6 +1098,9 @@ function App() {
             message: 'Reset the application state?',
             isConfirm: true,
             onConfirm: () => {
+              // Also clear storage
+              StorageService.clearAllData();
+              
               setShowWelcome(true);
               setShowSection(false);
               setSelectedSection(null);
