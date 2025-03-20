@@ -1,4 +1,4 @@
-// components/VQLN/RewardsConfirmation.js
+// Updated RewardsConfirmation.js for continuous rewards flow
 import React from 'react';
 import { Video, AlertTriangle, X, Check } from 'lucide-react';
 import StandardPopup from './Common/StandardPopup';
@@ -28,8 +28,8 @@ const RewardsConfirmation = ({ onConfirm, onCancel, remainingVideos }) => {
             onClick={onCancel}
             className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors"
           >
-            <X size={18} />
-            <span>Cancel</span>
+            <Video size={18} />
+            <span>Continue Watching</span>
           </button>
           
           <button
@@ -37,7 +37,7 @@ const RewardsConfirmation = ({ onConfirm, onCancel, remainingVideos }) => {
             className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors"
           >
             <Check size={18} />
-            <span>Exit Anyway</span>
+            <span>Exit To Questions</span>
           </button>
         </div>
       </div>
