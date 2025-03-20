@@ -107,6 +107,8 @@ function App() {
       const tutorialCompleted = StorageService.isTutorialCompleted();
       if (tutorialCompleted) {
         setTutorialMode(false);
+        // IMPORTANT: Activate time mode if tutorial is completed
+        setTimeMode(true);
       }
       
       // Load saved score
@@ -815,7 +817,7 @@ function App() {
     }
   }, [tutorialMode]);
 
-  // UI interaction handlers
+// UI interaction handlers - continued
   const handleTutorialNext = useCallback(() => {
     SoundEffects.playButtonPress();
     
@@ -877,14 +879,18 @@ function App() {
           )}
           
           {timeMode && (
-            <div className="fixed top-16 right-4 z-40 bg-white shadow-md rounded-full px-4 py-2 flex items-center gap-2">
+            <div className="fixed top-20 right-4 z-40 bg-white shadow-md rounded-full px-4 py-2 flex items-center gap-2">
               <span className="font-bold text-lg">Score: {score}</span>
               
               {/* CHANGED: Points animation position - near score */}
               {showPointsAnimation && (
-                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 text-xl font-bold text-green-500 bg-white px-3 py-1 rounded-full shadow-md animate-bounce">
-                  +{pointsEarned}
-                </div>
+                <PointsAnimation 
+                  points={pointsEarned}
+                  isTimeMode={timeMode}
+                  answerTime={answerTime}
+                  maxTime={10}
+                  position={{ top: '80px', right: '20px' }}
+                />
               )}
             </div>
           )}
@@ -971,17 +977,9 @@ function App() {
             </>
           ) : (
             <div className="question-container swipe-content" ref={contentRef}>
-              {tutorialMode ? (
+              {tutorialMode && (
                 <div className="w-full bg-orange-500 text-white py-2 px-4 text-center font-bold">
                   Tutorial Mode: Question {questionsAnswered} of 5
-                </div>
-              ) : (
-                <div className="w-full mb-4 px-4">
-                  <div className="flex justify-between text-xs text-gray-600 mb-1">
-                    <span className="font-medium">Questions Answered: {questionsAnswered}</span>
-                  </div>
-                  
-                  {/* REMOVED: Orange bar below questions answered text */}
                 </div>
               )}
               
@@ -1000,6 +998,8 @@ function App() {
                     tutorialMode={tutorialMode}
                     onExplanationShow={handleExplanationVisibility}
                     onExplanationContinue={handleExplanationContinue}
+                    correctAnswers={correctAnswers}
+                    questionsAnswered={questionsAnswered}
                   />
                   
                   {/* Add swipe navigation in tutorial mode */}
@@ -1118,6 +1118,21 @@ function App() {
         .swipe-content {
           position: relative;
           transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Smaller YouTube login button */
+        .absolute.top-4.right-4.z-50 button {
+          height: 36px;
+          padding: 0 12px;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .absolute.top-4.right-4.z-50 button svg {
+          width: 18px;
+          height: 18px;
         }
 
         @media (max-width: 768px) {
