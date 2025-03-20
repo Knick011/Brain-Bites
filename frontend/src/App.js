@@ -651,26 +651,36 @@ function App() {
   }, [inRewardsFlow, availableVideos, currentVideo, getRandomVideo, finishRewardsFlow]);
   
   // Updated handleVideoSkip for the continuous rewards flow
-  const handleVideoSkip = useCallback(() => {
-    // If we have a current video, mark it as viewed
-    if (currentVideo && currentVideo.id) {
-      setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
-    }
-    
-    // If in rewards flow and more videos available, show confirmation
-    if (inRewardsFlow && availableVideos > 0) {
-      setShowRewardsConfirmation(true);
+  // Updated handleVideoSkip for the continuous rewards flow
+const handleVideoSkip = useCallback(() => {
+  // Mark current video as viewed
+  if (currentVideo && currentVideo.id) {
+    setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
+  }
+  
+  // If in rewards flow and more videos available, go to next video (without confirmation)
+  if (inRewardsFlow && availableVideos > 0) {
+    // Get the next video
+    const nextVideo = getRandomVideo();
+    if (nextVideo) {
+      // Set the next video
+      setCurrentVideo(nextVideo);
+      // Mark it as viewed
+      setViewedVideoIds(prev => new Set([...prev, nextVideo.id]));
+      // Decrement available videos
+      setAvailableVideos(prev => prev - 1);
       return;
     }
-    
-    // If in rewards flow but no more videos available, show completion message
-    if (inRewardsFlow && availableVideos === 0) {
-      finishRewardsFlow();
-      return;
-    }
-    
-    // Default behavior for tutorial mode or single video
-    setInRewardsFlow(false);
+  }
+  
+  // If in rewards flow but no more videos available, show completion message
+  if (inRewardsFlow && availableVideos === 0) {
+    finishRewardsFlow();
+    return;
+  }
+  
+  // Only if not in rewards flow, go back to questions
+  if (!inRewardsFlow) {
     setCurrentVideo(null);
     setShowQuestion(true);
     
@@ -678,7 +688,8 @@ function App() {
     if (tutorialMode) {
       fetchQuestion();
     }
-  }, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, finishRewardsFlow]);
+  }
+}, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, getRandomVideo, finishRewardsFlow]);
   
   // Handle rewards confirmation responses
   const handleConfirmExitRewards = useCallback(() => {
@@ -703,34 +714,34 @@ function App() {
   }, []);
   
   // Updated handleVideoToQuestionTransition for manual transitions
-  const handleVideoToQuestionTransition = useCallback(() => {
-    // Don't allow manual transitions during rewards flow
-    if (inRewardsFlow) {
-      // Instead, show the skip confirmation
-      setShowRewardsConfirmation(true);
-      return;
-    }
-    
-    // Play transition sound
-    SoundEffects.playTransition();
-    
-    // Mark video as viewed
-    if (currentVideo && currentVideo.id) {
-      setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
-    }
-    
-    // Clear current video to force a fresh one next time
-    setCurrentVideo(null);
-    setShowQuestion(true);
-    
-    // In tutorial mode, fetch next question after video
-    if (tutorialMode) {
-      fetchQuestion();
-    }
-    
-    // Reset swipe enabled
-    setSwipeEnabled(false);
-  }, [tutorialMode, fetchQuestion, currentVideo, inRewardsFlow]);
+// Updated handleVideoToQuestionTransition for manual transitions
+const handleVideoToQuestionTransition = useCallback(() => {
+  // If in rewards flow, treat this the same as a skip - go to next video
+  if (inRewardsFlow) {
+    handleVideoSkip();
+    return;
+  }
+  
+  // Play transition sound
+  SoundEffects.playTransition();
+  
+  // Mark video as viewed
+  if (currentVideo && currentVideo.id) {
+    setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
+  }
+  
+  // Clear current video to force a fresh one next time
+  setCurrentVideo(null);
+  setShowQuestion(true);
+  
+  // In tutorial mode, fetch next question after video
+  if (tutorialMode) {
+    fetchQuestion();
+  }
+  
+  // Reset swipe enabled
+  setSwipeEnabled(false);
+}, [tutorialMode, fetchQuestion, currentVideo, handleVideoSkip, inRewardsFlow]);
 
   // Handle YouTube login status change
   const handleYouTubeLoginStatusChange = useCallback((isSignedIn, videos = []) => {
