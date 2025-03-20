@@ -1,8 +1,9 @@
-// components/VQLN/Question/PointsAnimation.js
+// Updated components/VQLN/Question/PointsAnimation.js
 import React, { useEffect, useState } from 'react';
 
 /**
  * Enhanced Points Animation with time-based scoring
+ * Now with more visible positioning near the score
  */
 const PointsAnimation = ({ points, position = {}, isTimeMode = false, answerTime = null, maxTime = 10 }) => {
   const [visible, setVisible] = useState(true);
@@ -18,6 +19,12 @@ const PointsAnimation = ({ points, position = {}, isTimeMode = false, answerTime
       const finalPoints = Math.floor(points * timeMultiplier);
       
       setCalculatedPoints(finalPoints);
+      console.log("Points animation", { 
+        basePoints: points, 
+        timeRatio, 
+        multiplier: timeMultiplier, 
+        finalPoints 
+      });
     } else {
       setCalculatedPoints(points);
     }
@@ -32,11 +39,12 @@ const PointsAnimation = ({ points, position = {}, isTimeMode = false, answerTime
   
   if (!visible) return null;
   
-  // Default position at center of screen if not provided
+  // Use position prop if provided, otherwise center in the screen
+  // CHANGED: Default to show near the score in the top right
   const defaultPosition = {
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)'
+    top: '120px',
+    right: '20px',
+    transform: 'none'
   };
   
   const stylePosition = {
@@ -55,9 +63,10 @@ const PointsAnimation = ({ points, position = {}, isTimeMode = false, answerTime
   // Additional class for time-based points
   const timeClass = isTimeMode ? 'points-time-based' : '';
   
+  // ENHANCED: More visible styling
   return (
     <div 
-      className={`points-animation ${getPointColor()} ${timeClass}`}
+      className={`fixed z-50 ${getPointColor()} ${timeClass} bg-white px-4 py-2 rounded-xl shadow-lg font-bold text-2xl animate-bounce`}
       style={stylePosition}
     >
       {/* Main points display */}
@@ -65,8 +74,8 @@ const PointsAnimation = ({ points, position = {}, isTimeMode = false, answerTime
       
       {/* Bonus indicator for time-based scoring */}
       {isTimeMode && calculatedPoints > points && (
-        <div className="points-bonus-indicator">
-          <span className="points-bonus-text">FAST BONUS!</span>
+        <div className="text-xs font-medium -mb-1 text-center">
+          <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">SPEED BONUS!</span>
         </div>
       )}
     </div>
