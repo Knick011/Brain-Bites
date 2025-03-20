@@ -1,4 +1,4 @@
-// components/VQLN/Question/QuestionCard.js
+// Updated components/VQLN/Question/QuestionCard.js
 import React, { useState, useEffect } from 'react';
 import AnswerNotification from './AnswerNotification';
 import SoundEffects from '../../../utils/SoundEffects';
@@ -98,6 +98,10 @@ const QuestionCard = ({
       
       // Play incorrect sound for timeout
       SoundEffects.playIncorrect();
+      
+      // Pass the incorrect answer to the parent component for streak reset
+      // Add explicit timeout handling for streak reset
+      onAnswerSubmit(false, 10);
     }
   };
 
