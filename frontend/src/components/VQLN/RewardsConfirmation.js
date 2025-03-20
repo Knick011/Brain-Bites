@@ -1,6 +1,6 @@
-// Updated RewardsConfirmation.js for continuous rewards flow
+// Updated RewardsConfirmation.js with clearer options
 import React from 'react';
-import { Video, AlertTriangle, X, Check } from 'lucide-react';
+import { Video, X, Check } from 'lucide-react';
 import StandardPopup from './Common/StandardPopup';
 
 const RewardsConfirmation = ({ onConfirm, onCancel, remainingVideos }) => {
