@@ -1,4 +1,4 @@
-// Fixed QuestionCard.js
+// Updated QuestionCard.js
 import React, { useState, useEffect } from 'react';
 import AnswerNotification from './AnswerNotification';
 import SoundEffects from '../../../utils/SoundEffects';
@@ -11,7 +11,9 @@ const QuestionCard = ({
   onSelectAnswer,
   tutorialMode = false,
   onExplanationShow,
-  onExplanationContinue
+  onExplanationContinue,
+  correctAnswers = 0,  // Added parameter
+  questionsAnswered = 0 // Added parameter
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -150,9 +152,6 @@ const QuestionCard = ({
     setTimeout(() => {
       setShowExplanation(true);
       
-      // No need to play sounds here as they'll be played in the parent component
-      // based on the onAnswerSubmit callback
-      
       // Explicitly notify parent of the result with timing info
       if (onAnswerSubmit) {
         debugLog("Submitting answer result to parent", { isCorrect, remainingTime });
@@ -179,11 +178,18 @@ const QuestionCard = ({
     <div className="bg-[#FFF8E7] h-full">
       <div className="w-full mx-auto max-w-3xl p-4">
         <div className="bg-white rounded-lg shadow-md p-6 mt-4">
-          {/* Streak Display */}
+          {/* Enhanced header with streak and questions correct */}
           <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-700 font-medium">Streak:</span>
-              <span className="bg-orange-500 text-white px-3 py-1 rounded-full">{streak}</span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-700 font-medium">Streak:</span>
+                <span className="bg-orange-500 text-white px-3 py-1 rounded-full">{streak}</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-gray-700 font-medium">Correct:</span>
+                <span className="bg-green-500 text-white px-3 py-1 rounded-full">{correctAnswers}/{questionsAnswered}</span>
+              </div>
             </div>
             
             {timeMode && (
@@ -235,7 +241,7 @@ const QuestionCard = ({
               explanation={question.explanation}
               correctAnswer={question.options?.[question.correctAnswer] || ""}
               tutorialMode={tutorialMode}
-              onContinue={handleContinue} // Pass the continue handler
+              onContinue={handleContinue}
               autoAdvanceDelay={7000} // Auto-advance after 7 seconds
             />
           )}
