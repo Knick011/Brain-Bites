@@ -1,5 +1,5 @@
 /**
- * Service for managing sound effects with callback system
+ * Service for managing sound effects with callback system - FIXED VERSION
  */
 class SoundEffects {
   static sounds = {
@@ -10,7 +10,7 @@ class SoundEffects {
     streak: null
   };
 
-  // Add callback tracking
+  // Add callback tracking - but simplify the implementation
   static correctCallbacks = [];
 
   static preloadSounds() {
@@ -46,11 +46,18 @@ class SoundEffects {
     }
   }
 
-  // Register a callback for correct answers
+  // Register a callback for correct answers - SIMPLIFIED
   static onCorrectAnswer(callback) {
-    this.correctCallbacks.push(callback);
+    console.log("Registering correct answer callback");
+    
+    // Only register if function
+    if (typeof callback === 'function') {
+      this.correctCallbacks.push(callback);
+    }
+    
     // Return a function to unregister
     return () => {
+      console.log("Unregistering correct answer callback");
       this.correctCallbacks = this.correctCallbacks.filter(cb => cb !== callback);
     };
   }
@@ -88,13 +95,15 @@ class SoundEffects {
     }
   }
 
+  // FIXED: Only play the sound, don't update state here
   static playCorrect() {
-    console.log('Playing correct sound and triggering callbacks');
+    console.log('Playing correct sound');
     this.playSound('correct');
     
     // Call all registered callbacks
     this.correctCallbacks.forEach(callback => {
       try {
+        console.log("Triggering correct answer callback");
         callback();
       } catch (error) {
         console.error('Error in correct answer callback:', error);
