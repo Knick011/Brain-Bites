@@ -1,10 +1,12 @@
+// Updated RewardsButton.js component
+
 import React, { useState } from 'react';
-import { Video, X } from 'lucide-react';
+import { Video, X, PlayCircle } from 'lucide-react';
 
 /**
- * Button for accessing video rewards
+ * Button for accessing video rewards - with continuous mode support
  */
-const RewardsButton = ({ availableVideos, onWatchVideo }) => {
+const RewardsButton = ({ availableVideos, onWatchVideo, isRewardsFlow = false }) => {
   const [showRewards, setShowRewards] = useState(false);
   
   return (
@@ -39,15 +41,28 @@ const RewardsButton = ({ availableVideos, onWatchVideo }) => {
             </div>
             
             {availableVideos > 0 ? (
-              <button 
-                onClick={() => {
-                  onWatchVideo();
-                  setShowRewards(false);
-                }}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-medium transition-colors"
-              >
-                Watch Now
-              </button>
+              <div className="space-y-4">
+                <button 
+                  onClick={() => {
+                    onWatchVideo();
+                    setShowRewards(false);
+                  }}
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <PlayCircle size={20} />
+                  <span>
+                    {availableVideos > 1 
+                      ? `Watch All ${availableVideos} Videos` 
+                      : "Watch Video"}
+                  </span>
+                </button>
+                
+                {availableVideos > 1 && (
+                  <p className="text-sm text-gray-500 text-center">
+                    You can watch all your videos in a row or exit anytime to save some for later!
+                  </p>
+                )}
+              </div>
             ) : (
               <div className="text-center text-gray-600 bg-gray-100 rounded-lg p-4">
                 <p>Answer more questions correctly to earn video rewards!</p>
