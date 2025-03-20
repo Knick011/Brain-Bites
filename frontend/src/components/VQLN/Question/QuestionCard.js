@@ -1,4 +1,4 @@
-// Updated components/VQLN/Question/QuestionCard.js
+// Fixed QuestionCard.js
 import React, { useState, useEffect } from 'react';
 import AnswerNotification from './AnswerNotification';
 import SoundEffects from '../../../utils/SoundEffects';
@@ -17,9 +17,15 @@ const QuestionCard = ({
   const [showExplanation, setShowExplanation] = useState(false);
   const [answerTime, setAnswerTime] = useState(10);
   const [timerActive, setTimerActive] = useState(false);
+  
+  // Debug helper
+  const debugLog = (message, data) => {
+    console.log(`[QuestionCard] ${message}`, data);
+  };
 
   // Reset states when a new question is loaded
   useEffect(() => {
+    debugLog("New question loaded, resetting state", { timeMode });
     setSelectedAnswer(null);
     setShowExplanation(false);
     setAnswerTime(10);
@@ -30,6 +36,7 @@ const QuestionCard = ({
   useEffect(() => {
     let timer;
     if (timerActive) {
+      debugLog("Timer activated", { answerTime });
       timer = setInterval(() => {
         setAnswerTime(prev => {
           if (prev <= 1) {
@@ -49,6 +56,7 @@ const QuestionCard = ({
   // Update parent component with selected answer
   useEffect(() => {
     if (onSelectAnswer && selectedAnswer !== null) {
+      debugLog("Updating parent with selected answer", { selectedAnswer });
       onSelectAnswer(selectedAnswer);
     }
   }, [selectedAnswer, onSelectAnswer]);
@@ -56,6 +64,7 @@ const QuestionCard = ({
   // Notify parent when explanation is shown
   useEffect(() => {
     if (showExplanation && onExplanationShow) {
+      debugLog("Notifying parent explanation is shown");
       onExplanationShow(true);
     }
   }, [showExplanation, onExplanationShow]);
@@ -69,6 +78,7 @@ const QuestionCard = ({
       
       // Check if key matches an option key (A, B, C, D, etc.)
       if (question.options && question.options[key]) {
+        debugLog(`Key press detected: ${key}`);
         handleAnswerClick(key);
       }
       
@@ -82,6 +92,7 @@ const QuestionCard = ({
       };
       
       if (numberMap[e.key] && question.options && question.options[numberMap[e.key]]) {
+        debugLog(`Number key press detected: ${e.key} → ${numberMap[e.key]}`);
         handleAnswerClick(numberMap[e.key]);
       }
     };
@@ -91,17 +102,17 @@ const QuestionCard = ({
   }, [question, selectedAnswer]);
 
   const handleTimeUp = () => {
+    debugLog("Time up!");
     if (!selectedAnswer) {
       setSelectedAnswer('TIMEOUT');
       if (onSelectAnswer) onSelectAnswer('TIMEOUT');
       setShowExplanation(true);
       
-      // Play incorrect sound for timeout
-      SoundEffects.playIncorrect();
-      
-      // Pass the incorrect answer to the parent component for streak reset
-      // Add explicit timeout handling for streak reset
-      onAnswerSubmit(false, 10);
+      // Pass the incorrect answer to the parent component
+      if (onAnswerSubmit) {
+        debugLog("Submitting timeout as incorrect answer");
+        onAnswerSubmit(false, 10);
+      }
     }
   };
 
@@ -112,6 +123,8 @@ const QuestionCard = ({
   const handleAnswerClick = (option) => {
     if (selectedAnswer !== null) return;
     
+    debugLog(`Answer clicked: ${option}`);
+    
     // Play button press sound when selecting an answer
     SoundEffects.playButtonPress();
     
@@ -121,11 +134,14 @@ const QuestionCard = ({
     // Stop the timer
     setTimerActive(false);
     
-    // Check if the answer is correct - add explicit logging
+    // Check if the answer is correct
     const isCorrect = option === question.correctAnswer;
-    console.log("Selected answer:", option);
-    console.log("Correct answer:", question.correctAnswer);
-    console.log("Is correct?", isCorrect);
+    debugLog("Answer validation", { 
+      selected: option,
+      correct: question.correctAnswer,
+      isCorrect,
+      remainingTime
+    });
     
     setSelectedAnswer(option);
     if (onSelectAnswer) onSelectAnswer(option);
@@ -134,35 +150,28 @@ const QuestionCard = ({
     setTimeout(() => {
       setShowExplanation(true);
       
-      // Play appropriate sound based on answer correctness
-      if (isCorrect) {
-        SoundEffects.playCorrect();
-      } else {
-        SoundEffects.playIncorrect();
+      // No need to play sounds here as they'll be played in the parent component
+      // based on the onAnswerSubmit callback
+      
+      // Explicitly notify parent of the result with timing info
+      if (onAnswerSubmit) {
+        debugLog("Submitting answer result to parent", { isCorrect, remainingTime });
+        onAnswerSubmit(isCorrect, remainingTime ? 10 - remainingTime : null);
       }
     }, 300);
   };
 
-  // Handle continue from explanation - UPDATED TO PROPERLY CHECK CORRECTNESS
+  // Handle continue from explanation
   const handleContinue = () => {
-    console.log("Handle continue triggered in QuestionCard");
+    debugLog("Continue from explanation triggered");
     setShowExplanation(false);
-    
-    // Directly check if answer was correct
-    const isCorrect = selectedAnswer === question.correctAnswer;
-    console.log("Answer submitted from QuestionCard:", selectedAnswer);
-    console.log("Correct answer:", question.correctAnswer);
-    console.log("Is correct?", isCorrect);
     
     // Play transition sound
     SoundEffects.playTransition();
     
     if (onExplanationContinue) {
-      // Call the parent's continuation function
+      debugLog("Calling parent continue handler");
       onExplanationContinue();
-    } else {
-      // Explicitly pass the isCorrect value to the parent
-      onAnswerSubmit(isCorrect, 10 - answerTime);
     }
   };
 
