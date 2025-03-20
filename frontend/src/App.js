@@ -1,4 +1,4 @@
-// Complete Updated App.js with all new features
+// Complete Updated App.js with all requested changes
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -17,7 +17,7 @@ import YouTubeLogin from './components/VQLN/YouTubeLogin';
 import RewardsConfirmation from './components/VQLN/RewardsConfirmation';
 import AllDoneMessage from './components/VQLN/AllDoneMessage';
 import StorageService from './utils/StorageService';
-import { Home } from 'lucide-react';
+import { Home, X } from 'lucide-react';
 import './styles/theme.css';
 import './styles/GameStyles.css';
 import './styles/popup-animations.css';
@@ -69,6 +69,8 @@ function App() {
   const [isYouTubeSignedIn, setIsYouTubeSignedIn] = useState(false);
   const [showRewardsConfirmation, setShowRewardsConfirmation] = useState(false);
   const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
+  const [inRewardsFlow, setInRewardsFlow] = useState(false);
+  const [totalVideos, setTotalVideos] = useState(0);
 
   // Refs for performance optimization
   const contentRef = useRef(null);
@@ -497,7 +499,7 @@ function App() {
     } else {
       processIncorrectAnswer();
     }
-  }, [processCorrectAnswer, processIncorrectAnswer, tutorialMode]);
+  }, [processCorrectAnswer, processIncorrectAnswer, tutorialMode, timeMode]);
 
   // Handle explanation continue
   const handleExplanationContinue = useCallback(() => {
@@ -528,15 +530,21 @@ function App() {
     setSwipeEnabled(false);
   }, [tutorialMode, currentVideo, fetchQuestion, getRandomVideo]);
 
-  // Enhanced watchVideo function
+  // Updated watchVideo function with rewards flow
   const watchVideo = useCallback(async () => {
     if (availableVideos <= 0) return;
     
     try {
       setIsVideoLoading(true);
       
-      // Get fresh videos directly from service to ensure variety
-      const freshVideos = await YouTubeService.getViralShorts(Math.min(availableVideos, 5));
+      // Set the rewards flow flag
+      setInRewardsFlow(true);
+      
+      // Store total videos count for progress indicator
+      setTotalVideos(availableVideos);
+      
+      // Get fresh videos directly from service to ensure variety - get enough for ALL rewards
+      const freshVideos = await YouTubeService.getViralShorts(Math.min(availableVideos * 2, 20));
       console.log(`Got ${freshVideos.length} fresh videos for reward watching`);
       
       if (freshVideos && freshVideos.length > 0) {
@@ -580,7 +588,6 @@ function App() {
         setShowQuestion(false);
         
         // Decrement available videos only when viewing
-        // This is important to allow exiting without losing rewards
         setAvailableVideos(prev => prev - 1);
         setSwipeEnabled(true);
       } else {
@@ -590,43 +597,91 @@ function App() {
       console.error('Error loading video:', error);
       setError("Couldn't load video: " + error.message);
       fetchQuestion();
+      setInRewardsFlow(false); // Exit rewards flow mode on error
     } finally {
       setIsVideoLoading(false);
     }
   }, [availableVideos, fetchQuestion, viewedVideoIds]);
 
-  // Enhanced handleVideoSkip for confirmations
+  // Updated handleVideoEnd for continuous rewards flow
+  const handleVideoEnd = useCallback(() => {
+    // Mark video as viewed before moving on
+    if (currentVideo && currentVideo.id) {
+      setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
+    }
+    
+    // In rewards flow, automatically go to the next video if available
+    if (inRewardsFlow) {
+      if (availableVideos > 0) {
+        // Get the next video
+        const nextVideo = getRandomVideo();
+        if (nextVideo) {
+          // Set the next video
+          setCurrentVideo(nextVideo);
+          // Mark it as viewed
+          setViewedVideoIds(prev => new Set([...prev, nextVideo.id]));
+          // Decrement available videos
+          setAvailableVideos(prev => prev - 1);
+        } else {
+          // No more videos available in our list
+          setShowAllDoneMessage(true);
+          
+          // Exit rewards flow after some delay
+          setTimeout(() => {
+            setInRewardsFlow(false);
+            setCurrentVideo(null);
+            setShowQuestion(true);
+            setShowAllDoneMessage(false);
+          }, 3000);
+        }
+      } else {
+        // No more rewards left
+        setShowAllDoneMessage(true);
+        
+        // Exit rewards flow after some delay
+        setTimeout(() => {
+          setInRewardsFlow(false);
+          setCurrentVideo(null);
+          setShowQuestion(true);
+          setShowAllDoneMessage(false);
+        }, 3000);
+      }
+    } else {
+      // Not in rewards flow, use the original behavior (go back to questions)
+      setCurrentVideo(null);
+      setShowQuestion(true);
+    }
+  }, [inRewardsFlow, availableVideos, currentVideo, getRandomVideo]);
+  
+  // Updated handleVideoSkip for the continuous rewards flow
   const handleVideoSkip = useCallback(() => {
     // If we have a current video, mark it as viewed
     if (currentVideo && currentVideo.id) {
       setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
     }
     
-    // If there are more videos and not in tutorial mode, show confirmation
-    if (availableVideos > 0 && !tutorialMode) {
+    // If in rewards flow and more videos available, show confirmation
+    if (inRewardsFlow && availableVideos > 0) {
       setShowRewardsConfirmation(true);
       return;
     }
     
-    // If no more videos, show completion message
-    if (availableVideos === 0 && !tutorialMode) {
+    // If in rewards flow but no more videos available, show completion message
+    if (inRewardsFlow && availableVideos === 0) {
       setShowAllDoneMessage(true);
       
-      // Clear current video and go back to questions after delay
+      // Exit rewards flow after delay
       setTimeout(() => {
+        setInRewardsFlow(false);
         setCurrentVideo(null);
         setShowQuestion(true);
         setShowAllDoneMessage(false);
-        
-        // In tutorial mode, fetch next question after video
-        if (tutorialMode) {
-          fetchQuestion();
-        }
       }, 3000);
       return;
     }
     
     // Default behavior for tutorial mode or single video
+    setInRewardsFlow(false);
     setCurrentVideo(null);
     setShowQuestion(true);
     
@@ -634,25 +689,39 @@ function App() {
     if (tutorialMode) {
       fetchQuestion();
     }
-  }, [tutorialMode, fetchQuestion, currentVideo, availableVideos]);
+  }, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow]);
   
-  // Handle video ending
-  const handleVideoEnd = useCallback(() => {
-    // Don't automatically transition in tutorial mode - wait for swipe
+  // Handle rewards confirmation responses
+  const handleConfirmExitRewards = useCallback(() => {
+    setShowRewardsConfirmation(false);
+    
+    // Exit the rewards flow
+    setInRewardsFlow(false);
+    
+    // Clear current video to force a refresh next time
+    setCurrentVideo(null);
+    setShowQuestion(true);
+    
+    // Save state after exiting
     if (!tutorialMode) {
-      // Mark video as viewed before moving on
-      if (currentVideo && currentVideo.id) {
-        setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
-      }
-      
-      // Clear current video to force a fresh one next time
-      setCurrentVideo(null);
-      setShowQuestion(true);
+      StorageService.saveAvailableVideos(availableVideos);
     }
-  }, [tutorialMode, currentVideo]);
+  }, [tutorialMode, availableVideos]);
+
+  const handleCancelExitRewards = useCallback(() => {
+    setShowRewardsConfirmation(false);
+    // Continue with the current video
+  }, []);
   
-  // Handle transition from video to question
+  // Updated handleVideoToQuestionTransition for manual transitions
   const handleVideoToQuestionTransition = useCallback(() => {
+    // Don't allow manual transitions during rewards flow
+    if (inRewardsFlow) {
+      // Instead, show the skip confirmation
+      setShowRewardsConfirmation(true);
+      return;
+    }
+    
     // Play transition sound
     SoundEffects.playTransition();
     
@@ -672,26 +741,7 @@ function App() {
     
     // Reset swipe enabled
     setSwipeEnabled(false);
-  }, [tutorialMode, fetchQuestion, currentVideo]);
-
-  // Handle rewards confirmation responses
-  const handleConfirmExitRewards = useCallback(() => {
-    setShowRewardsConfirmation(false);
-    
-    // Clear current video to force a refresh next time
-    setCurrentVideo(null);
-    setShowQuestion(true);
-    
-    // Save state after exiting
-    if (!tutorialMode) {
-      StorageService.saveAvailableVideos(availableVideos);
-    }
-  }, [tutorialMode, availableVideos]);
-
-  const handleCancelExitRewards = useCallback(() => {
-    setShowRewardsConfirmation(false);
-    // Continue with the current video
-  }, []);
+  }, [tutorialMode, fetchQuestion, currentVideo, inRewardsFlow]);
 
   // Handle YouTube login status change
   const handleYouTubeLoginStatusChange = useCallback((isSignedIn, videos = []) => {
@@ -817,7 +867,7 @@ function App() {
     }
   }, [tutorialMode]);
 
-// UI interaction handlers - continued
+  // UI interaction handlers
   const handleTutorialNext = useCallback(() => {
     SoundEffects.playButtonPress();
     
@@ -866,40 +916,76 @@ function App() {
     }
   }, [swipeEnabled]);
 
+  // Video rewards progress component to show during continuous rewards flow
+  const VideoRewardsProgress = ({ currentIndex, totalVideos, onSkip }) => {
+    return (
+      <div className="absolute bottom-10 left-0 right-0 z-30 flex justify-center">
+        <div className="bg-black bg-opacity-50 backdrop-blur-sm rounded-full px-5 py-2 flex items-center gap-4">
+          <div className="text-white text-sm">
+            <span className="font-bold">{currentIndex}</span>
+            <span className="mx-1">/</span>
+            <span>{totalVideos}</span>
+          </div>
+          
+          <div className="w-40 h-1.5 bg-white bg-opacity-20 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-orange-500 rounded-full transition-all duration-300"
+              style={{ width: `${(currentIndex / totalVideos) * 100}%` }}
+            ></div>
+          </div>
+          
+          <button
+            onClick={onSkip}
+            className="text-white hover:text-orange-300 transition-colors text-sm"
+          >
+            Skip
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="app">
-      {/* Login/Rewards buttons visibility */}
+      {/* Rewards/Exit Button based on context */}
       {!showWelcome && !showSection && (
         <>
-          {showQuestion && !isLoading && !tutorialMode && (
+          {showQuestion && !isLoading && !tutorialMode ? (
+            // Show rewards button during question mode
             <RewardsButton 
               availableVideos={availableVideos} 
               onWatchVideo={watchVideo} 
+              isRewardsFlow={inRewardsFlow}
             />
-          )}
-          
-          {timeMode && (
-            <div className="fixed top-20 right-4 z-40 bg-white shadow-md rounded-full px-4 py-2 flex items-center gap-2">
-              <span className="font-bold text-lg">Score: {score}</span>
-              
-              {/* CHANGED: Points animation position - near score */}
-              {showPointsAnimation && (
-                <PointsAnimation 
-                  points={pointsEarned}
-                  isTimeMode={timeMode}
-                  answerTime={answerTime}
-                  maxTime={10}
-                  position={{ top: '80px', right: '20px' }}
-                />
-              )}
-            </div>
-          )}
+          ) : inRewardsFlow ? (
+            // Show exit button during rewards flow
+            <button 
+              onClick={() => setShowRewardsConfirmation(true)}
+              className="fixed top-4 left-4 z-50 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full flex items-center gap-2 transition-colors shadow-md"
+            >
+              <X size={20} />
+              <span className="font-medium">Exit</span>
+            </button>
+          ) : null}
         </>
       )}
       
-      {/* YouTube Login Button */}
-      {!showWelcome && !showSection && (
-        <YouTubeLogin onLoginStatusChange={handleYouTubeLoginStatusChange} />
+      {/* Score Display */}
+      {timeMode && (
+        <div className="fixed top-4 right-4 z-40 bg-white shadow-md rounded-full px-4 py-2 flex items-center gap-2">
+          <span className="font-bold text-lg">Score: {score}</span>
+          
+          {/* Points animation position */}
+          {showPointsAnimation && (
+            <PointsAnimation 
+              points={pointsEarned}
+              isTimeMode={timeMode}
+              answerTime={answerTime}
+              maxTime={10}
+              position={{ top: '60px', right: '20px' }}
+            />
+          )}
+        </div>
       )}
 
       {/* Home Button */}
@@ -918,9 +1004,14 @@ function App() {
         <InitialWelcome onStart={handleStart} isLoading={isLoading} />
       )}
       
-      {/* Section Selection */}
+      {/* Section Selection with YouTube Login */}
       {showSection && (
-        <MainSelection onSelect={handleMainSelection} />
+        <>
+          <MainSelection 
+            onSelect={handleMainSelection} 
+            onYouTubeLoginStatusChange={handleYouTubeLoginStatusChange}
+          />
+        </>
       )}
       
       {/* Tutorial Popup */}
@@ -952,13 +1043,25 @@ function App() {
           {!showQuestion ? (
             <>
               {!isVideoLoading ? (
-                <VideoCard 
-                  url={currentVideo}
-                  onEnd={handleVideoEnd}
-                  onSkip={handleVideoSkip}
-                  onReady={() => {}}
-                  tutorialMode={tutorialMode}
-                />
+                <>
+                  <VideoCard 
+                    url={currentVideo}
+                    onEnd={handleVideoEnd}
+                    onSkip={handleVideoSkip}
+                    onReady={() => {}}
+                    tutorialMode={tutorialMode}
+                    inRewardsFlow={inRewardsFlow}
+                  />
+                  
+                  {/* Video Rewards Progress */}
+                  {inRewardsFlow && (
+                    <VideoRewardsProgress 
+                      currentIndex={totalVideos - availableVideos}
+                      totalVideos={totalVideos}
+                      onSkip={handleVideoSkip}
+                    />
+                  )}
+                </>
               ) : (
                 <div className="flex items-center justify-center h-full bg-black">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
@@ -1037,7 +1140,16 @@ function App() {
       )}
 
       {/* All Done Message */}
-      {showAllDoneMessage && <AllDoneMessage />}
+      {showAllDoneMessage && (
+        <AllDoneMessage 
+          onClose={() => {
+            setShowAllDoneMessage(false);
+            setInRewardsFlow(false);
+            setCurrentVideo(null);
+            setShowQuestion(true);
+          }}
+        />
+      )}
       
       {/* Error message */}
       {error && (
@@ -1090,10 +1202,8 @@ function App() {
           You're offline. Some features may not work.
         </div>
       )}
-      
 
-
-      {/* CSS for video protection */}
+      {/* CSS for video protection and component styling */}
       <style jsx>{`
         /* Video protection overlay */
         #video-protection-overlay, #video-swipe-overlay {
