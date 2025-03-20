@@ -1,8 +1,7 @@
-// Updated MainSelection.js to include YouTube login
+// Updated MainSelection.js with improved YouTube button
 import React, { useEffect, useState } from 'react';
-import { Brain, Sparkles, Trophy, Video, CheckCircle, BarChart } from 'lucide-react';
+import { Brain, Sparkles, Trophy, Video, CheckCircle, BarChart, Youtube } from 'lucide-react';
 import StorageService from '../../../utils/StorageService';
-import YouTubeLogin from '../YouTubeLogin'; // Import YouTubeLogin
 
 /**
  * Category selection screen with progress stats
@@ -40,11 +39,24 @@ const MainSelection = ({ onSelect, onYouTubeLoginStatusChange }) => {
     setShowStats(hasHistory);
   }, []);
 
+  // Handle YouTube login
+  const handleYouTubeLogin = () => {
+    if (onYouTubeLoginStatusChange) {
+      onYouTubeLoginStatusChange(true);
+    }
+  };
+
   return (
     <div className="selection-screen">
-      {/* YouTube login positioned at the top-right */}
+      {/* YouTube login positioned at the top-right with improved styling */}
       <div className="absolute top-4 right-4">
-        <YouTubeLogin onLoginStatusChange={onYouTubeLoginStatusChange} />
+        <button 
+          onClick={handleYouTubeLogin}
+          className="bg-white text-gray-800 px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5 shadow-md border border-gray-200 hover:bg-gray-50 transition-colors"
+        >
+          <Youtube size={16} className="text-red-500" />
+          <span>Connect</span>
+        </button>
       </div>
       
       <h1 className="selection-title">Choose Your Path</h1>
