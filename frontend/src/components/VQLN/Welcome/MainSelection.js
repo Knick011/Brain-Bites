@@ -1,12 +1,13 @@
-// components/VQLN/Welcome/MainSelection.js
+// Updated MainSelection.js to include YouTube login
 import React, { useEffect, useState } from 'react';
 import { Brain, Sparkles, Trophy, Video, CheckCircle, BarChart } from 'lucide-react';
 import StorageService from '../../../utils/StorageService';
+import YouTubeLogin from '../YouTubeLogin'; // Import YouTubeLogin
 
 /**
  * Category selection screen with progress stats
  */
-const MainSelection = ({ onSelect }) => {
+const MainSelection = ({ onSelect, onYouTubeLoginStatusChange }) => {
   const [stats, setStats] = useState({
     questionsAnswered: 0,
     correctAnswers: 0,
@@ -41,6 +42,11 @@ const MainSelection = ({ onSelect }) => {
 
   return (
     <div className="selection-screen">
+      {/* YouTube login positioned at the top-right */}
+      <div className="absolute top-4 right-4">
+        <YouTubeLogin onLoginStatusChange={onYouTubeLoginStatusChange} />
+      </div>
+      
       <h1 className="selection-title">Choose Your Path</h1>
       
       {/* Stats Panel */}
