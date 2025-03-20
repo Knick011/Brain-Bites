@@ -1,4 +1,4 @@
-// Updated VideoCard.js component with rewards flow support
+// Updated VideoCard.js with fixed progress indicators
 import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
 
@@ -172,7 +172,7 @@ const VideoCard = ({
     if (onEnd) onEnd();
   };
 
-  // Video rewards progress component
+  // Video rewards progress component - updated to be cleaner
   const VideoRewardsProgress = () => {
     return (
       <div className="absolute bottom-10 left-0 right-0 z-30 flex justify-center">
@@ -194,7 +194,7 @@ const VideoCard = ({
             onClick={() => onSkip && onSkip()}
             className="text-white hover:text-orange-300 transition-colors text-sm"
           >
-            Skip
+            Next
           </button>
         </div>
       </div>
@@ -289,17 +289,7 @@ const VideoCard = ({
           </div>
         </div>
         
-        {/* Skip button */}
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2">
-          <button
-            onClick={() => onSkip && onSkip()}
-            className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-5 py-2 rounded-full transition-colors backdrop-blur-sm"
-          >
-            Skip
-          </button>
-        </div>
-        
-        {/* Rewards Progress Indicator */}
+        {/* Only show rewards progress indicator for rewards flow */}
         {inRewardsFlow && (
           <VideoRewardsProgress />
         )}
