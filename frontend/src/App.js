@@ -168,6 +168,19 @@ function App() {
     prevTutorialMode.current = tutorialMode;
   }, [score, availableVideos, streak, questionsAnswered, correctAnswers, tutorialMode]);
   
+  // Helper function to finish rewards flow
+  const finishRewardsFlow = useCallback(() => {
+    setShowAllDoneMessage(true);
+    
+    // Exit rewards flow after delay
+    setTimeout(() => {
+      setInRewardsFlow(false);
+      setCurrentVideo(null);
+      setShowQuestion(true);
+      setShowAllDoneMessage(false);
+    }, 3000);
+  }, []);
+  
   // Handle correct answer processing
   const processCorrectAnswer = useCallback((answerTimeValue) => {
     debugLog("Processing correct answer", { tutorialMode, timeMode, streak: streak + 1 });
@@ -242,7 +255,7 @@ function App() {
       });
     }
     
-    // Play the correct sound
+// Play the correct sound
     SoundEffects.playCorrect();
   }, [streak, tutorialMode, timeMode]);
   
@@ -624,34 +637,18 @@ function App() {
           setAvailableVideos(prev => prev - 1);
         } else {
           // No more videos available in our list
-          setShowAllDoneMessage(true);
-          
-          // Exit rewards flow after some delay
-          setTimeout(() => {
-            setInRewardsFlow(false);
-            setCurrentVideo(null);
-            setShowQuestion(true);
-            setShowAllDoneMessage(false);
-          }, 3000);
+          finishRewardsFlow();
         }
       } else {
         // No more rewards left
-        setShowAllDoneMessage(true);
-        
-        // Exit rewards flow after some delay
-        setTimeout(() => {
-          setInRewardsFlow(false);
-          setCurrentVideo(null);
-          setShowQuestion(true);
-          setShowAllDoneMessage(false);
-        }, 3000);
+        finishRewardsFlow();
       }
     } else {
       // Not in rewards flow, use the original behavior (go back to questions)
       setCurrentVideo(null);
       setShowQuestion(true);
     }
-  }, [inRewardsFlow, availableVideos, currentVideo, getRandomVideo]);
+  }, [inRewardsFlow, availableVideos, currentVideo, getRandomVideo, finishRewardsFlow]);
   
   // Updated handleVideoSkip for the continuous rewards flow
   const handleVideoSkip = useCallback(() => {
@@ -668,15 +665,7 @@ function App() {
     
     // If in rewards flow but no more videos available, show completion message
     if (inRewardsFlow && availableVideos === 0) {
-      setShowAllDoneMessage(true);
-      
-      // Exit rewards flow after delay
-      setTimeout(() => {
-        setInRewardsFlow(false);
-        setCurrentVideo(null);
-        setShowQuestion(true);
-        setShowAllDoneMessage(false);
-      }, 3000);
+      finishRewardsFlow();
       return;
     }
     
@@ -689,7 +678,7 @@ function App() {
     if (tutorialMode) {
       fetchQuestion();
     }
-  }, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow]);
+  }, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, finishRewardsFlow]);
   
   // Handle rewards confirmation responses
   const handleConfirmExitRewards = useCallback(() => {
@@ -916,35 +905,6 @@ function App() {
     }
   }, [swipeEnabled]);
 
-  // Video rewards progress component to show during continuous rewards flow
-  const VideoRewardsProgress = ({ currentIndex, totalVideos, onSkip }) => {
-    return (
-      <div className="absolute bottom-10 left-0 right-0 z-30 flex justify-center">
-        <div className="bg-black bg-opacity-50 backdrop-blur-sm rounded-full px-5 py-2 flex items-center gap-4">
-          <div className="text-white text-sm">
-            <span className="font-bold">{currentIndex}</span>
-            <span className="mx-1">/</span>
-            <span>{totalVideos}</span>
-          </div>
-          
-          <div className="w-40 h-1.5 bg-white bg-opacity-20 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-orange-500 rounded-full transition-all duration-300"
-              style={{ width: `${(currentIndex / totalVideos) * 100}%` }}
-            ></div>
-          </div>
-          
-          <button
-            onClick={onSkip}
-            className="text-white hover:text-orange-300 transition-colors text-sm"
-          >
-            Skip
-          </button>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="app">
       {/* Rewards/Exit Button based on context */}
@@ -970,9 +930,9 @@ function App() {
         </>
       )}
       
-      {/* Score Display */}
-      {timeMode && (
-        <div className="fixed top-4 right-4 z-40 bg-white shadow-md rounded-full px-4 py-2 flex items-center gap-2">
+      {/* Score Display - Only shown during questions in time mode */}
+      {timeMode && !showWelcome && !showSection && showQuestion && (
+        <div className="fixed top-4 right-4 z-40 bg-white shadow-md rounded-full px-4 py-2 flex items-center gap-2 animate-fadeIn">
           <span className="font-bold text-lg">Score: {score}</span>
           
           {/* Points animation position */}
@@ -1049,18 +1009,13 @@ function App() {
                     onEnd={handleVideoEnd}
                     onSkip={handleVideoSkip}
                     onReady={() => {}}
+                    onExit={handleVideoToQuestionTransition}
                     tutorialMode={tutorialMode}
                     inRewardsFlow={inRewardsFlow}
+                    currentVideoIndex={totalVideos - availableVideos}
+                    totalVideos={totalVideos}
+                    autoAdvanceDelay={30000} // Auto-advance after 30 seconds
                   />
-                  
-                  {/* Video Rewards Progress */}
-                  {inRewardsFlow && (
-                    <VideoRewardsProgress 
-                      currentIndex={totalVideos - availableVideos}
-                      totalVideos={totalVideos}
-                      onSkip={handleVideoSkip}
-                    />
-                  )}
                 </>
               ) : (
                 <div className="flex items-center justify-center h-full bg-black">
