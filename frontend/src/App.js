@@ -1,4 +1,4 @@
-// Fixed App.js - Complete version with simplified state management
+// Final Updated App.js with all requested changes
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -87,9 +87,6 @@ function App() {
       content: "After the tutorial, Time Mode activates! Answer quickly for more points - up to 2x for super-fast answers!"
     }
   ];
-
-  // IMPORTANT: Completely rewired streak and rewards logic to fix issues
-  // We'll handle everything in handleAnswerSubmit and remove duplicated logic
   
   // Handle correct answer processing
   const processCorrectAnswer = useCallback((answerTimeValue) => {
@@ -107,31 +104,10 @@ function App() {
       const newCorrect = prevCorrect + 1;
       debugLog("Correct answers updated", { prevCorrect, newCorrect });
       
-      // Check for tutorial completion
-      if (tutorialMode && newCorrect >= 5) {
-        debugLog("Tutorial complete! Activating game mode", { newCorrect });
-        
-        setTimeout(() => {
-          setTutorialMode(false);
-          setShowGameModePopup(true);
-          setTimeout(() => {
-            setTimeMode(true);
-            console.log("Time mode activated!");
-          }, 1000);
-        }, 500);
-      }
-      
-      return newCorrect;
-    });
-    
-    // Handle reward logic in non-tutorial mode
-    if (!tutorialMode) {
-      // Check if we should add videos
-      const newStreak = streak + 1;
-      
-      // Every 2 correct answers, award a video
-      if (newStreak % 2 === 0) {
-        debugLog("Adding standard video reward", { newStreak });
+      // CHANGE: Reward logic now based on correct answers, not streaks
+      // For every 2 correct answers, award a video (not dependent on streak)
+      if (!tutorialMode && newCorrect % 2 === 0) {
+        debugLog("Adding standard video reward based on correct answers", { newCorrect });
         setAvailableVideos(prev => {
           const newAvailable = prev + 1;
           debugLog("Available videos updated", { prev, newAvailable });
@@ -139,9 +115,14 @@ function App() {
         });
       }
       
-      // Milestone bonuses (every 5)
+      return newCorrect;
+    });
+    
+    // Keep milestone bonuses based on streaks (every 5)
+    if (!tutorialMode) {
+      const newStreak = streak + 1;
       if (newStreak % 5 === 0) {
-        debugLog("Adding milestone bonus", { newStreak });
+        debugLog("Adding streak milestone bonus", { newStreak });
         setTimeout(() => {
           setCurrentMilestone(newStreak);
           setShowMilestone(true);
@@ -168,7 +149,7 @@ function App() {
       const timeMultiplier = 1 + timeRatio; // 1.0 to 2.0 multiplier
       const finalScore = Math.floor(timeScore * timeMultiplier);
       
-      // Show points animation
+      // Show points animation - CHANGED: positioned near the score
       setPointsEarned(finalScore);
       setShowPointsAnimation(true);
       setTimeout(() => setShowPointsAnimation(false), 1500);
@@ -200,6 +181,22 @@ function App() {
       fetchQuestion();
     }, 1500);
   }, []);
+
+  // Check for tutorial completion based on questions answered
+  useEffect(() => {
+    // CHANGE: Complete tutorial after 5 questions, regardless of correctness
+    if (tutorialMode && questionsAnswered >= 5) {
+      debugLog("Tutorial complete! Activating game mode", { questionsAnswered });
+      setTimeout(() => {
+        setTutorialMode(false);
+        setShowGameModePopup(true);
+        setTimeout(() => {
+          setTimeMode(true);
+          console.log("Time mode activated!");
+        }, 1000);
+      }, 500);
+    }
+  }, [questionsAnswered, tutorialMode]);
 
   // Monitor network status
   useEffect(() => {
@@ -701,6 +698,13 @@ function App() {
           {timeMode && (
             <div className="fixed top-4 right-4 z-40 bg-white shadow-md rounded-full px-4 py-2 flex items-center gap-2">
               <span className="font-bold text-lg">Score: {score}</span>
+              
+              {/* CHANGED: Points animation position - near score */}
+              {showPointsAnimation && (
+                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 text-xl font-bold text-green-500 bg-white px-3 py-1 rounded-full shadow-md animate-bounce">
+                  +{pointsEarned}
+                </div>
+              )}
             </div>
           )}
         </>
@@ -779,20 +783,9 @@ function App() {
                   <div className="flex justify-between text-xs text-gray-600 mb-1">
                     <span className="font-medium">Questions Answered: {questionsAnswered}</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-orange-500 h-2 rounded-full transition-all duration-500 ease-out w-full"></div>
-                  </div>
+                  
+                  {/* REMOVED: Orange bar below questions answered text */}
                 </div>
-              )}
-              
-              {/* Points Animation */}
-              {showPointsAnimation && (
-                <PointsAnimation 
-                  points={pointsEarned}
-                  isTimeMode={timeMode}
-                  answerTime={answerTime}
-                  maxTime={10}
-                />
               )}
               
               {isQuestionLoading ? (
@@ -897,19 +890,6 @@ function App() {
         <div>Streak: {streak}</div>
         <div>Score: {score}</div>
         <div>Videos: {availableVideos}</div>
-        <div>
-          <button 
-            onClick={() => {
-              setTutorialMode(false);
-              setTimeMode(true);
-              setShowQuestion(true);
-              console.log("Forced exit from tutorial mode");
-            }}
-            className="bg-red-500 text-white px-2 py-1 rounded text-xs mt-1"
-          >
-            Force Exit Tutorial
-          </button>
-        </div>
       </div>
       
       {/* Reset button - visible always for testing */}
