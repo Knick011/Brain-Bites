@@ -1,4 +1,4 @@
-// components/VQLN/YouTubeLogin.js
+// Updated YouTubeLogin.js with smaller button
 import React, { useState, useEffect } from 'react';
 import { Youtube, AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button } from './Alert';
@@ -121,18 +121,18 @@ const YouTubeLogin = ({ onLoginStatusChange }) => {
         {isSignedIn ? (
           <button
             onClick={handleSignOut}
-            className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center gap-2 hover:bg-red-600 transition-colors"
+            className="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5 hover:bg-red-600 transition-colors shadow-md"
           >
-            <Youtube size={20} />
-            Sign Out
+            <Youtube size={16} />
+            <span>Disconnect</span>
           </button>
         ) : (
           <button
             onClick={handleSignIn}
-            className="bg-white text-red-500 px-4 py-2 rounded-full flex items-center gap-2 hover:bg-gray-100 transition-colors shadow-md"
+            className="bg-white text-gray-800 px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5 shadow-md border border-gray-200 hover:bg-gray-50 transition-colors"
           >
-            <Youtube size={20} />
-            Sign in with YouTube
+            <Youtube size={16} className="text-red-500" />
+            <span>Connect</span>
           </button>
         )}
       </div>
