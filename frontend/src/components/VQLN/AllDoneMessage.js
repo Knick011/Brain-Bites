@@ -1,4 +1,4 @@
-// Enhanced AllDoneMessage.js with better styling and auto-transition
+// Updated AllDoneMessage.js with auto-transition
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, Video } from 'lucide-react';
 import StandardPopup from './Common/StandardPopup';
