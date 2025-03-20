@@ -1,5 +1,4 @@
-// Updated RewardsButton.js component
-
+// Updated RewardsButton.js
 import React, { useState } from 'react';
 import { Video, X, PlayCircle } from 'lucide-react';
 
