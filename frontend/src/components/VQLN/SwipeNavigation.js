@@ -10,6 +10,7 @@ const SwipeNavigation = ({
   isTutorial = false, 
   enabled = false,
   isVideo = false,
+  inRewardsFlow = false, // Add this prop to know if we're in rewards flow
   autoAdvanceDelay = 2500 // Default auto-advance delay of 2.5 seconds
 }) => {
   const touchStartRef = useRef(null);
@@ -111,6 +112,7 @@ const SwipeNavigation = ({
         
         // Call the swipe callback after animation
         setTimeout(() => {
+          // This is where we call onSwipeUp, which calls the correct handler
           onSwipeUp && onSwipeUp();
           
           // Remove flash effect
