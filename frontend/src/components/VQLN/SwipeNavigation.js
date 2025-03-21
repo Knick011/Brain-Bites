@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 /**
- * Enhanced SwipeNavigation component - with auto-advance functionality
+ * Enhanced SwipeNavigation component with improved handling
  */
 const SwipeNavigation = ({ 
   onSwipeUp, 
@@ -10,14 +10,14 @@ const SwipeNavigation = ({
   isTutorial = false, 
   enabled = false,
   isVideo = false,
-  inRewardsFlow = false, // Add this prop to know if we're in rewards flow
-  autoAdvanceDelay = 2500 // Default auto-advance delay of 2.5 seconds
+  inRewardsFlow = false, 
+  autoAdvanceDelay = 0 // Set to 0 to disable auto-advance
 }) => {
   const touchStartRef = useRef(null);
   const touchMoveRef = useRef(null);
   const [swiping, setSwiping] = useState(false);
   
-  // Auto-advance timer
+  // Auto-advance timer (only if enabled and delay > 0)
   useEffect(() => {
     let timer;
     if (enabled && autoAdvanceDelay > 0) {
@@ -112,8 +112,10 @@ const SwipeNavigation = ({
         
         // Call the swipe callback after animation
         setTimeout(() => {
-          // This is where we call onSwipeUp, which calls the correct handler
-          onSwipeUp && onSwipeUp();
+          if (onSwipeUp) {
+            console.log("Swipe navigation triggering callback");
+            onSwipeUp();
+          }
           
           // Remove flash effect
           if (document.body.contains(flash)) {
@@ -148,7 +150,6 @@ const SwipeNavigation = ({
   
   return (
     <>
-      {/* No visible indicators, keeping the UI clean as requested */}
       <style jsx>{`
         .swipe-flash {
           position: fixed;
