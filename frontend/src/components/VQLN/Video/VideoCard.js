@@ -1,6 +1,7 @@
-// Updated VideoCard.js with fixed progress indicators
+// Updated VideoCard.js with fixed SwipeNavigation integration
 import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
+import SwipeNavigation from './SwipeNavigation'; // Make sure path is correct
 
 /**
  * Enhanced video player component with better error handling and URL processing
@@ -226,29 +227,31 @@ const VideoCard = ({
     );
   }
 
+  // Handle swipe - Important! Now we use the correct handler
+  const handleSwipe = () => {
+    console.log("Swipe detected in video, using correct handler for current mode");
+    // In rewards flow, we want to use onSkip
+    if (inRewardsFlow) {
+      console.log("In rewards flow, using onSkip");
+      onSkip && onSkip();
+    } else {
+      console.log("Not in rewards flow, using onExit");
+      onExit && onExit();
+    }
+  };
+
   return (
     <div className="video-container swipe-content">
-      {/* Touch handler for swipes */}
-      <div 
-        className="absolute inset-0 z-20"
-        onTouchStart={(e) => e.currentTarget.dataset.touchStartY = e.touches[0].clientY}
-        onTouchEnd={(e) => {
-          const startY = parseFloat(e.currentTarget.dataset.touchStartY || '0');
-          const endY = e.changedTouches[0].clientY;
-          
-          // If swiped up significantly, skip
-          if (startY - endY > 50 && onSkip) {
-            console.log("Swipe up detected in video");
-            onSkip();
-          }
-        }}
-        onClick={(e) => {
-          // Add click handler to prevent touch events from propagating
-          e.stopPropagation();
-        }}
-        style={{ touchAction: 'none' }} 
+      {/* Add SwipeNavigation component with the correct handler */}
+      <SwipeNavigation 
+        onSwipeUp={handleSwipe}
+        enabled={true}
+        isVideo={true}
+        inRewardsFlow={inRewardsFlow}
+        autoAdvanceDelay={autoAdvanceDelay} 
       />
       
+      {/* Rest of VideoCard content */}
       <div className="relative flex items-center justify-center w-full h-full">
         {/* Loading indicator when player not ready */}
         {!isPlayerReady && (
