@@ -1,4 +1,4 @@
-// Complete Updated App.js with all requested changes
+// Complete Updated App.js with all fixes
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -255,7 +255,7 @@ function App() {
       });
     }
     
-// Play the correct sound
+    // Play the correct sound
     SoundEffects.playCorrect();
   }, [streak, tutorialMode, timeMode]);
   
@@ -651,45 +651,52 @@ function App() {
   }, [inRewardsFlow, availableVideos, currentVideo, getRandomVideo, finishRewardsFlow]);
   
   // Updated handleVideoSkip for the continuous rewards flow
-  // Updated handleVideoSkip for the continuous rewards flow
-const handleVideoSkip = useCallback(() => {
-  // Mark current video as viewed
-  if (currentVideo && currentVideo.id) {
-    setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
-  }
-  
-  // If in rewards flow and more videos available, go to next video (without confirmation)
-  if (inRewardsFlow && availableVideos > 0) {
-    // Get the next video
-    const nextVideo = getRandomVideo();
-    if (nextVideo) {
-      // Set the next video
-      setCurrentVideo(nextVideo);
-      // Mark it as viewed
-      setViewedVideoIds(prev => new Set([...prev, nextVideo.id]));
-      // Decrement available videos
-      setAvailableVideos(prev => prev - 1);
+  const handleVideoSkip = useCallback(() => {
+    console.log("Video skip handler called", { inRewardsFlow, availableVideos });
+    
+    // Mark current video as viewed
+    if (currentVideo && currentVideo.id) {
+      setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
+    }
+    
+    // If in rewards flow and more videos available, go to next video
+    if (inRewardsFlow && availableVideos > 0) {
+      console.log("Getting next reward video");
+      // Get the next video
+      const nextVideo = getRandomVideo();
+      if (nextVideo) {
+        console.log("Found next video:", nextVideo.id);
+        // Set the next video
+        setCurrentVideo(nextVideo);
+        // Mark it as viewed
+        setViewedVideoIds(prev => new Set([...prev, nextVideo.id]));
+        // Decrement available videos
+        setAvailableVideos(prev => prev - 1);
+        return;
+      } else {
+        console.log("No next video found");
+      }
+    }
+    
+    // If in rewards flow but no more videos available, show completion message
+    if (inRewardsFlow && availableVideos === 0) {
+      console.log("No more rewards available, finishing flow");
+      finishRewardsFlow();
       return;
     }
-  }
-  
-  // If in rewards flow but no more videos available, show completion message
-  if (inRewardsFlow && availableVideos === 0) {
-    finishRewardsFlow();
-    return;
-  }
-  
-  // Only if not in rewards flow, go back to questions
-  if (!inRewardsFlow) {
-    setCurrentVideo(null);
-    setShowQuestion(true);
     
-    // In tutorial mode, fetch next question after video
-    if (tutorialMode) {
-      fetchQuestion();
+    // Only if not in rewards flow, go back to questions
+    if (!inRewardsFlow) {
+      console.log("Not in rewards flow, going back to questions");
+      setCurrentVideo(null);
+      setShowQuestion(true);
+      
+      // In tutorial mode, fetch next question after video
+      if (tutorialMode) {
+        fetchQuestion();
+      }
     }
-  }
-}, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, getRandomVideo, finishRewardsFlow]);
+  }, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, getRandomVideo, finishRewardsFlow]);
   
   // Handle rewards confirmation responses
   const handleConfirmExitRewards = useCallback(() => {
@@ -714,34 +721,36 @@ const handleVideoSkip = useCallback(() => {
   }, []);
   
   // Updated handleVideoToQuestionTransition for manual transitions
-// Updated handleVideoToQuestionTransition for manual transitions
-const handleVideoToQuestionTransition = useCallback(() => {
-  // If in rewards flow, treat this the same as a skip - go to next video
-  if (inRewardsFlow) {
-    handleVideoSkip();
-    return;
-  }
-  
-  // Play transition sound
-  SoundEffects.playTransition();
-  
-  // Mark video as viewed
-  if (currentVideo && currentVideo.id) {
-    setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
-  }
-  
-  // Clear current video to force a fresh one next time
-  setCurrentVideo(null);
-  setShowQuestion(true);
-  
-  // In tutorial mode, fetch next question after video
-  if (tutorialMode) {
-    fetchQuestion();
-  }
-  
-  // Reset swipe enabled
-  setSwipeEnabled(false);
-}, [tutorialMode, fetchQuestion, currentVideo, handleVideoSkip, inRewardsFlow]);
+  const handleVideoToQuestionTransition = useCallback(() => {
+    console.log("Video to question transition handler called", { inRewardsFlow });
+    
+    // If in rewards flow, treat this the same as a skip - go to next video
+    if (inRewardsFlow) {
+      console.log("In rewards flow, redirecting to handleVideoSkip");
+      handleVideoSkip();
+      return;
+    }
+    
+    // Play transition sound
+    SoundEffects.playTransition();
+    
+    // Mark video as viewed
+    if (currentVideo && currentVideo.id) {
+      setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
+    }
+    
+    // Clear current video to force a fresh one next time
+    setCurrentVideo(null);
+    setShowQuestion(true);
+    
+    // In tutorial mode, fetch next question after video
+    if (tutorialMode) {
+      fetchQuestion();
+    }
+    
+    // Reset swipe enabled
+    setSwipeEnabled(false);
+  }, [tutorialMode, fetchQuestion, currentVideo, handleVideoSkip, inRewardsFlow]);
 
   // Handle YouTube login status change
   const handleYouTubeLoginStatusChange = useCallback((isSignedIn, videos = []) => {
@@ -1034,15 +1043,7 @@ const handleVideoToQuestionTransition = useCallback(() => {
                 </div>
               )}
               
-              {/* Add swipe navigation for videos with auto-advance */}
-              {!isVideoLoading && (
-                <SwipeNavigation 
-                  onSwipeUp={handleVideoToQuestionTransition} 
-                  enabled={true}
-                  isVideo={true}
-                  autoAdvanceDelay={30000} // Auto-advance after 30 seconds
-                />
-              )}
+              {/* We don't need the separate SwipeNavigation here anymore since it's in VideoCard */}
             </>
           ) : (
             <div className="question-container swipe-content" ref={contentRef}>
