@@ -1,11 +1,10 @@
-// Updated VideoCard.js with fixed SwipeNavigation integration
+// Enhanced VideoCard.js with fixed visibility and replay functionality
 import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
-import SwipeNavigation from '../SwipeNavigation'; // Make sure path is correct
+import SwipeNavigation from '../SwipeNavigation'; // Correct path - go up one level to components/VQLN
 
 /**
- * Enhanced video player component with better error handling and URL processing
- * Now includes support for continuous rewards flow
+ * Enhanced video player component with better handling of transitions and replay
  */
 const VideoCard = ({ 
   url, 
@@ -17,18 +16,32 @@ const VideoCard = ({
   inRewardsFlow = false,
   currentVideoIndex = 1,
   totalVideos = 1,
-  autoAdvanceDelay = 30000 // Auto-advance after 30 seconds by default
+  autoAdvanceDelay = 30000 // Auto-advance after 30 seconds by default (only used if video doesn't end naturally)
 }) => {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isValidUrl, setIsValidUrl] = useState(false);
   const [playerUrl, setPlayerUrl] = useState(null);
   const [playerError, setPlayerError] = useState(null);
+  const [videoEnded, setVideoEnded] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [shouldAutoAdvance, setShouldAutoAdvance] = useState(false);
+  const [transitioning, setTransitioning] = useState(false);
+  
   const skipTimeoutRef = useRef(null);
   const autoAdvanceTimerRef = useRef(null);
+  const playerRef = useRef(null);
+  const containerRef = useRef(null);
   
   // Process and validate URL on mount and when url changes
   useEffect(() => {
     console.log('Processing video URL:', url);
+    
+    // Reset states when URL changes
+    setIsPlayerReady(false);
+    setVideoEnded(false);
+    setIsPlaying(true);
+    setShouldAutoAdvance(false);
+    setTransitioning(false);
     
     if (!url) {
       console.error('No URL provided');
@@ -86,30 +99,19 @@ const VideoCard = ({
     }
   }, [url]);
   
-  // Set up auto-advance timer
+  // Clear any existing timers when component unmounts or URL changes
   useEffect(() => {
-    // Clear any existing timer
-    if (autoAdvanceTimerRef.current) {
-      clearTimeout(autoAdvanceTimerRef.current);
-    }
-    
-    // Set new timer if valid URL and auto-advance enabled
-    if (isValidUrl && autoAdvanceDelay > 0) {
-      console.log(`Setting auto-advance timer for ${autoAdvanceDelay}ms`);
-      autoAdvanceTimerRef.current = setTimeout(() => {
-        console.log('Auto-advance timer triggered');
-        if (onSkip) {
-          onSkip();
-        }
-      }, autoAdvanceDelay);
-    }
-    
     return () => {
       if (autoAdvanceTimerRef.current) {
         clearTimeout(autoAdvanceTimerRef.current);
+        autoAdvanceTimerRef.current = null;
+      }
+      if (skipTimeoutRef.current) {
+        clearTimeout(skipTimeoutRef.current);
+        skipTimeoutRef.current = null;
       }
     };
-  }, [isValidUrl, autoAdvanceDelay, onSkip]);
+  }, [url]);
   
   // Error timer to skip video after error
   useEffect(() => {
@@ -124,6 +126,7 @@ const VideoCard = ({
     return () => {
       if (skipTimeoutRef.current) {
         clearTimeout(skipTimeoutRef.current);
+        skipTimeoutRef.current = null;
       }
     };
   }, [isValidUrl, playerError, onSkip]);
@@ -131,10 +134,13 @@ const VideoCard = ({
   // Set up keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event) => {
+      // Prevent handling keyboard events while transitioning to avoid double-triggers
+      if (transitioning) return;
+      
       // Down Arrow to skip
       if (event.key === 'ArrowDown') {
         event.preventDefault();
-        if (onSkip) onSkip();
+        handleManualSkip();
       } 
       // Escape to exit 
       else if (event.key === 'Escape') {
@@ -144,19 +150,34 @@ const VideoCard = ({
           if (onExit) onExit();
         } else {
           // Normal mode, Escape skips
-          if (onSkip) onSkip();
+          handleManualSkip();
         }
+      } 
+      // Space to play/pause when video has ended
+      else if (event.key === ' ' && videoEnded) {
+        event.preventDefault();
+        // Reset and replay the video
+        handleReplay();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onSkip, onExit, inRewardsFlow]);
+  }, [videoEnded, onExit, inRewardsFlow, transitioning]);
 
   // Handle player ready
   const handlePlayerReady = () => {
     console.log('Video player ready');
     setIsPlayerReady(true);
+    setVideoEnded(false);
+    setIsPlaying(true);
+    
+    // Make sure container is visible and positioned correctly
+    if (containerRef.current) {
+      containerRef.current.style.transform = 'translateY(0)';
+      containerRef.current.style.opacity = '1';
+    }
+    
     if (onReady) onReady();
   };
 
@@ -170,7 +191,83 @@ const VideoCard = ({
   // Handle player ended
   const handlePlayerEnded = () => {
     console.log('Video ended naturally');
-    if (onEnd) onEnd();
+    setVideoEnded(true);
+    setIsPlaying(false);
+    
+    // Don't auto-advance, just show the replay option
+    // Let the user decide if they want to move on
+  };
+  
+  // Manually replay the video
+  const handleReplay = () => {
+    console.log('Replaying video');
+    setVideoEnded(false);
+    setIsPlaying(true);
+    
+    // Seek to beginning and play
+    if (playerRef.current) {
+      try {
+        // Some players support seeking
+        const player = playerRef.current.getInternalPlayer();
+        if (player && typeof player.seekTo === 'function') {
+          player.seekTo(0);
+        }
+      } catch (e) {
+        console.log('Seeking not supported, resetting play state');
+      }
+    }
+  };
+  
+  // Handle manual skip (via button or keyboard)
+  const handleManualSkip = () => {
+    if (transitioning) return; // Prevent multiple triggers
+    
+    setTransitioning(true);
+    console.log('Manual skip initiated');
+    
+    // Add transition effect on container
+    if (containerRef.current) {
+      containerRef.current.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      containerRef.current.style.transform = 'translateY(-100%)';
+      containerRef.current.style.opacity = '0';
+    }
+    
+    // Delay the actual skip to allow for animation
+    setTimeout(() => {
+      if (onSkip) {
+        console.log('Executing skip function after transition');
+        onSkip();
+      }
+      setTransitioning(false);
+    }, 300);
+  };
+
+  // Handle swipe - now with transition
+  const handleSwipe = () => {
+    if (transitioning) return; // Prevent multiple triggers
+    
+    setTransitioning(true);
+    console.log("Swipe detected in video");
+    
+    // Add transition effect on container
+    if (containerRef.current) {
+      containerRef.current.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      containerRef.current.style.transform = 'translateY(-100%)';
+      containerRef.current.style.opacity = '0';
+    }
+    
+    // Delay the actual navigation to allow for animation
+    setTimeout(() => {
+      // In rewards flow, we want to use onSkip
+      if (inRewardsFlow) {
+        console.log("In rewards flow, using onSkip");
+        onSkip && onSkip();
+      } else {
+        console.log("Not in rewards flow, using onExit");
+        onExit && onExit();
+      }
+      setTransitioning(false);
+    }, 300);
   };
 
   // Video rewards progress component - updated to be cleaner
@@ -192,7 +289,7 @@ const VideoCard = ({
           </div>
           
           <button
-            onClick={() => onSkip && onSkip()}
+            onClick={handleManualSkip}
             className="text-white hover:text-orange-300 transition-colors text-sm"
           >
             Next
@@ -202,7 +299,7 @@ const VideoCard = ({
     );
   };
 
-  // If URL is invalid or there's an error, show error state
+  // Error state
   if (!isValidUrl || !playerUrl || playerError) {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-black">
@@ -213,7 +310,7 @@ const VideoCard = ({
           </p>
           
           <button 
-            onClick={() => onSkip && onSkip()}
+            onClick={handleManualSkip}
             className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors mt-4"
           >
             Skip
@@ -227,31 +324,28 @@ const VideoCard = ({
     );
   }
 
-  // Handle swipe - Important! Now we use the correct handler
-  const handleSwipe = () => {
-    console.log("Swipe detected in video, using correct handler for current mode");
-    // In rewards flow, we want to use onSkip
-    if (inRewardsFlow) {
-      console.log("In rewards flow, using onSkip");
-      onSkip && onSkip();
-    } else {
-      console.log("Not in rewards flow, using onExit");
-      onExit && onExit();
-    }
-  };
-
   return (
-    <div className="video-container swipe-content">
-      {/* Add SwipeNavigation component with the correct handler */}
-      <SwipeNavigation 
-        onSwipeUp={handleSwipe}
-        enabled={true}
-        isVideo={true}
-        inRewardsFlow={inRewardsFlow}
-        autoAdvanceDelay={autoAdvanceDelay} 
-      />
+    <div 
+      className="video-container swipe-content" 
+      ref={containerRef}
+      style={{
+        transform: 'translateY(0)', 
+        opacity: 1,
+        transition: 'transform 0.3s ease, opacity 0.3s ease'
+      }}
+    >
+      {/* Add SwipeNavigation component if not in replay mode */}
+      {!videoEnded && (
+        <SwipeNavigation 
+          onSwipeUp={handleSwipe}
+          enabled={true}
+          isVideo={true}
+          inRewardsFlow={inRewardsFlow}
+          autoAdvanceDelay={0} // Disable auto-advance from SwipeNavigation
+        />
+      )}
       
-      {/* Rest of VideoCard content */}
+      {/* Video content */}
       <div className="relative flex items-center justify-center w-full h-full">
         {/* Loading indicator when player not ready */}
         {!isPlayerReady && (
@@ -264,10 +358,11 @@ const VideoCard = ({
           <div className="relative w-full h-full max-h-[85vh] rounded-lg overflow-hidden">
             {/* Video player with transformed URL */}
             <ReactPlayer
+              ref={playerRef}
               url={playerUrl}
               width="100%"
               height="100%"
-              playing={true}
+              playing={isPlaying}
               controls={false}
               onEnded={handlePlayerEnded}
               onReady={handlePlayerReady}
@@ -295,6 +390,29 @@ const VideoCard = ({
         {/* Only show rewards progress indicator for rewards flow */}
         {inRewardsFlow && (
           <VideoRewardsProgress />
+        )}
+        
+        {/* Replay overlay when video has ended */}
+        {videoEnded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+            <button 
+              onClick={handleReplay}
+              className="bg-white text-black hover:bg-gray-200 px-6 py-3 rounded-full flex items-center gap-2 font-medium transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+              </svg>
+              <span>Replay Video</span>
+            </button>
+            
+            {/* Skip button */}
+            <button
+              onClick={handleManualSkip}
+              className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-transparent hover:bg-black hover:bg-opacity-30 text-white px-4 py-2 rounded-full font-medium transition-colors"
+            >
+              Skip to Next
+            </button>
+          </div>
         )}
       </div>
     </div>
