@@ -1,7 +1,7 @@
 // Updated VideoCard.js with fixed SwipeNavigation integration
 import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
-import SwipeNavigation from './SwipeNavigation'; // Make sure path is correct
+import SwipeNavigation from '../SwipeNavigation'; // Make sure path is correct
 
 /**
  * Enhanced video player component with better error handling and URL processing
