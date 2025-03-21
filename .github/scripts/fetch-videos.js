@@ -31,7 +31,6 @@ const CHANNELS = [
   { handle: 'irenic', id: 'UCAB1HPnSd06qUSXNvNDLIPA' },
   { handle: 'lionfield', id: 'UCHwpDpLoyJgtFXoAaaSut4Q' },
   { handle: 'joecain', id: 'UCHyMNXj5l7eTTQefXzT3MdQ' },
-  { handle: 'DavidDobrik', id: 'UCmh5gdwCx6lN7gEC20leNVA' },
   { handle: 'GordonRamsay', id: 'UCIEv3lZ_tNXHzL3ox-_uUGQ' },
   { handle: 'JoshuaWeissman', id: 'UChBEbMKI1eCcejTtmI32UEw' },
   { handle: 'Jacksepticeye', id: 'UCYzPXprvl5Y-Sf0g4vX-m6g' },
