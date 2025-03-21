@@ -616,39 +616,18 @@ function App() {
     }
   }, [availableVideos, fetchQuestion, viewedVideoIds]);
 
-  // Updated handleVideoEnd for continuous rewards flow
+  // Updated handleVideoEnd for continuous rewards flow - no auto advance
   const handleVideoEnd = useCallback(() => {
-    // Mark video as viewed before moving on
-    if (currentVideo && currentVideo.id) {
-      setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
-    }
+    // We don't do anything here because the VideoCard now handles
+    // video completion with its replay functionality
+    // The user will need to manually proceed after the video ends
     
-    // In rewards flow, automatically go to the next video if available
-    if (inRewardsFlow) {
-      if (availableVideos > 0) {
-        // Get the next video
-        const nextVideo = getRandomVideo();
-        if (nextVideo) {
-          // Set the next video
-          setCurrentVideo(nextVideo);
-          // Mark it as viewed
-          setViewedVideoIds(prev => new Set([...prev, nextVideo.id]));
-          // Decrement available videos
-          setAvailableVideos(prev => prev - 1);
-        } else {
-          // No more videos available in our list
-          finishRewardsFlow();
-        }
-      } else {
-        // No more rewards left
-        finishRewardsFlow();
-      }
-    } else {
-      // Not in rewards flow, use the original behavior (go back to questions)
-      setCurrentVideo(null);
-      setShowQuestion(true);
-    }
-  }, [inRewardsFlow, availableVideos, currentVideo, getRandomVideo, finishRewardsFlow]);
+    console.log("Video ended notification received in App component");
+    // We can optionally track that a video was fully viewed
+    
+    // Don't automatically go to the next video or question
+    // Let the user decide using the replay or skip controls
+  }, []);
   
   // Updated handleVideoSkip for the continuous rewards flow
   const handleVideoSkip = useCallback(() => {
@@ -818,7 +797,7 @@ function App() {
     setShowSection(true);
   }, []);
 
-  const handleMainSelection = useCallback((section) => {
+ const handleMainSelection = useCallback((section) => {
     SoundEffects.playTransition();
     SoundEffects.playButtonPress();
     
@@ -1034,7 +1013,7 @@ function App() {
                     inRewardsFlow={inRewardsFlow}
                     currentVideoIndex={totalVideos - availableVideos}
                     totalVideos={totalVideos}
-                    autoAdvanceDelay={30000} // Auto-advance after 30 seconds
+                    autoAdvanceDelay={0} // Disable auto-advance, let user decide when to continue
                   />
                 </>
               ) : (
