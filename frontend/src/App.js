@@ -544,111 +544,149 @@ function App() {
   }, [tutorialMode, currentVideo, fetchQuestion, getRandomVideo]);
 
   // Updated watchVideo function with rewards flow
-  const watchVideo = useCallback(async () => {
-    if (availableVideos <= 0) return;
+// Updated watchVideo function with improved transitions
+const watchVideo = useCallback(async () => {
+  if (availableVideos <= 0) return;
+  
+  try {
+    setIsVideoLoading(true);
     
-    try {
-      setIsVideoLoading(true);
+    // Set the rewards flow flag
+    setInRewardsFlow(true);
+    
+    // Store total videos count for progress indicator
+    setTotalVideos(availableVideos);
+    
+    // Preload videos - get more than needed to ensure smooth transitions
+    const freshVideos = await YouTubeService.getViralShorts(Math.min(availableVideos * 3, 30));
+    console.log(`Got ${freshVideos.length} fresh videos for reward watching`);
+    
+    if (freshVideos && freshVideos.length > 0) {
+      // Find a video that hasn't been viewed recently
+      let newVideo = freshVideos.find(video => !viewedVideoIds.has(video.id));
       
-      // Set the rewards flow flag
-      setInRewardsFlow(true);
-      
-      // Store total videos count for progress indicator
-      setTotalVideos(availableVideos);
-      
-      // Get fresh videos directly from service to ensure variety - get enough for ALL rewards
-      const freshVideos = await YouTubeService.getViralShorts(Math.min(availableVideos * 2, 20));
-      console.log(`Got ${freshVideos.length} fresh videos for reward watching`);
-      
-      if (freshVideos && freshVideos.length > 0) {
-        // Find a video that hasn't been viewed recently
-        let newVideo = freshVideos.find(video => !viewedVideoIds.has(video.id));
+      // If all videos viewed, reset tracking and use first
+      if (!newVideo) {
+        console.log("All videos viewed, resetting tracking");
+        // Keep track of very last video to avoid immediate repetition
+        const lastVideoId = Array.from(viewedVideoIds).pop();
+        setViewedVideoIds(new Set(lastVideoId ? [lastVideoId] : []));
         
-        // If all videos viewed, reset tracking and use first
-        if (!newVideo) {
-          console.log("All videos viewed, resetting tracking");
-          // Keep track of very last video to avoid immediate repetition
-          const lastVideoId = Array.from(viewedVideoIds).pop();
-          setViewedVideoIds(new Set(lastVideoId ? [lastVideoId] : []));
-          
-          // Find a video that isn't the last one watched
-          newVideo = freshVideos.find(video => video.id !== lastVideoId) || freshVideos[0];
+        // Find a video that isn't the last one watched
+        newVideo = freshVideos.find(video => video.id !== lastVideoId) || freshVideos[0];
+      }
+      
+      console.log("Selected video:", newVideo.id, newVideo.title);
+      
+      // Preload next few videos for smoother transitions
+      const nextVideosToPreload = freshVideos
+        .filter(v => v.id !== newVideo.id && !viewedVideoIds.has(v.id))
+        .slice(0, 3);
+        
+      console.log(`Preloading ${nextVideosToPreload.length} videos for smoother transitions`);
+      
+      // Preload thumbnails
+      nextVideosToPreload.forEach(video => {
+        const img = new Image();
+        img.src = `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`;
+      });
+      
+      // Update video list with new videos
+      setVideos(prevVideos => {
+        // Create a set of existing video IDs
+        const existingIds = new Set(prevVideos.map(v => v.id));
+        
+        // Filter out duplicates and append new videos
+        const uniqueNewVideos = freshVideos.filter(v => !existingIds.has(v.id));
+        
+        if (uniqueNewVideos.length > 0) {
+          console.log(`Adding ${uniqueNewVideos.length} new videos to list`);
+          return [...prevVideos, ...uniqueNewVideos];
         }
         
-        console.log("Selected video:", newVideo.id, newVideo.title);
+        return prevVideos;
+      });
+      
+      // Mark this video as viewed
+      setViewedVideoIds(prev => new Set([...prev, newVideo.id]));
+      
+      // Set video and switch view
+      setCurrentVideo(newVideo);
+      setShowQuestion(false);
+      
+      // Decrement available videos only when viewing
+      setAvailableVideos(prev => prev - 1);
+      setSwipeEnabled(true);
+      
+      // Add a class to body for TikTok-style video transitions
+      document.body.classList.add('video-transition-active');
+    } else {
+      throw new Error("No videos available");
+    }
+  } catch (error) {
+    console.error('Error loading video:', error);
+    setError("Couldn't load video: " + error.message);
+    fetchQuestion();
+    setInRewardsFlow(false); // Exit rewards flow mode on error
+  } finally {
+    setIsVideoLoading(false);
+  }
+}, [availableVideos, fetchQuestion, viewedVideoIds]);
+
+// Updated handleVideoSkip for smoother transitions in the rewards flow
+const handleVideoSkip = useCallback(() => {
+  console.log("Video skip handler called", { inRewardsFlow, availableVideos });
+  
+  // Mark current video as viewed
+  if (currentVideo && currentVideo.id) {
+    setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
+  }
+  
+  // If in rewards flow and more videos available, go to next video
+  if (inRewardsFlow && availableVideos > 0) {
+    console.log("Getting next reward video");
+    
+    // Get multiple videos and preload them
+    const getNextVideosAndPreload = () => {
+      const videosToPreload = [];
+      const nextVideo = getRandomVideo();
+      
+      if (nextVideo) {
+        videosToPreload.push(nextVideo);
         
-        // Update video list with new videos
-        setVideos(prevVideos => {
-          // Create a set of existing video IDs
-          const existingIds = new Set(prevVideos.map(v => v.id));
+        // Find 2 more videos to preload if possible
+        const additionalVideos = videos
+          .filter(v => v.id !== nextVideo.id && !viewedVideoIds.has(v.id))
+          .slice(0, 2);
           
-          // Filter out duplicates and append new videos
-          const uniqueNewVideos = freshVideos.filter(v => !existingIds.has(v.id));
-          
-          if (uniqueNewVideos.length > 0) {
-            console.log(`Adding ${uniqueNewVideos.length} new videos to list`);
-            return [...prevVideos, ...uniqueNewVideos];
-          }
-          
-          return prevVideos;
+        return { nextVideo, preloadVideos: [...additionalVideos] };
+      }
+      
+      return { nextVideo: null, preloadVideos: [] };
+    };
+    
+    const { nextVideo, preloadVideos } = getNextVideosAndPreload();
+    
+    if (nextVideo) {
+      console.log("Found next video:", nextVideo.id);
+      
+      // Preload additional videos in background
+      preloadVideos.forEach(video => {
+        const img = new Image();
+        img.src = `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`;
+      });
+      
+      // Apply entering-from-bottom animation
+      document.body.classList.add('video-transition-active');
+      
+      // Clear any existing video elements from DOM to prevent flashing
+      setTimeout(() => {
+        const oldIframes = document.querySelectorAll('iframe[src*="youtube.com"]');
+        oldIframes.forEach(iframe => {
+          iframe.style.opacity = '0';
         });
         
-        // Mark this video as viewed
-        setViewedVideoIds(prev => new Set([...prev, newVideo.id]));
-        
-        // Set video and switch view
-        setCurrentVideo(newVideo);
-        setShowQuestion(false);
-        
-        // Decrement available videos only when viewing
-        setAvailableVideos(prev => prev - 1);
-        setSwipeEnabled(true);
-        
-        // Add a class to body for TikTok-style video transitions
-        document.body.classList.add('video-transition-active');
-      } else {
-        throw new Error("No videos available");
-      }
-    } catch (error) {
-      console.error('Error loading video:', error);
-      setError("Couldn't load video: " + error.message);
-      fetchQuestion();
-      setInRewardsFlow(false); // Exit rewards flow mode on error
-    } finally {
-      setIsVideoLoading(false);
-    }
-  }, [availableVideos, fetchQuestion, viewedVideoIds]);
-
-  // Handle video end
-  const handleVideoEnd = useCallback(() => {
-    // We don't do anything here because the VideoCard now handles
-    // video completion with its replay functionality
-    // The user will need to manually proceed after the video ends
-    
-    console.log("Video ended notification received in App component");
-  }, []);
-
-  // Updated handleVideoSkip for the continuous rewards flow
-  const handleVideoSkip = useCallback(() => {
-    console.log("Video skip handler called", { inRewardsFlow, availableVideos });
-    
-    // Mark current video as viewed
-    if (currentVideo && currentVideo.id) {
-      setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
-    }
-    
-    // If in rewards flow and more videos available, go to next video
-    if (inRewardsFlow && availableVideos > 0) {
-      console.log("Getting next reward video");
-      // Get the next video
-      const nextVideo = getRandomVideo();
-      if (nextVideo) {
-        console.log("Found next video:", nextVideo.id);
-        
-        // Apply entering-from-bottom animation by briefly adding class to body
-        document.body.classList.add('video-transition-active');
-        
-        // Set the next video after a brief delay to allow animation to start
+        // Set the next video after a brief delay to ensure clean transition
         setTimeout(() => {
           // Set the next video
           setCurrentVideo(nextVideo);
@@ -657,38 +695,38 @@ function App() {
           // Decrement available videos
           setAvailableVideos(prev => prev - 1);
           
-          // Remove class after transition completes
+          // Remove transition class after animation completes
           setTimeout(() => {
             document.body.classList.remove('video-transition-active');
           }, 400);
         }, 50);
-        
-        return;
-      } else {
-        console.log("No next video found");
-      }
-    }
-    
-    // If in rewards flow but no more videos available, show completion message
-    if (inRewardsFlow && availableVideos === 0) {
-      console.log("No more rewards available, finishing flow");
-      finishRewardsFlow();
-      return;
-    }
-    
-    // Only if not in rewards flow, go back to questions
-    if (!inRewardsFlow) {
-      console.log("Not in rewards flow, going back to questions");
-      setCurrentVideo(null);
-      setShowQuestion(true);
+      }, 100);
       
-      // In tutorial mode, fetch next question after video
-      if (tutorialMode) {
-        fetchQuestion();
-      }
+      return;
+    } else {
+      console.log("No next video found");
     }
-  }, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, getRandomVideo, finishRewardsFlow]);
+  }
   
+  // If in rewards flow but no more videos available, show completion message
+  if (inRewardsFlow && availableVideos === 0) {
+    console.log("No more rewards available, finishing flow");
+    finishRewardsFlow();
+    return;
+  }
+  
+  // Only if not in rewards flow, go back to questions
+  if (!inRewardsFlow) {
+    console.log("Not in rewards flow, going back to questions");
+    setCurrentVideo(null);
+    setShowQuestion(true);
+    
+    // In tutorial mode, fetch next question after video
+    if (tutorialMode) {
+      fetchQuestion();
+    }
+  }
+}, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, getRandomVideo, finishRewardsFlow, videos, viewedVideoIds]);
   // Handle rewards confirmation responses
   const handleConfirmExitRewards = useCallback(() => {
     setShowRewardsConfirmation(false);
