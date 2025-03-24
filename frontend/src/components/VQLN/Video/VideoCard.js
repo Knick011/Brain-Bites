@@ -404,8 +404,9 @@ const VideoCard = ({
       className="video-container swipe-content" 
       ref={containerRef}
       style={{
-        transform: isEntering ? 'translateY(100%)' : 'translateY(0)', // Ensure default position is correct
-        opacity: isEntering ? 0 : 1
+        // Don't apply initial transform through JSX - it's handled in useEffect
+        transform: 'translateY(0)', 
+        opacity: 1
       }}
     >
       {/* Add transition styles */}
