@@ -775,3 +775,43 @@
     max-height: 80vh !important;
   }
 }
+/* Updated tiktok-enter for the continuous rewards flow */
+@keyframes tiktok-enter {
+  from { 
+    transform: translateY(100%) scale(0.9); 
+    opacity: 0.2;
+  }
+  to { 
+    transform: translateY(0) scale(1); 
+    opacity: 1;
+  }
+}
+
+/* Video transition styles */
+.video-transition-active .swipe-content {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Videos leaving animation */
+.video-transition-active .swipe-content.exiting {
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+}
+
+/* Videos entering animation */
+.video-transition-active .swipe-content.entering {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  animation: slide-from-bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes slide-from-bottom {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
