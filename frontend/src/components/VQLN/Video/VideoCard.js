@@ -48,8 +48,9 @@ const VideoCard = ({
       containerRef.current.style.transform = 'translateY(100%)';
       containerRef.current.style.opacity = '0';
       
-      // Force a layout calculation
-      containerRef.current.offsetHeight;
+      // Force a layout calculation (fix the unused expression error)
+      // Add a variable assignment to fix the unused expression
+      const height = containerRef.current.offsetHeight;
       
       // Then animate in from the bottom
       setTimeout(() => {
