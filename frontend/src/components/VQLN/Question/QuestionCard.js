@@ -17,7 +17,7 @@ const QuestionCard = ({
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const [answerTime, setAnswerTime] = useState(10);
+  const [answerTime, setAnswerTime] = useState(20);
   const [timerActive, setTimerActive] = useState(false);
   
   // Debug helper
@@ -30,7 +30,7 @@ const QuestionCard = ({
     debugLog("New question loaded, resetting state", { timeMode });
     setSelectedAnswer(null);
     setShowExplanation(false);
-    setAnswerTime(10);
+    setAnswerTime(20);
     setTimerActive(!!timeMode);
   }, [question, timeMode]);
 
@@ -187,10 +187,10 @@ const QuestionCard = ({
               <div className="w-full bg-gray-200 rounded-full h-2.5">
                 <div 
                   className={`h-2.5 rounded-full transition-all duration-1000 ease-linear ${
-                    answerTime > 6 ? 'bg-green-500' : 
-                    answerTime > 3 ? 'bg-yellow-500' : 'bg-red-500'
+                    answerTime > 12 ? 'bg-green-500' : 
+                    answerTime > 6 ? 'bg-yellow-500' : 'bg-red-500'
                   }`}
-                  style={{ width: `${(answerTime / 10) * 100}%` }}
+                  style={{ width: `${(answerTime / 20) * 100}%` }}
                 ></div>
               </div>
             </div>
