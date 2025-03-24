@@ -60,7 +60,8 @@ const VideoCard = ({
       containerRef.current.style.opacity = '0';
       
       // Force a layout calculation to ensure the initial position is rendered
-      containerRef.current.offsetHeight; // Intentional reflow
+      // Force a layout calculation with void to satisfy ESLint
+      void containerRef.current.offsetHeight;
       
       // Then animate the new video up into view after a tiny delay
       setTimeout(() => {
