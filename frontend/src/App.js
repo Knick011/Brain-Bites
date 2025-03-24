@@ -268,6 +268,11 @@ function App() {
     
     // Play the incorrect sound
     SoundEffects.playIncorrect();
+    
+    // Fetch next question after delay
+    setTimeout(() => {
+      fetchQuestion();
+    }, 1500);
   }, []);
 
   // Check for tutorial completion based on questions answered
@@ -804,202 +809,186 @@ function App() {
     setShowSection(true);
   }, []);
 
-  const handleMainSelection = useCallback((section) => {
+ const handleMainSelection = useCallback((section) => {
     SoundEffects.playTransition();
     SoundEffects.playButtonPress();
     
     setSelectedSection(section);
     setShowSection(false);
     
-    // Start tutorial for first-time users
-    if (tutorialMode && !showTutorial) {
+    // Show first tutorial step if tutorial hasn't been completed
+    if (tutorialMode) {
+      setTutorialStep(0);
       setShowTutorial(true);
     }
     
-    // Fetch the first question after a short delay
-    setTimeout(() => {
-      fetchQuestion();
-    }, 300);
-  }, [tutorialMode, showTutorial, fetchQuestion]);
-
-  // Handle tutorial steps
-  const handleTutorialNext = useCallback(() => {
-    setTutorialStep(prev => {
-      // If we're at the last step, close the tutorial
-      if (prev >= tutorialSteps.length - 1) {
-        setShowTutorial(false);
-        return 0;
-      }
-      return prev + 1;
-    });
-  }, [tutorialSteps.length]);
-
-  // Handle game mode popup continuation
-  const handleGameModeContinue = useCallback(() => {
-    setShowGameModePopup(false);
-    setTimeMode(true); // Ensure time mode is activated
-    
-    // Fetch a new question to start the game
-    fetchQuestion();
-  }, [fetchQuestion]);
-
-  // Handle milestone celebration continuation
-  const handleMilestoneContinue = useCallback(() => {
-    setShowMilestone(false);
-    
-    // Play a special sound for milestones
-    SoundEffects.playStreak();
-  }, []);
-  
-  // Handle the selection of an answer in the UI
-  const handleSelectAnswer = useCallback((answer) => {
-    setSelectedAnswer(answer);
-  }, []);
-  
-  // Handle explanation visibility
-  const handleExplanationShow = useCallback((isVisible) => {
-    setExplanationVisible(isVisible);
-    
-    // Enable swipe navigation if we're in tutorial mode and showing explanation
-    if (tutorialMode && isVisible) {
-      setSwipeEnabled(true);
+    // Load first question in background
+    try {
+      console.log(`Selecting section: ${section}`);
+      const fetchInitialQuestion = async () => {
+        setIsQuestionLoading(true);
+        const question = await ApiService.getRandomQuestion(section);
+        
+        if (question) {
+          // Process the question (same as in fetchQuestion)
+          const shuffledQuestion = {...question};
+          if (shuffledQuestion.options) {
+            const optionKeys = Object.keys(shuffledQuestion.options);
+            const optionValues = Object.values(shuffledQuestion.options);
+            
+            const newPositions = [...optionKeys].sort(() => Math.random() - 0.5);
+            const oldToNewMap = {};
+            optionKeys.forEach((key, index) => {
+              oldToNewMap[key] = newPositions[index];
+            });
+            
+            const shuffledOptions = {};
+            optionKeys.forEach((key, index) => {
+              shuffledOptions[newPositions[index]] = optionValues[index];
+            });
+            
+            const newCorrectAnswer = oldToNewMap[shuffledQuestion.correctAnswer];
+            
+            shuffledQuestion.options = shuffledOptions;
+            shuffledQuestion.correctAnswer = newCorrectAnswer;
+          }
+          
+          setCurrentQuestion(shuffledQuestion);
+          setShowQuestion(true);
+          setQuestionsAnswered(prev => prev + 1);
+        }
+        setIsQuestionLoading(false);
+      };
+      
+      fetchInitialQuestion();
+    } catch (error) {
+      console.error("Error in initial question fetch:", error);
+      setIsQuestionLoading(false);
     }
   }, [tutorialMode]);
 
-  // Render application
+  // UI interaction handlers
+  const handleTutorialNext = useCallback(() => {
+    SoundEffects.playButtonPress();
+    
+    if (tutorialStep < tutorialSteps.length - 1) {
+      setTutorialStep(prev => prev + 1);
+    } else {
+      setShowTutorial(false);
+    }
+  }, [tutorialStep, tutorialSteps.length]);
+
+  const handleMilestoneClose = useCallback(() => {
+    SoundEffects.playButtonPress();
+    setShowMilestone(false);
+    fetchQuestion();
+  }, [fetchQuestion]);
+
+  // Utility functions for explanation and swipe handling
+  const handleExplanationVisibility = useCallback((isVisible) => {
+    setExplanationVisible(isVisible);
+  }, []);
+
+  // Error handling
+  useEffect(() => {
+    if (error && typeof error === 'string') {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  // Performance optimization to fix forced reflow
+  useEffect(() => {
+    if (contentRef.current && swipeEnabled) {
+      // Read layout properties first
+      const width = contentRef.current.offsetWidth;
+      const height = contentRef.current.offsetHeight;
+      
+      // Then batch any writes/mutations
+      requestAnimationFrame(() => {
+        if (contentRef.current) {
+          contentRef.current.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+        }
+      });
+    }
+  }, [swipeEnabled]);
+
   return (
     <div className="app">
+      {/* Rewards/Exit Button based on context */}
+      {!showWelcome && !showSection && (
+        <>
+          {showQuestion && !isLoading && !tutorialMode ? (
+            // Show rewards button during question mode
+            <RewardsButton 
+              availableVideos={availableVideos} 
+              onWatchVideo={watchVideo} 
+              isRewardsFlow={inRewardsFlow}
+            />
+          ) : inRewardsFlow ? (
+            // Show exit button during rewards flow
+            <button 
+              onClick={() => setShowRewardsConfirmation(true)}
+              className="fixed top-4 left-4 z-50 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full flex items-center gap-2 transition-colors shadow-md"
+            >
+              <X size={20} />
+              <span className="font-medium">Exit</span>
+            </button>
+          ) : null}
+        </>
+      )}
+      
+      {/* Score Display - Only shown during questions in time mode */}
+      {timeMode && !showWelcome && !showSection && showQuestion && (
+        <div className="fixed top-4 right-4 z-40 bg-white shadow-md rounded-full px-4 py-2 flex items-center gap-2 animate-fadeIn">
+          <span className="font-bold text-lg">Score: {score}</span>
+          
+          {/* Points animation position */}
+          {showPointsAnimation && (
+            <PointsAnimation 
+              points={pointsEarned}
+              isTimeMode={timeMode}
+              answerTime={answerTime}
+              maxTime={10}
+              position={{ top: '60px', right: '20px' }}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Home Button */}
+      {!showWelcome && !showSection && (
+        <button
+          onClick={handleGoHome}
+          className="fixed bottom-16 right-4 z-50 bg-white text-orange-500 p-3 rounded-full shadow-md hover:bg-gray-100 transition-colors"
+          aria-label="Go to home screen"
+        >
+          <Home size={24} />
+        </button>
+      )}
+      
       {/* Welcome Screen */}
       {showWelcome && (
         <InitialWelcome onStart={handleStart} isLoading={isLoading} />
       )}
       
-      {/* Category Selection Screen */}
+      {/* Section Selection with YouTube Login */}
       {showSection && (
-        <MainSelection 
-          onSelect={handleMainSelection} 
-          onYouTubeLoginStatusChange={handleYouTubeLoginStatusChange}
-        />
-      )}
-      
-      {/* Main Game Screens */}
-      {!showWelcome && !showSection && (
-        <div ref={contentRef} className="swipe-container">
-          {/* Question Card */}
-          {showQuestion && (
-            <div className="swipe-content">
-              {currentQuestion ? (
-                <QuestionCard
-                  question={currentQuestion}
-                  onAnswerSubmit={handleAnswerSubmit}
-                  onExplanationShow={handleExplanationShow}
-                  onExplanationContinue={handleExplanationContinue}
-                  tutorialMode={tutorialMode}
-                  timeMode={timeMode}
-                  streak={streak}
-                  onSelectAnswer={handleSelectAnswer}
-                  correctAnswers={correctAnswers}
-                  questionsAnswered={questionsAnswered}
-                />
-              ) : isQuestionLoading ? (
-                <div className="w-full h-screen flex items-center justify-center bg-white">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-                </div>
-              ) : (
-                <div className="w-full h-screen flex items-center justify-center bg-white px-4">
-                  <div className="text-center">
-                    <p className="mb-4">No question available. Please try again.</p>
-                    <button 
-                      onClick={fetchQuestion}
-                      className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg transition-colors"
-                    >
-                      Retry
-                    </button>
-                  </div>
-                </div>
-              )}
-              
-              {/* Swipe Navigation for Tutorial Mode */}
-              {explanationVisible && tutorialMode && (
-                <SwipeNavigation 
-                  onSwipeUp={handleExplanationContinue}
-                  enabled={swipeEnabled}
-                  isTutorial={tutorialMode}
-                  autoAdvanceDelay={8000} // Auto-advance after 8 seconds in tutorial
-                />
-              )}
-            </div>
-          )}
-          
-          {/* Video Player */}
-          {!showQuestion && currentVideo && (
-            <VideoCard
-              url={currentVideo.url || currentVideo}
-              onEnd={handleVideoEnd}
-              onSkip={handleVideoSkip}
-              onExit={() => {
-                if (inRewardsFlow && availableVideos > 0) {
-                  // Show confirmation dialog when trying to exit rewards flow
-                  setShowRewardsConfirmation(true);
-                } else {
-                  handleVideoToQuestionTransition();
-                }
-              }}
-              tutorialMode={tutorialMode}
-              inRewardsFlow={inRewardsFlow}
-              currentVideoIndex={totalVideos - availableVideos}
-              totalVideos={totalVideos}
-            />
-          )}
-          
-          {/* Loading indicator for video */}
-          {!showQuestion && !currentVideo && isVideoLoading && (
-            <div className="w-full h-screen flex items-center justify-center bg-black">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
-            </div>
-          )}
-        </div>
-      )}
-      
-      {/* Rewards Button */}
-      {!showWelcome && !showSection && showQuestion && !tutorialMode && availableVideos > 0 && (
-        <RewardsButton 
-          availableVideos={availableVideos} 
-          onWatchVideo={watchVideo}
-          isRewardsFlow={inRewardsFlow}
-        />
-      )}
-      
-      {/* YouTube Login */}
-      {!showWelcome && !showSection && !tutorialMode && (
-        <YouTubeLogin onLoginStatusChange={handleYouTubeLoginStatusChange} />
-      )}
-      
-      {/* Home Button */}
-      {!showWelcome && !showSection && !inRewardsFlow && (
-        <button
-          onClick={handleGoHome}
-          className="fixed top-4 left-4 z-40 bg-white shadow-md rounded-full p-2 hover:bg-gray-100 transition-colors"
-          title="Go Home"
-        >
-          <Home size={20} />
-        </button>
-      )}
-      
-      {/* Points Animation */}
-      {showPointsAnimation && (
-        <PointsAnimation 
-          points={pointsEarned} 
-          isTimeMode={timeMode} 
-          answerTime={answerTime}
-          maxTime={10}
-        />
+        <>
+          <MainSelection 
+            onSelect={handleMainSelection} 
+            onYouTubeLoginStatusChange={handleYouTubeLoginStatusChange}
+          />
+        </>
       )}
       
       {/* Tutorial Popup */}
       {showTutorial && (
         <TutorialPopup 
-          step={tutorialSteps[tutorialStep]} 
+          step={tutorialSteps[tutorialStep]}
           onNext={handleTutorialNext}
           currentStep={tutorialStep + 1}
           totalSteps={tutorialSteps.length}
@@ -1008,69 +997,218 @@ function App() {
       
       {/* Game Mode Popup */}
       {showGameModePopup && (
-        <GameModePopup onClose={handleGameModeContinue} />
+        <GameModePopup onClose={() => setShowGameModePopup(false)} />
       )}
       
       {/* Milestone Celebration */}
       {showMilestone && (
         <MilestoneCelebration 
-          milestone={currentMilestone} 
-          onClose={handleMilestoneContinue} 
+          milestone={currentMilestone}
+          onClose={handleMilestoneClose}
         />
+      )}
+      
+      {/* Main Content Area */}
+      {!showWelcome && !showSection && (
+        <>
+          {!showQuestion ? (
+            <>
+              {!isVideoLoading ? (
+                <>
+                  <VideoCard 
+                    url={currentVideo}
+                    onEnd={handleVideoEnd}
+                    onSkip={handleVideoSkip}
+                    onReady={() => {}}
+                    onExit={handleVideoToQuestionTransition}
+                    tutorialMode={tutorialMode}
+                    inRewardsFlow={inRewardsFlow}
+                    currentVideoIndex={totalVideos - availableVideos}
+                    totalVideos={totalVideos}
+                    autoAdvanceDelay={0} // Disable auto-advance, let user decide when to continue
+                  />
+                </>
+              ) : (
+                <div className="flex items-center justify-center h-full bg-black">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+                </div>
+              )}
+              
+              {/* We don't need the separate SwipeNavigation here anymore since it's in VideoCard */}
+            </>
+          ) : (
+            <div className="question-container swipe-content" ref={contentRef}>
+              {tutorialMode && (
+                <div className="w-full bg-orange-500 text-white py-2 px-4 text-center font-bold">
+                  Tutorial Mode: Question {questionsAnswered} of 5
+                </div>
+              )}
+              
+              {isQuestionLoading ? (
+                <div className="flex items-center justify-center h-full my-20">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+                </div>
+              ) : currentQuestion ? (
+                <>
+                  <QuestionCard 
+                    question={currentQuestion}
+                    onAnswerSubmit={handleAnswerSubmit}
+                    timeMode={timeMode}
+                    streak={streak}
+                    onSelectAnswer={setSelectedAnswer}
+                    tutorialMode={tutorialMode}
+                    onExplanationShow={handleExplanationVisibility}
+                    onExplanationContinue={handleExplanationContinue}
+                    correctAnswers={correctAnswers}
+                    questionsAnswered={questionsAnswered}
+                  />
+                  
+                  {/* Add swipe navigation in tutorial mode */}
+                  {tutorialMode && swipeEnabled && explanationVisible && (
+                    <SwipeNavigation 
+                      onSwipeUp={handleExplanationContinue} 
+                      enabled={true}
+                      autoAdvanceDelay={7000} // Auto-advance after 7 seconds
+                    />
+                  )}
+                </>
+              ) : (
+                <div className="w-full h-full bg-white p-4 rounded-lg text-center my-20">
+                  <p>No question available. Please try a different category or check your connection.</p>
+                  <button
+                    onClick={() => setShowSection(true)}
+                    className="mt-4 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full transition-colors"
+                  >
+                    Go Back To Categories
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
       
       {/* Rewards Confirmation Dialog */}
       {showRewardsConfirmation && (
-        <RewardsConfirmation 
+        <RewardsConfirmation
           onConfirm={handleConfirmExitRewards}
           onCancel={handleCancelExitRewards}
           remainingVideos={availableVideos}
         />
       )}
-      
+
       {/* All Done Message */}
       {showAllDoneMessage && (
-        <AllDoneMessage onClose={() => setShowAllDoneMessage(false)} />
+        <AllDoneMessage 
+          onClose={() => {
+            setShowAllDoneMessage(false);
+            setInRewardsFlow(false);
+            setCurrentVideo(null);
+            setShowQuestion(true);
+          }}
+        />
       )}
       
-      {/* Error Modal */}
+      {/* Error message */}
       {error && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">
-              {typeof error === 'object' && error.isConfirm ? 'Confirm' : 'Error'}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-xl font-bold text-red-600 mb-4">
+              {error.isConfirm ? 'Confirm' : 'Error'}
             </h3>
-            <p className="mb-6">
-              {typeof error === 'string' ? error : (error.message || 'An error occurred')}
+            <p className="text-gray-700 mb-4">
+              {typeof error === 'string' ? error : error.message}
             </p>
-            <div className="flex justify-end gap-4">
-              {typeof error === 'object' && error.isConfirm ? (
-                <>
-                  <button 
-                    onClick={() => error.onCancel?.()}
-                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    onClick={() => error.onConfirm?.()}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                  >
-                    Confirm
-                  </button>
-                </>
-              ) : (
+            
+            {error.isConfirm ? (
+              <div className="flex justify-end gap-3">
                 <button 
-                  onClick={() => setError(null)}
-                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  onClick={error.onCancel}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors"
                 >
-                  Close
+                  Cancel
                 </button>
-              )}
-            </div>
+                <button 
+                  onClick={error.onConfirm}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  Confirm
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => {
+                  setError(null);
+                  if (selectedSection) {
+                    fetchQuestion();
+                  } else {
+                    setShowSection(true);
+                  }
+                }}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                Try Again
+              </button>
+            )}
           </div>
         </div>
       )}
+      
+      {/* Network status indicator */}
+      {!networkStatus && (
+        <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          You're offline. Some features may not work.
+        </div>
+      )}
+
+      {/* CSS for video protection and component styling */}
+      <style jsx>{`
+        /* Video protection overlay */
+        #video-protection-overlay, #video-swipe-overlay {
+          position: absolute;
+          inset: 0;
+          z-index: 10;
+          cursor: default;
+          touch-action: none;
+        }
+
+        /* Makes sure YouTube iframe events don't bubble up */
+        .video-container iframe {
+          pointer-events: none !important;
+        }
+
+        /* Enable pointer events only on controls */
+        .video-container .react-player > div > div {
+          pointer-events: none !important; 
+        }
+
+        /* Enhanced swipe transition */
+        .swipe-content {
+          position: relative;
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Smaller YouTube login button */
+        .absolute.top-4.right-4.z-50 button {
+          height: 36px;
+          padding: 0 12px;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .absolute.top-4.right-4.z-50 button svg {
+          width: 18px;
+          height: 18px;
+        }
+
+        @media (max-width: 768px) {
+          .video-container .react-player {
+            max-height: 80vh !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
