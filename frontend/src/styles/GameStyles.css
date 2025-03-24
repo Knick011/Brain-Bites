@@ -25,7 +25,7 @@
 }
 
 .streak-milestone {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: linear-gradient(135deg, var(--primary-orange, #FF9F1C), var(--secondary-orange, #FFB347));
   color: white;
   transform: scale(1.1);
 }
@@ -33,17 +33,17 @@
 /* ===== Timer Animations ===== */
 @keyframes timerWarning {
   0%, 100% { 
-    background-color: var(--warning);
+    background-color: #f59e0b;
   }
   50% { 
-    background-color: var(--error);
+    background-color: #ef4444;
   }
 }
 
 .timer-bar {
   position: relative;
   height: 6px;
-  background: var(--border);
+  background: #e5e7eb;
   border-radius: 999px;
   overflow: hidden;
   transition: all 0.3s ease;
@@ -55,15 +55,15 @@
 }
 
 .timer-fill.high {
-  background-color: var(--success);
+  background-color: #22c55e;
 }
 
 .timer-fill.medium {
-  background-color: var(--warning);
+  background-color: #f59e0b;
 }
 
 .timer-fill.low {
-  background-color: var(--error);
+  background-color: #ef4444;
   animation: timerWarning 0.5s ease-in-out infinite;
 }
 
@@ -71,15 +71,15 @@
 @keyframes correctAnswer {
   0% { 
     transform: scale(1);
-    background-color: var(--surface);
+    background-color: #ffffff;
   }
   50% { 
     transform: scale(1.02);
-    background-color: var(--success-light);
+    background-color: #dcfce7;
   }
   100% { 
     transform: scale(1);
-    background-color: var(--success-light);
+    background-color: #dcfce7;
   }
 }
 
@@ -105,7 +105,7 @@
 
 .answer-option.incorrect {
   animation: wrongAnswer 0.4s ease-in-out;
-  background-color: var(--error-light);
+  background-color: #fee2e2;
 }
 
 /* ===== Points Animation ===== */
@@ -131,7 +131,7 @@
 .points-popup {
   position: absolute;
   font-weight: bold;
-  color: var(--success);
+  color: #22c55e;
   pointer-events: none;
   animation: pointsFloat 1.2s ease-out forwards;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -181,14 +181,6 @@
   }
 }
 
-.video-enter {
-  animation: videoEnter 0.5s ease-out forwards;
-}
-
-.video-exit {
-  animation: videoExit 0.5s ease-in forwards;
-}
-
 /* ===== Question Transitions ===== */
 @keyframes questionSlideIn {
   from {
@@ -212,14 +204,6 @@
   }
 }
 
-.question-enter {
-  animation: questionSlideIn 0.4s ease-out forwards;
-}
-
-.question-exit {
-  animation: questionSlideOut 0.4s ease-in forwards;
-}
-
 /* ===== Tutorial Highlight ===== */
 .tutorial-highlight {
   position: relative;
@@ -229,8 +213,8 @@
   content: '';
   position: absolute;
   inset: -4px;
-  border: 2px solid var(--primary);
-  border-radius: var(--radius-md);
+  border: 2px solid #FF9F1C;
+  border-radius: 8px;
   animation: highlightPulse 1.5s infinite;
 }
 
@@ -250,7 +234,7 @@
 .milestone-progress {
   position: relative;
   height: 8px;
-  background: var(--border);
+  background: #e5e7eb;
   border-radius: 999px;
   overflow: hidden;
   margin: 1rem 0;
@@ -261,65 +245,11 @@
   top: 0;
   left: 0;
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  background: linear-gradient(90deg, #FF9F1C, #FFD700);
   transition: width 0.5s ease-out;
 }
 
-/* ===== Reward Counter ===== */
-.reward-counter {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--surface);
-  border-radius: 999px;
-  box-shadow: var(--shadow-md);
-  transition: all 0.3s ease;
-}
-
-.reward-counter:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
-.reward-counter.has-rewards {
-  animation: rewardPulse 2s infinite;
-}
-
-@keyframes rewardPulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
-  }
-}
-
-/* ===== Time Mode Badge ===== */
-.time-mode-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  background: var(--info-light);
-  color: var(--info);
-  border-radius: 999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.time-mode-badge .icon {
-  animation: clockTick 1s linear infinite;
-}
-
-@keyframes clockTick {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-/* Add these animations to your CSS file */
+/* ===== Animations ===== */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -359,10 +289,7 @@
   animation: slideIn 0.3s ease-out forwards;
 }
 
-/* Add more animations as needed */
-/* Add to your GameStyles.css or index.css */
-
-/* Container for the swipe animations */
+/* ===== Swipe Container Styles ===== */
 .swipe-container {
   position: relative;
   overflow: hidden;
@@ -370,139 +297,14 @@
   height: 100vh;
 }
 
-/* Main content styling */
 .swipe-content {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  transform: translateY(0);
   transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* Entry animation for content coming from bottom */
-.swipe-enter {
-  transform: translateY(100%);
-}
-
-.swipe-enter-active {
-  transform: translateY(0);
-}
-
-/* Exit animation for content leaving to top */
-.swipe-exit {
-  transform: translateY(0);
-}
-
-.swipe-exit-active {
-  transform: translateY(-100%);
-}
-
-/* Swipe indicator */
-.swipe-indicator {
-  position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 40px;
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  pointer-events: none;
-  animation: pulse 2s infinite;
-}
-
-.swipe-indicator svg {
-  color: white;
-  width: 24px;
-  height: 24px;
-}
-
-@keyframes pulse {
-  0% {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-  50% {
-    transform: translateX(-50%) translateY(-15px);
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Flash effect when swiping */
-.swipe-flash {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(255, 255, 255, 0.1);
-  z-index: 999;
-  pointer-events: none;
-  opacity: 0;
-}
-
-.swipe-flash.active {
-  animation: flash 0.3s forwards;
-}
-
-@keyframes flash {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 0.3;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-/* Add these styles to your GameStyles.css file */
-
-/* ===== Swipe Navigation Styles ===== */
-
-/* Container for the swipe animations */
-.swipe-container {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: 100vh;
-  background-color: var(--bg-light, #FFF8E7);
-}
-
-/* Main content styling */
-.swipe-content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transform: translateY(0);
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* TikTok-style content swap animation */
-.swipe-content.exiting {
-  transform: translateY(-100%);
-}
-
-.swipe-content.entering {
-  transform: translateY(0);
-  animation: slideInFromBottom 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slideInFromBottom {
-  0% {
-    transform: translateY(100%);
-  }
-  100% {
-    transform: translateY(0);
-  }
 }
 
 /* Flash effect when swiping */
@@ -521,355 +323,11 @@
 
 @keyframes flash {
   0% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-/* Question container styling to match overall theme */
-.question-container {
-  background-color: var(--bg-light, #FFF8E7);
-}
-
-/* Video container styling */
-.video-container {
-  background-color: #000;
-}
-/* Add this to your GameStyles.css file */
-
-/* Add these styles to your GameStyles.css file for enhanced TikTok-style transitions */
-
-/* TikTok Style Container */
-.tiktok-style {
-  overflow: hidden;
-}
-
-/* Make any container a swipeable container */
-.swipe-container {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  z-index: 1;
-  touch-action: none; /* Prevent default touch behaviors */
-}
-
-/* Current visible content */
-.current-content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transform: translateY(0) scale(1);
-  opacity: 1;
-  z-index: 5;
-  will-change: transform, opacity;
-}
-
-/* Next content ready to enter */
-.next-content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transform: translateY(100%) scale(0.9);
-  opacity: 0.2;
-  z-index: 4;
-}
-
-/* TikTok flash effect */
-.tiktok-flash {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.1);
-  z-index: 10;
-  pointer-events: none;
-  animation: tiktok-flash 0.3s ease-out forwards;
-}
-
-@keyframes tiktok-flash {
-  0% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-/* Fun swipe indicator for tutorial mode */
-.fun-swipe-indicator-container {
-  position: fixed;
-  bottom: 80px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  z-index: 20;
-  pointer-events: none;
-}
-
-.fun-swipe-indicator {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Pulsing ring around arrow */
-.indicator-ring {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: linear-gradient(to right, #FF9F1C, #FFD700);
-  opacity: 0.2;
-  animation: ring-pulse 1.5s infinite;
-}
-
-/* Arrow that points up */
-.indicator-arrow {
-  position: relative;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #FF9F1C;
-  border-radius: 50%;
-  color: white;
-  margin-bottom: 8px;
-  box-shadow: 0 2px 10px rgba(255, 159, 28, 0.5);
-  animation: arrow-float 2s ease-in-out infinite;
-}
-
-/* Text below arrow */
-.indicator-text {
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  animation: text-fade 2s infinite;
-}
-
-/* Animation for the ring pulse effect */
-@keyframes ring-pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.2;
-  }
-  50% {
-    transform: scale(1.5);
-    opacity: 0.1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.2;
-  }
-}
-
-/* Animation for the floating arrow */
-@keyframes arrow-float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-/* Text fade animation */
-@keyframes text-fade {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-/* TikTok-style transition animations */
-@keyframes tiktok-exit {
-  from { 
-    transform: translateY(0) scale(1); 
-    opacity: 1;
-  }
-  to { 
-    transform: translateY(-100%) scale(0.8); 
-    opacity: 0;
-  }
-}
-
-@keyframes tiktok-enter {
-  from { 
-    transform: translateY(100%) scale(0.9); 
-    opacity: 0.2;
-  }
-  to { 
-    transform: translateY(0) scale(1); 
-    opacity: 1;
-  }
-}
-
-.tiktok-exiting {
-  animation: tiktok-exit 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-}
-
-.tiktok-entering {
-  animation: tiktok-enter 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-}
-
-/* Slower transitions for better visibility */
-.swipe-content {
-  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1) !important;
-}
-
-/* Video container styles */
-.video-container {
-  background-color: #000 !important;
-}
-
-.video-container .swipe-indicator {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-/* Make sure to add bottom padding to explanation popup for swipe hint */
-.fixed.inset-0.z-50.flex.items-center.justify-center {
-  padding-bottom: 80px;
-}
-/* Add this CSS to your application to help with video interactions */
-
-/* Make video player container respect touch events for swipe */
-.video-container {
-  position: relative;
-  touch-action: none; /* Prevents browser handling of all touch events */
-}
-
-/* Ensure YouTube iframe doesn't interfere with swipe gesture */
-.video-container iframe {
-  pointer-events: none !important; /* Prevent iframe from capturing touch */
-}
-
-/* Enhanced swipe transition */
-.swipe-content {
-  position: relative;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Flash effect animation */
-@keyframes flash {
-  0% { opacity: 0; }
   50% { opacity: 0.3; }
   100% { opacity: 0; }
 }
 
-.swipe-flash.active {
-  animation: flash 0.3s forwards;
-}
-
-/* Ensure video player dimensions are correct on mobile */
-@media (max-width: 768px) {
-  .video-container .react-player {
-    max-height: 80vh !important;
-  }
-}
-/* Updated tiktok-enter for the continuous rewards flow */
-@keyframes tiktok-enter {
-  from { 
-    transform: translateY(100%) scale(0.9); 
-    opacity: 0.2;
-  }
-  to { 
-    transform: translateY(0) scale(1); 
-    opacity: 1;
-  }
-}
-
-/* Video transition styles */
-.video-transition-active .swipe-content {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-/* Videos leaving animation */
-.video-transition-active .swipe-content.exiting {
-  transform: translateY(-100%) !important;
-  opacity: 0 !important;
-}
-
-/* Videos entering animation */
-.video-transition-active .swipe-content.entering {
-  transform: translateY(0) !important;
-  opacity: 1 !important;
-  animation: slide-from-bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-@keyframes slide-from-bottom {
-  0% {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-/* Clear overrides for video transitions in rewards flow */
-/* These styles take precedence when video-transition-active class is present */
-
-/* Override any existing transitions for cleaner animations */
-.video-transition-active .swipe-content,
-.video-transition-active .video-container,
-.video-transition-active .react-player {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-}
-
-/* Videos leaving animation - ensure clean upward exit */
-.video-transition-active .swipe-content.exiting {
-  transform: translateY(-100%) !important;
-  opacity: 0 !important;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
-              opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  z-index: 10 !important; /* Ensure exiting content is above */
-}
-
-/* Clean animation for videos entering from bottom */
-@keyframes slide-from-bottom {
-  0% {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Videos entering animation - ensure clean entry from bottom */
-.video-container.entering {
-  animation: slide-from-bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-  z-index: 5 !important; /* Ensure entering content is below exiting content */
-}
-
-/* Clear any transition delays that might cause issues */
-.video-container {
-  transition-delay: 0ms !important;
-}
-
-/* Prevent flashing and ensure hardware acceleration */
-.video-container,
-.swipe-content {
-  -webkit-transform: translateZ(0);
-  -moz-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  -o-transform: translateZ(0);
-  transform: translateZ(0);
-}
-/* Add these styles to the bottom of your frontend/src/styles/GameStyles.css file */
-
-/* Improved TikTok-style video transitions */
+/* ===== Improved TikTok-style Video Transitions ===== */
 .video-container {
   position: relative;
   will-change: transform, opacity;
@@ -923,24 +381,6 @@ body.video-transition-active .video-container {
     transform: translateY(0);
     opacity: 1;
   }
-}
-
-/* Next Video Indicator */
-.next-video-indicator {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(to right, #FF9F1C, #FFD700);
-  z-index: 1000;
-  transform: translateY(3px);
-  animation: indicatorPulse 1s infinite alternate;
-}
-
-@keyframes indicatorPulse {
-  from { opacity: 0.6; }
-  to { opacity: 1; }
 }
 
 /* Force hardware acceleration for smoother animations */
