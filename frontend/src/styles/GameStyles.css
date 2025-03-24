@@ -338,15 +338,35 @@
               opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.video-container.entering {
-  transform: translateY(0);
-  opacity: 1;
-}
-
+/* Exiting animation (current video moves up and out) */
 .video-container.exiting {
   transform: translateY(-100%);
   opacity: 0;
   z-index: 5;
+}
+
+/* Fade-in for entering videos (no sliding from edge) */
+.video-container.entering {
+  transform: translateY(0) !important;
+  opacity: 0;
+  animation: fadeInVideo 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.1s; /* Small delay for better sequencing */
+}
+
+@keyframes fadeInVideo {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Override any initial transform that might be set elsewhere */
+.video-container.entering.entering {
+  transform: translateY(0) !important;
 }
 
 /* Flash transition effect */
@@ -369,18 +389,6 @@
 body.video-transition-active .video-container {
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
               opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Entrance animations from bottom of screen */
-@keyframes enterFromBottom {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
 }
 
 /* Force hardware acceleration for smoother animations */
