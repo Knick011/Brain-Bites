@@ -1,4 +1,4 @@
-// Enhanced VideoCard.js with preloading and improved transitions
+// Enhanced VideoCard.js with proper TikTok-style swipe transitions
 import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import SwipeNavigation from '../SwipeNavigation';
@@ -50,27 +50,27 @@ const VideoCard = ({
     setTransitioning(false);
     setIsEntering(true);
     
-    // Set entering class for animation
+    // FIX: Set entering animation with proper positioning
     if (containerRef.current) {
-      containerRef.current.classList.add('entering');
+      // First clear any existing transitions to avoid conflicts
+      containerRef.current.style.transition = 'none';
       
-      // Set initial position to be coming from bottom
-      containerRef.current.style.transform = 'translateY(100%)';
+      // Position the new video below the viewport initially (key fix)
+      containerRef.current.style.transform = 'translateY(100%)'; 
       containerRef.current.style.opacity = '0';
       
-      // Force a layout calculation to trigger proper animation
-      const height = containerRef.current.offsetHeight; // Intentional recalc to trigger reflow
+      // Force a layout calculation to ensure the initial position is rendered
+      containerRef.current.offsetHeight; // Intentional reflow
       
-      // Then animate in from the bottom
+      // Then animate the new video up into view after a tiny delay
       setTimeout(() => {
         containerRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
         containerRef.current.style.transform = 'translateY(0)';
         containerRef.current.style.opacity = '1';
         
-        // Remove entering class after animation completes
+        // Reset after animation completes
         setTimeout(() => {
           if (containerRef.current) {
-            containerRef.current.classList.remove('entering');
             setIsEntering(false);
           }
         }, 350);
@@ -277,9 +277,8 @@ const VideoCard = ({
     
     // Add transition effect on container - animate current video up and out
     if (containerRef.current) {
-      containerRef.current.classList.add('exiting');
       containerRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-      containerRef.current.style.transform = 'translateY(-100%)';
+      containerRef.current.style.transform = 'translateY(-100%)';  // Move current video up
       containerRef.current.style.opacity = '0';
       
       // Add flash effect for transition feedback
@@ -314,9 +313,8 @@ const VideoCard = ({
     
     // Add transition effect on container - animate current video up and out
     if (containerRef.current) {
-      containerRef.current.classList.add('exiting');
       containerRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-      containerRef.current.style.transform = 'translateY(-100%)';
+      containerRef.current.style.transform = 'translateY(-100%)';  // Move current video up
       containerRef.current.style.opacity = '0';
       
       // Add flash effect for transition feedback
@@ -405,9 +403,8 @@ const VideoCard = ({
       className="video-container swipe-content" 
       ref={containerRef}
       style={{
-        transform: 'translateY(0)', 
-        opacity: 1,
-        transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+        transform: isEntering ? 'translateY(100%)' : 'translateY(0)', // Ensure default position is correct
+        opacity: isEntering ? 0 : 1
       }}
     >
       {/* Add transition styles */}
@@ -431,9 +428,6 @@ const VideoCard = ({
           perspective: 1000px;
           transform-style: preserve-3d;
           backface-visibility: hidden;
-        }
-        
-        .entering, .exiting {
           will-change: transform, opacity;
         }
       `}</style>
