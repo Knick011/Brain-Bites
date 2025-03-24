@@ -5,7 +5,7 @@ import { Clock } from 'lucide-react';
 /**
  * Enhanced Question Timer with point indicators
  */
-const QuestionTimer = ({ timeLimit = 10, onTimeUp, isActive, displayScore = true }) => {
+const QuestionTimer = ({ timeLimit = 20, onTimeUp, isActive, displayScore = true }) => {
   const [timeRemaining, setTimeRemaining] = useState(timeLimit);
   const [potentialPoints, setPotentialPoints] = useState(100);
   
