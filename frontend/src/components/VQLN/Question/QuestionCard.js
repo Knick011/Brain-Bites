@@ -242,7 +242,7 @@ const QuestionCard = ({
               correctAnswer={question.options?.[question.correctAnswer] || ""}
               tutorialMode={tutorialMode}
               onContinue={handleContinue}
-              autoAdvanceDelay={7000} // Auto-advance after 7 seconds
+              autoAdvanceDelay={12000} // Auto-advance after 12 seconds
             />
           )}
         </div>
