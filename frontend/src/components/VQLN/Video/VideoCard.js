@@ -43,6 +43,22 @@ const VideoCard = ({
     setShouldAutoAdvance(false);
     setTransitioning(false);
     
+    // Set initial position to be coming from bottom
+    if (containerRef.current) {
+      containerRef.current.style.transform = 'translateY(100%)';
+      containerRef.current.style.opacity = '0';
+      
+      // Force a layout calculation
+      containerRef.current.offsetHeight;
+      
+      // Then animate in from the bottom
+      setTimeout(() => {
+        containerRef.current.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+        containerRef.current.style.transform = 'translateY(0)';
+        containerRef.current.style.opacity = '1';
+      }, 10);
+    }
+    
     if (!url) {
       console.error('No URL provided');
       setIsValidUrl(false);
@@ -225,11 +241,23 @@ const VideoCard = ({
     setTransitioning(true);
     console.log('Manual skip initiated');
     
-    // Add transition effect on container
+    // Add transition effect on container - animate current video up and out
     if (containerRef.current) {
       containerRef.current.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
       containerRef.current.style.transform = 'translateY(-100%)';
       containerRef.current.style.opacity = '0';
+      
+      // Add flash effect for transition feedback
+      const flash = document.createElement('div');
+      flash.className = 'video-transition-flash';
+      document.body.appendChild(flash);
+      
+      // Clean up flash element after animation
+      setTimeout(() => {
+        if (document.body.contains(flash)) {
+          document.body.removeChild(flash);
+        }
+      }, 300);
     }
     
     // Delay the actual skip to allow for animation
@@ -249,11 +277,23 @@ const VideoCard = ({
     setTransitioning(true);
     console.log("Swipe detected in video");
     
-    // Add transition effect on container
+    // Add transition effect on container - animate current video up and out
     if (containerRef.current) {
       containerRef.current.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
       containerRef.current.style.transform = 'translateY(-100%)';
       containerRef.current.style.opacity = '0';
+      
+      // Add flash effect for transition feedback
+      const flash = document.createElement('div');
+      flash.className = 'video-transition-flash';
+      document.body.appendChild(flash);
+      
+      // Clean up flash element after animation
+      setTimeout(() => {
+        if (document.body.contains(flash)) {
+          document.body.removeChild(flash);
+        }
+      }, 300);
     }
     
     // Delay the actual navigation to allow for animation
@@ -334,6 +374,24 @@ const VideoCard = ({
         transition: 'transform 0.3s ease, opacity 0.3s ease'
       }}
     >
+      {/* Add transition styles */}
+      <style jsx>{`
+        .video-transition-flash {
+          position: fixed;
+          inset: 0;
+          background-color: rgba(255, 255, 255, 0.1);
+          z-index: 9999;
+          pointer-events: none;
+          animation: flash 0.3s forwards;
+        }
+        
+        @keyframes flash {
+          0% { opacity: 0; }
+          50% { opacity: 0.2; }
+          100% { opacity: 0; }
+        }
+      `}</style>
+      
       {/* Add SwipeNavigation component if not in replay mode */}
       {!videoEnded && (
         <SwipeNavigation 
