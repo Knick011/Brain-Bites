@@ -628,67 +628,72 @@ function App() {
     console.log("Video ended notification received in App component");
   }, []);
 
-  // Updated handleVideoSkip for the continuous rewards flow
-  const handleVideoSkip = useCallback(() => {
-    console.log("Video skip handler called", { inRewardsFlow, availableVideos });
-    
-    // Mark current video as viewed
-    if (currentVideo && currentVideo.id) {
-      setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
-    }
-    
-    // If in rewards flow and more videos available, go to next video
-    if (inRewardsFlow && availableVideos > 0) {
-      console.log("Getting next reward video");
-      // Get the next video
-      const nextVideo = getRandomVideo();
-      if (nextVideo) {
-        console.log("Found next video:", nextVideo.id);
-        
-        // Apply entering-from-bottom animation by briefly adding class to body
-        document.body.classList.add('video-transition-active');
-        
-        // Set the next video after a brief delay to allow animation to start
-        setTimeout(() => {
-          // Set the next video
-          setCurrentVideo(nextVideo);
-          // Mark it as viewed
-          setViewedVideoIds(prev => new Set([...prev, nextVideo.id]));
-          // Decrement available videos
-          setAvailableVideos(prev => prev - 1);
-          
-          // Remove class after transition completes
-          setTimeout(() => {
-            document.body.classList.remove('video-transition-active');
-          }, 400);
-        }, 50);
-        
-        return;
-      } else {
-        console.log("No next video found");
-      }
-    }
-    
-    // If in rewards flow but no more videos available, show completion message
-    if (inRewardsFlow && availableVideos === 0) {
-      console.log("No more rewards available, finishing flow");
-      finishRewardsFlow();
-      return;
-    }
-    
-    // Only if not in rewards flow, go back to questions
-    if (!inRewardsFlow) {
-      console.log("Not in rewards flow, going back to questions");
-      setCurrentVideo(null);
-      setShowQuestion(true);
-      
-      // In tutorial mode, fetch next question after video
-      if (tutorialMode) {
-        fetchQuestion();
-      }
-    }
-  }, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, getRandomVideo, finishRewardsFlow]);
+// Update this part in your frontend/src/App.js file
+// Focus only on the updated handleVideoSkip function to ensure proper transitions
+
+// Updated handleVideoSkip for the continuous rewards flow with proper TikTok-style transitions
+const handleVideoSkip = useCallback(() => {
+  console.log("Video skip handler called", { inRewardsFlow, availableVideos });
   
+  // Mark current video as viewed
+  if (currentVideo && currentVideo.id) {
+    setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
+  }
+  
+  // If in rewards flow and more videos available, go to next video
+  if (inRewardsFlow && availableVideos > 0) {
+    console.log("Getting next reward video");
+    // Get the next video
+    const nextVideo = getRandomVideo();
+    if (nextVideo) {
+      console.log("Found next video:", nextVideo.id);
+      
+      // Apply entering-from-bottom animation by preparing a class to body
+      document.body.classList.add('video-transition-active');
+      
+      // Mark video as viewed before setting it
+      setViewedVideoIds(prev => new Set([...prev, nextVideo.id]));
+      
+      // Important timing: Set next video AFTER current is transitioning out
+      // This helps ensure current video exits upward before next enters from bottom
+      setTimeout(() => {
+        // First, decrement available videos right before setting new video
+        setAvailableVideos(prev => prev - 1);
+        
+        // Then set the next video which will trigger the entrance animation
+        setCurrentVideo(nextVideo);
+        
+        // Remove transition class after animation completes
+        setTimeout(() => {
+          document.body.classList.remove('video-transition-active');
+        }, 400);
+      }, 150); // Wait for current video to start moving up
+      
+      return;
+    } else {
+      console.log("No next video found");
+    }
+  }
+  
+  // If in rewards flow but no more videos available, show completion message
+  if (inRewardsFlow && availableVideos === 0) {
+    console.log("No more rewards available, finishing flow");
+    finishRewardsFlow();
+    return;
+  }
+  
+  // Only if not in rewards flow, go back to questions
+  if (!inRewardsFlow) {
+    console.log("Not in rewards flow, going back to questions");
+    setCurrentVideo(null);
+    setShowQuestion(true);
+    
+    // In tutorial mode, fetch next question after video
+    if (tutorialMode) {
+      fetchQuestion();
+    }
+  }
+}, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, getRandomVideo, finishRewardsFlow]);
   // Handle rewards confirmation responses
   const handleConfirmExitRewards = useCallback(() => {
     setShowRewardsConfirmation(false);
