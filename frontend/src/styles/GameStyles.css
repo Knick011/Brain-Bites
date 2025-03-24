@@ -815,3 +815,55 @@
     opacity: 1;
   }
 }
+/* Clear overrides for video transitions in rewards flow */
+/* These styles take precedence when video-transition-active class is present */
+
+/* Override any existing transitions for cleaner animations */
+.video-transition-active .swipe-content,
+.video-transition-active .video-container,
+.video-transition-active .react-player {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Videos leaving animation - ensure clean upward exit */
+.video-transition-active .swipe-content.exiting {
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  z-index: 10 !important; /* Ensure exiting content is above */
+}
+
+/* Clean animation for videos entering from bottom */
+@keyframes slide-from-bottom {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Videos entering animation - ensure clean entry from bottom */
+.video-container.entering {
+  animation: slide-from-bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  z-index: 5 !important; /* Ensure entering content is below exiting content */
+}
+
+/* Clear any transition delays that might cause issues */
+.video-container {
+  transition-delay: 0ms !important;
+}
+
+/* Prevent flashing and ensure hardware acceleration */
+.video-container,
+.swipe-content {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+}
