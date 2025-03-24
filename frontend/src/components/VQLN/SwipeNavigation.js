@@ -103,6 +103,35 @@ const SwipeNavigation = ({
         if (content) {
           content.style.transform = 'translateY(-100%) scale(0.8)';
           content.style.opacity = '0';
+          
+          // Prepare next content to enter from bottom
+          const nextContent = document.createElement('div');
+          nextContent.className = 'next-content-indicator';
+          nextContent.style.cssText = `
+            position: fixed;
+            top: 100%;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, #ff9f1c, #FFD700);
+            z-index: 1000;
+            opacity: 0;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+          `;
+          document.body.appendChild(nextContent);
+          
+          // Animate indicator to show content coming from bottom
+          setTimeout(() => {
+            nextContent.style.transform = 'translateY(-100vh)';
+            nextContent.style.opacity = '1';
+          }, 10);
+          
+          // Remove the indicator after animation
+          setTimeout(() => {
+            if (document.body.contains(nextContent)) {
+              document.body.removeChild(nextContent);
+            }
+          }, 350);
         }
         
         // Flash effect for feedback
