@@ -1,10 +1,10 @@
-// Enhanced VideoCard.js with fixed visibility and replay functionality
+// Enhanced VideoCard.js with preloading and improved transitions
 import React, { useEffect, useState, useRef } from 'react';
 import ReactPlayer from 'react-player';
-import SwipeNavigation from '../SwipeNavigation'; // Correct path - go up one level to components/VQLN
+import SwipeNavigation from '../SwipeNavigation';
 
 /**
- * Enhanced video player component with better handling of transitions and replay
+ * Enhanced video player component with better transitions and preloading
  */
 const VideoCard = ({ 
   url, 
@@ -16,7 +16,7 @@ const VideoCard = ({
   inRewardsFlow = false,
   currentVideoIndex = 1,
   totalVideos = 1,
-  autoAdvanceDelay = 30000 // Auto-advance after 30 seconds by default (only used if video doesn't end naturally)
+  autoAdvanceDelay = 0 // Auto-advance after 30 seconds by default (only used if video doesn't end naturally)
 }) => {
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isValidUrl, setIsValidUrl] = useState(false);
@@ -26,6 +26,7 @@ const VideoCard = ({
   const [isPlaying, setIsPlaying] = useState(true);
   const [shouldAutoAdvance, setShouldAutoAdvance] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
+  const [isEntering, setIsEntering] = useState(true);
   
   const skipTimeoutRef = useRef(null);
   const autoAdvanceTimerRef = useRef(null);
@@ -42,9 +43,13 @@ const VideoCard = ({
     setIsPlaying(true);
     setShouldAutoAdvance(false);
     setTransitioning(false);
+    setIsEntering(true);
     
-    // Set initial position to be coming from bottom
+    // Set entering class for animation
     if (containerRef.current) {
+      containerRef.current.classList.add('entering');
+      
+      // Set initial position to be coming from bottom
       containerRef.current.style.transform = 'translateY(100%)';
       containerRef.current.style.opacity = '0';
       
@@ -54,9 +59,17 @@ const VideoCard = ({
       
       // Then animate in from the bottom
       setTimeout(() => {
-        containerRef.current.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+        containerRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
         containerRef.current.style.transform = 'translateY(0)';
         containerRef.current.style.opacity = '1';
+        
+        // Remove entering class after animation completes
+        setTimeout(() => {
+          if (containerRef.current) {
+            containerRef.current.classList.remove('entering');
+            setIsEntering(false);
+          }
+        }, 350);
       }, 10);
     }
     
@@ -71,11 +84,13 @@ const VideoCard = ({
     try {
       // Process the URL based on format
       let videoUrl = null;
+      let videoId = null;
       
       // Handle object with id property
       if (typeof url === 'object' && url.id) {
         console.log('URL is an object with ID:', url.id);
         videoUrl = `https://www.youtube.com/watch?v=${url.id}`;
+        videoId = url.id;
       }
       // Handle full YouTube URLs
       else if (typeof url === 'string') {
@@ -83,16 +98,22 @@ const VideoCard = ({
           const match = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
           if (match && match[1]) {
             videoUrl = `https://www.youtube.com/watch?v=${match[1]}`;
+            videoId = match[1];
           } else {
             videoUrl = url; // Use as is
           }
         }
         else if (url.includes('youtube.com/watch?v=')) {
+          const match = url.match(/watch\?v=([a-zA-Z0-9_-]+)/);
+          if (match && match[1]) {
+            videoId = match[1];
+          }
           videoUrl = url; // Already in correct format
         }
         // Handle just the video ID
         else if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
           videoUrl = `https://www.youtube.com/watch?v=${url}`;
+          videoId = url;
         }
         else {
           videoUrl = url; // Use as is, ReactPlayer will handle validation
@@ -105,6 +126,11 @@ const VideoCard = ({
         throw new Error('Could not process video URL');
       }
       
+      // Preload next thumbnail if we're in rewards flow
+      if (inRewardsFlow && videoId) {
+        preloadVideoThumbnail(videoId);
+      }
+      
       setPlayerUrl(videoUrl);
       setIsValidUrl(true);
       setPlayerError(null);
@@ -114,7 +140,16 @@ const VideoCard = ({
       setPlayerUrl(null);
       setPlayerError(error.message);
     }
-  }, [url]);
+  }, [url, inRewardsFlow]);
+  
+  // Function to preload video thumbnails for smoother transitions
+  const preloadVideoThumbnail = (videoId) => {
+    if (!videoId) return;
+    
+    // Preload high-quality thumbnail
+    const img = new Image();
+    img.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  };
   
   // Clear any existing timers when component unmounts or URL changes
   useEffect(() => {
@@ -189,12 +224,6 @@ const VideoCard = ({
     setVideoEnded(false);
     setIsPlaying(true);
     
-    // Make sure container is visible and positioned correctly
-    if (containerRef.current) {
-      containerRef.current.style.transform = 'translateY(0)';
-      containerRef.current.style.opacity = '1';
-    }
-    
     if (onReady) onReady();
   };
 
@@ -244,7 +273,8 @@ const VideoCard = ({
     
     // Add transition effect on container - animate current video up and out
     if (containerRef.current) {
-      containerRef.current.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      containerRef.current.classList.add('exiting');
+      containerRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
       containerRef.current.style.transform = 'translateY(-100%)';
       containerRef.current.style.opacity = '0';
       
@@ -268,7 +298,7 @@ const VideoCard = ({
         onSkip();
       }
       setTransitioning(false);
-    }, 300);
+    }, 350);
   };
 
   // Handle swipe - now with transition
@@ -280,7 +310,8 @@ const VideoCard = ({
     
     // Add transition effect on container - animate current video up and out
     if (containerRef.current) {
-      containerRef.current.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      containerRef.current.classList.add('exiting');
+      containerRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
       containerRef.current.style.transform = 'translateY(-100%)';
       containerRef.current.style.opacity = '0';
       
@@ -308,7 +339,7 @@ const VideoCard = ({
         onExit && onExit();
       }
       setTransitioning(false);
-    }, 300);
+    }, 350);
   };
 
   // Video rewards progress component - updated to be cleaner
@@ -372,7 +403,7 @@ const VideoCard = ({
       style={{
         transform: 'translateY(0)', 
         opacity: 1,
-        transition: 'transform 0.3s ease, opacity 0.3s ease'
+        transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
       }}
     >
       {/* Add transition styles */}
@@ -428,6 +459,9 @@ const VideoCard = ({
               onError={handlePlayerError}
               onBuffer={() => console.log('Video buffering...')}
               onBufferEnd={() => console.log('Video buffering ended')}
+              // New props for improved performance
+              playsinline={true}
+              preload="auto"
               config={{
                 youtube: {
                   playerVars: {
@@ -436,6 +470,9 @@ const VideoCard = ({
                     rel: 0,
                     iv_load_policy: 3,
                     playsinline: 1,
+                    // Enable higher quality and preloading
+                    vq: 'hd720',
+                    preload: 'auto'
                   },
                   embedOptions: {
                     allowFullScreen: true
