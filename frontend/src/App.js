@@ -619,6 +619,15 @@ function App() {
     }
   }, [availableVideos, fetchQuestion, viewedVideoIds]);
 
+  // Handle video end
+  const handleVideoEnd = useCallback(() => {
+    // We don't do anything here because the VideoCard now handles
+    // video completion with its replay functionality
+    // The user will need to manually proceed after the video ends
+    
+    console.log("Video ended notification received in App component");
+  }, []);
+
   // Updated handleVideoSkip for the continuous rewards flow
   const handleVideoSkip = useCallback(() => {
     console.log("Video skip handler called", { inRewardsFlow, availableVideos });
@@ -800,7 +809,7 @@ function App() {
     setShowSection(true);
   }, []);
 
- const handleMainSelection = useCallback((section) => {
+const handleMainSelection = useCallback((section) => {
     SoundEffects.playTransition();
     SoundEffects.playButtonPress();
     
