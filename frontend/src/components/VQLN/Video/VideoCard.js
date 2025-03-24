@@ -33,6 +33,11 @@ const VideoCard = ({
   const playerRef = useRef(null);
   const containerRef = useRef(null);
   
+  // Debug helper
+  const debugLog = (message, data) => {
+    console.log(`[VideoCard] ${message}`, data);
+  };
+
   // Process and validate URL on mount and when url changes
   useEffect(() => {
     console.log('Processing video URL:', url);
@@ -53,9 +58,8 @@ const VideoCard = ({
       containerRef.current.style.transform = 'translateY(100%)';
       containerRef.current.style.opacity = '0';
       
-      // Force a layout calculation (fix the unused expression error)
-      // Add a variable assignment to fix the unused expression
-      const height = containerRef.current.offsetHeight;
+      // Force a layout calculation to trigger proper animation
+      const height = containerRef.current.offsetHeight; // Intentional recalc to trigger reflow
       
       // Then animate in from the bottom
       setTimeout(() => {
@@ -421,6 +425,16 @@ const VideoCard = ({
           0% { opacity: 0; }
           50% { opacity: 0.2; }
           100% { opacity: 0; }
+        }
+        
+        .video-container {
+          perspective: 1000px;
+          transform-style: preserve-3d;
+          backface-visibility: hidden;
+        }
+        
+        .entering, .exiting {
+          will-change: transform, opacity;
         }
       `}</style>
       
