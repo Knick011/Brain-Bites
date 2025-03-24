@@ -603,6 +603,9 @@ function App() {
         // Decrement available videos only when viewing
         setAvailableVideos(prev => prev - 1);
         setSwipeEnabled(true);
+        
+        // Add a class to body for TikTok-style video transitions
+        document.body.classList.add('video-transition-active');
       } else {
         throw new Error("No videos available");
       }
@@ -616,19 +619,6 @@ function App() {
     }
   }, [availableVideos, fetchQuestion, viewedVideoIds]);
 
-  // Updated handleVideoEnd for continuous rewards flow - no auto advance
-  const handleVideoEnd = useCallback(() => {
-    // We don't do anything here because the VideoCard now handles
-    // video completion with its replay functionality
-    // The user will need to manually proceed after the video ends
-    
-    console.log("Video ended notification received in App component");
-    // We can optionally track that a video was fully viewed
-    
-    // Don't automatically go to the next video or question
-    // Let the user decide using the replay or skip controls
-  }, []);
-  
   // Updated handleVideoSkip for the continuous rewards flow
   const handleVideoSkip = useCallback(() => {
     console.log("Video skip handler called", { inRewardsFlow, availableVideos });
@@ -645,12 +635,25 @@ function App() {
       const nextVideo = getRandomVideo();
       if (nextVideo) {
         console.log("Found next video:", nextVideo.id);
-        // Set the next video
-        setCurrentVideo(nextVideo);
-        // Mark it as viewed
-        setViewedVideoIds(prev => new Set([...prev, nextVideo.id]));
-        // Decrement available videos
-        setAvailableVideos(prev => prev - 1);
+        
+        // Apply entering-from-bottom animation by briefly adding class to body
+        document.body.classList.add('video-transition-active');
+        
+        // Set the next video after a brief delay to allow animation to start
+        setTimeout(() => {
+          // Set the next video
+          setCurrentVideo(nextVideo);
+          // Mark it as viewed
+          setViewedVideoIds(prev => new Set([...prev, nextVideo.id]));
+          // Decrement available videos
+          setAvailableVideos(prev => prev - 1);
+          
+          // Remove class after transition completes
+          setTimeout(() => {
+            document.body.classList.remove('video-transition-active');
+          }, 400);
+        }, 50);
+        
         return;
       } else {
         console.log("No next video found");
