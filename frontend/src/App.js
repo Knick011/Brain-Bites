@@ -1,4 +1,4 @@
-// Complete Updated App.js with all fixes
+// Complete Updated App.js with Google Analytics Integration
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -17,6 +17,7 @@ import YouTubeLogin from './components/VQLN/YouTubeLogin';
 import RewardsConfirmation from './components/VQLN/RewardsConfirmation';
 import AllDoneMessage from './components/VQLN/AllDoneMessage';
 import StorageService from './utils/StorageService';
+import GoogleAnalyticsService from './utils/GoogleAnalyticsService';
 import { Home, X } from 'lucide-react';
 import './styles/theme.css';
 import './styles/GameStyles.css';
@@ -76,6 +77,20 @@ function App() {
   const contentRef = useRef(null);
   // Add this ref to track tutorial mode changes
   const prevTutorialMode = useRef(true);
+  
+  // Initialize Google Analytics
+  useEffect(() => {
+    // Initialize Google Analytics
+    GoogleAnalyticsService.initialize();
+    
+    // Track app start
+    GoogleAnalyticsService.trackAppStart();
+    
+    // Clean up on unmount
+    return () => {
+      GoogleAnalyticsService.endSession();
+    };
+  }, []);
   
   // Debug helper function
   const debugLog = (message, data) => {
@@ -201,6 +216,10 @@ function App() {
       // For every 2 correct answers, award a video (not dependent on streak)
       if (!tutorialMode && newCorrect % 2 === 0) {
         debugLog("Adding standard video reward based on correct answers", { newCorrect });
+        
+        // Track reward earned
+        GoogleAnalyticsService.trackRewardEarned('video', 1, 'correct_answer');
+        
         setAvailableVideos(prev => {
           const newAvailable = prev + 1;
           debugLog("Available videos updated", { prev, newAvailable });
@@ -216,12 +235,20 @@ function App() {
       const newStreak = streak + 1;
       if (newStreak % 5 === 0) {
         debugLog("Adding streak milestone bonus", { newStreak });
+        
+        // Track streak milestone
+        GoogleAnalyticsService.trackStreakMilestone(newStreak);
+        
         setTimeout(() => {
           setCurrentMilestone(newStreak);
           setShowMilestone(true);
           setAvailableVideos(prev => {
             const newAvailable = prev + 1;
             debugLog("Milestone videos added", { prev, newAvailable });
+            
+            // Track reward for milestone
+            GoogleAnalyticsService.trackRewardEarned('video', 1, 'streak_milestone');
+            
             return newAvailable;
           });
         }, 500);
@@ -251,6 +278,10 @@ function App() {
       setScore(prevScore => {
         const newScore = prevScore + finalScore;
         debugLog("Score updated", { prevScore, newScore, finalScore });
+        
+        // Track score update
+        GoogleAnalyticsService.trackScoreUpdate(newScore, finalScore);
+        
         return newScore;
       });
     }
@@ -280,6 +311,10 @@ function App() {
     // CHANGE: Complete tutorial after 5 questions, regardless of correctness
     if (tutorialMode && questionsAnswered >= 5) {
       debugLog("Tutorial complete! Activating game mode", { questionsAnswered });
+      
+      // Track tutorial completion
+      GoogleAnalyticsService.trackTutorialCompleted();
+      
       setTimeout(() => {
         setTutorialMode(false);
         setShowGameModePopup(true);
@@ -498,6 +533,13 @@ function App() {
   const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
     debugLog("Answer submitted", { isCorrect, answerTimeValue, timeMode, tutorialMode });
     
+    // Track question answered in Google Analytics
+    GoogleAnalyticsService.trackQuestionAnswered(
+      selectedSection,
+      isCorrect,
+      answerTimeValue
+    );
+    
     // Enable swiping after answering in tutorial mode
     if (tutorialMode) {
       setSwipeEnabled(true);
@@ -512,7 +554,7 @@ function App() {
     } else {
       processIncorrectAnswer();
     }
-  }, [processCorrectAnswer, processIncorrectAnswer, tutorialMode, timeMode]);
+  }, [processCorrectAnswer, processIncorrectAnswer, tutorialMode, timeMode, selectedSection]);
 
   // Handle explanation continue
   const handleExplanationContinue = useCallback(() => {
@@ -628,9 +670,6 @@ function App() {
     console.log("Video ended notification received in App component");
   }, []);
 
-// Update this part in your frontend/src/App.js file
-// Focus only on the updated handleVideoSkip function to ensure proper transitions
-
 // Updated handleVideoSkip for the continuous rewards flow with proper TikTok-style transitions
 const handleVideoSkip = useCallback(() => {
   console.log("Video skip handler called", { inRewardsFlow, availableVideos });
@@ -694,6 +733,7 @@ const handleVideoSkip = useCallback(() => {
     }
   }
 }, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, getRandomVideo, finishRewardsFlow]);
+
   // Handle rewards confirmation responses
   const handleConfirmExitRewards = useCallback(() => {
     setShowRewardsConfirmation(false);
@@ -719,6 +759,15 @@ const handleVideoSkip = useCallback(() => {
   // Updated handleVideoToQuestionTransition for manual transitions
   const handleVideoToQuestionTransition = useCallback(() => {
     console.log("Video to question transition handler called", { inRewardsFlow });
+    
+    // Track video watched if we have a current video
+    if (currentVideo && currentVideo.id) {
+      GoogleAnalyticsService.trackVideoWatched(
+        currentVideo.id, 
+        null, // We don't have duration information
+        currentVideo.channelHandle || 'youtube'
+      );
+    }
     
     // If in rewards flow, treat this the same as a skip - go to next video
     if (inRewardsFlow) {
@@ -752,6 +801,11 @@ const handleVideoSkip = useCallback(() => {
   const handleYouTubeLoginStatusChange = useCallback((isSignedIn, videos = []) => {
     setIsYouTubeSignedIn(isSignedIn);
     
+    // Track YouTube login status
+    GoogleAnalyticsService.sendEvent('youtube_login_status', {
+      is_signed_in: isSignedIn
+    });
+    
     // In a real implementation, this would use the personalized videos
     // For now, just show a message
     if (isSignedIn) {
@@ -777,6 +831,9 @@ const handleVideoSkip = useCallback(() => {
   // Add "Go Home" handler
   const handleGoHome = useCallback(() => {
     SoundEffects.playTransition();
+    
+    // Track navigation to home
+    GoogleAnalyticsService.sendEvent('navigate_to_home');
     
     // Confirm if user wants to go back to section selection
     setError({
@@ -810,6 +867,9 @@ const handleVideoSkip = useCallback(() => {
     SoundEffects.playTransition();
     SoundEffects.playButtonPress();
     
+    // Track app start button click
+    GoogleAnalyticsService.sendEvent('start_button_click');
+    
     setShowWelcome(false);
     setShowSection(true);
   }, []);
@@ -817,6 +877,9 @@ const handleVideoSkip = useCallback(() => {
  const handleMainSelection = useCallback((section) => {
     SoundEffects.playTransition();
     SoundEffects.playButtonPress();
+    
+    // Track section selection in Google Analytics
+    GoogleAnalyticsService.trackSectionSelected(section);
     
     setSelectedSection(section);
     setShowSection(false);
@@ -875,6 +938,12 @@ const handleVideoSkip = useCallback(() => {
   // UI interaction handlers
   const handleTutorialNext = useCallback(() => {
     SoundEffects.playButtonPress();
+    
+    // Track tutorial step progression
+    GoogleAnalyticsService.sendEvent('tutorial_step_progress', {
+      step: tutorialStep + 1,
+      total_steps: tutorialSteps.length
+    });
     
     if (tutorialStep < tutorialSteps.length - 1) {
       setTutorialStep(prev => prev + 1);
@@ -1143,6 +1212,11 @@ const handleVideoSkip = useCallback(() => {
             ) : (
               <button 
                 onClick={() => {
+                  // Track error dismissal
+                  GoogleAnalyticsService.sendEvent('error_dismissed', {
+                    error_message: typeof error === 'string' ? error : error.message
+                  });
+                  
                   setError(null);
                   if (selectedSection) {
                     fetchQuestion();
