@@ -2,7 +2,7 @@
 class GoogleAnalyticsService {
   constructor() {
     this.initialized = false;
-    this.measurementId = "G-" + "479078791"; // Your GA4 measurement ID
+    this.measurementId = "G-" + "YPXNLCRM9H"; // Your GA4 measurement ID
     this.sessionStart = null;
     this.isActive = false;
     this.lastActiveTime = null;
