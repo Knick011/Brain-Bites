@@ -204,7 +204,7 @@ function App() {
     setStreak(prevStreak => {
       const newStreak = prevStreak + 1;
       debugLog("Streak updated", { prevStreak, newStreak });
-      if ((!tutorialMode) || (tutorialMode && newStreak % 5 === 0)) {
+      if (newStreak % 5 === 0) {
     SoundEffects.playStreak();
   }
       return newStreak;
@@ -242,7 +242,7 @@ function App() {
         // Track streak milestone
         GoogleAnalyticsService.trackStreakMilestone(newStreak);
         
-        SoundEffects.playStreak();
+        
 
       
         setTimeout(() => {
