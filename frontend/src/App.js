@@ -1179,14 +1179,7 @@ function App() {
                     questionsAnswered={questionsAnswered}
                   />
                   
-                  {/* Add swipe navigation in tutorial mode */}
-                  {tutorialMode && swipeEnabled && explanationVisible && (
-                    <SwipeNavigation 
-                      onSwipeUp={handleExplanationContinue} 
-                      enabled={true}
-                      autoAdvanceDelay={7000} // Auto-advance after 7 seconds
-                    />
-                  )}
+                  {/* No separate SwipeNavigation for tutorial mode - we'll handle transitions directly */}
                 </>
               ) : (
                 <div className="w-full h-full bg-white p-4 rounded-lg text-center my-20">
