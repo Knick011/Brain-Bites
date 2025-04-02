@@ -590,12 +590,26 @@ function App() {
   }, [processCorrectAnswer, processIncorrectAnswer, tutorialMode, timeMode, selectedSection]);
 
   // MODIFIED: Handle explanation continue to control when videos are shown in tutorial mode
+  // and prevent animation issues while keeping the original swiping functionality
   const handleExplanationContinue = useCallback(() => {
     console.log("Explanation continue handler triggered");
     
+    // Reset explanation state
+    setExplanationVisible(false);
+    setSwipeEnabled(false);
+    
+    // Reset any transform/transition styles that might be stuck
+    // This is the key fix to prevent the animation from getting stuck
+    if (contentRef.current) {
+      contentRef.current.style.transform = '';
+      contentRef.current.style.opacity = '';
+      // Force a reflow to ensure styles are properly reset
+      void contentRef.current.offsetHeight;
+    }
+    
     if (tutorialMode) {
       // Only show video after every 2 correct answers in tutorial mode
-      // AND if the last answer was correct (selectedAnswer === currentQuestion.correctAnswer)
+      // AND if the last answer was correct (selectedAnswer === currentQuestion?.correctAnswer)
       const isLastAnswerCorrect = selectedAnswer === currentQuestion?.correctAnswer;
       
       if (isLastAnswerCorrect && tutorialCorrectCount % 2 === 0 && tutorialCorrectCount > 0) {
@@ -618,10 +632,6 @@ function App() {
       // For regular mode, just fetch the next question
       fetchQuestion();
     }
-    
-    // Reset explanation state
-    setExplanationVisible(false);
-    setSwipeEnabled(false);
   }, [tutorialMode, selectedAnswer, currentQuestion, tutorialCorrectCount, fetchQuestion, getRandomVideo]);
 
   // Updated watchVideo function with rewards flow
@@ -1179,7 +1189,14 @@ function App() {
                     questionsAnswered={questionsAnswered}
                   />
                   
-                  {/* No separate SwipeNavigation for tutorial mode - we'll handle transitions directly */}
+                  {/* Add swipe navigation in tutorial mode */}
+                  {tutorialMode && swipeEnabled && explanationVisible && (
+                    <SwipeNavigation 
+                      onSwipeUp={handleExplanationContinue} 
+                      enabled={true}
+                      autoAdvanceDelay={7000} // Auto-advance after 7 seconds
+                    />
+                  )}
                 </>
               ) : (
                 <div className="w-full h-full bg-white p-4 rounded-lg text-center my-20">
