@@ -1,9 +1,10 @@
-// components/VQLN/Question/AnswerNotification.js
+// Updated components/VQLN/Question/AnswerNotification.js to fix swipe animation issues
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, XCircle, AlertCircle, ChevronUp } from 'lucide-react';
 
 /**
  * Answer notification component with auto-transition timer
+ * Modified to fix swipe animation issues in tutorial mode
  */
 const AnswerNotification = ({ 
   isCorrect, 
@@ -15,6 +16,7 @@ const AnswerNotification = ({
   autoAdvanceDelay = 8000 // 8 second auto-advance timer
 }) => {
   const [timeRemaining, setTimeRemaining] = useState(autoAdvanceDelay / 1000);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Auto-advance timer
   useEffect(() => {
@@ -31,7 +33,7 @@ const AnswerNotification = ({
       // Auto-advance timer
       timer = setTimeout(() => {
         console.log("Auto-advance timer triggered, calling onContinue");
-        onContinue();
+        handleContinue();
       }, autoAdvanceDelay);
     }
     
@@ -46,16 +48,38 @@ const AnswerNotification = ({
   useEffect(() => {
     const handleKeyDown = (e) => {
       // Use Down Arrow, Space, or Enter keys for navigation
-      if ((e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') && onContinue) {
+      if ((e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') && onContinue && !isTransitioning) {
         e.preventDefault(); // Prevent default scrolling behavior
         console.log("Key press detected in explanation, calling onContinue");
-        onContinue();
+        handleContinue();
       }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onContinue]);
+  }, [onContinue, isTransitioning]);
+  
+  // Improved continue handler to prevent multiple triggers
+  const handleContinue = () => {
+    if (isTransitioning) return;
+    
+    setIsTransitioning(true);
+    
+    // Call onContinue directly without any animation in tutorial mode
+    if (tutorialMode) {
+      // Call the continue handler immediately
+      if (onContinue) {
+        console.log("Tutorial mode: directly calling onContinue without animation");
+        onContinue();
+      }
+    } else {
+      // In regular mode, call continue after a short delay
+      if (onContinue) {
+        console.log("Regular mode: calling onContinue after delay");
+        onContinue();
+      }
+    }
+  };
   
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -87,11 +111,19 @@ const AnswerNotification = ({
             <p className="text-gray-700">{explanation || "No explanation available."}</p>
           </div>
           
-          {/* Simple swipe instruction with auto-progress indicator */}
-          <div className="text-center mt-4 text-gray-500 flex items-center justify-center gap-1">
-            <ChevronUp size={16} />
-            <span className="text-sm">Swipe up or press ↓ to continue</span>
-          </div>
+          {/* Button to continue - this helps avoid swipe issues */}
+          <button
+            onClick={handleContinue}
+            className={`w-full mt-3 py-2 px-4 rounded-md font-medium transition-colors ${
+              isCorrect 
+                ? "bg-green-500 hover:bg-green-600 text-white" 
+                : isTimeout 
+                  ? "bg-yellow-500 hover:bg-yellow-600 text-white" 
+                  : "bg-red-500 hover:bg-red-600 text-white"
+            }`}
+          >
+            Continue
+          </button>
           
           {/* Progress bar for auto-advance */}
           <div className="w-full h-1 bg-gray-200 mt-4 rounded-full overflow-hidden opacity-40">
@@ -105,24 +137,6 @@ const AnswerNotification = ({
           </div>
         </div>
       </div>
-      
-      {/* Add touch handler for swipe up */}
-      <div 
-        onClick={onContinue}
-        onTouchStart={(e) => e.currentTarget.dataset.touchStartY = e.touches[0].clientY}
-        onTouchEnd={(e) => {
-          const startY = parseFloat(e.currentTarget.dataset.touchStartY || '0');
-          const endY = e.changedTouches[0].clientY;
-          
-          // If swiped up significantly, continue
-          if (startY - endY > 50 && onContinue) {
-            console.log("Swipe up detected in explanation, calling onContinue");
-            onContinue();
-          }
-        }}
-        className="absolute inset-0 z-40" // Lower z-index to allow buttons to be clicked
-        style={{ touchAction: 'none' }} // Prevent default touch behavior
-      />
     </div>
   );
 };
