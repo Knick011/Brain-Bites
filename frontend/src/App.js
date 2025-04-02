@@ -1,4 +1,4 @@
-// Complete Updated App.js with Google Analytics Integration
+// Complete Updated App.js with Tutorial Mode Improvements
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -18,6 +18,7 @@ import RewardsConfirmation from './components/VQLN/RewardsConfirmation';
 import AllDoneMessage from './components/VQLN/AllDoneMessage';
 import StorageService from './utils/StorageService';
 import GoogleAnalyticsService from './utils/GoogleAnalyticsService';
+import SkipTutorialButton from './components/VQLN/SkipTutorialButton';
 import { Home, X } from 'lucide-react';
 import './styles/theme.css';
 import './styles/GameStyles.css';
@@ -55,6 +56,7 @@ function App() {
   
   // Tutorial and special states
   const [tutorialMode, setTutorialMode] = useState(true);
+  const [tutorialCorrectCount, setTutorialCorrectCount] = useState(0);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
   const [showGameModePopup, setShowGameModePopup] = useState(false);
@@ -205,8 +207,8 @@ function App() {
       const newStreak = prevStreak + 1;
       debugLog("Streak updated", { prevStreak, newStreak });
       if (newStreak % 5 === 0) {
-    SoundEffects.playStreak();
-  }
+        SoundEffects.playStreak();
+      }
       return newStreak;
     });
     
@@ -242,9 +244,6 @@ function App() {
         // Track streak milestone
         GoogleAnalyticsService.trackStreakMilestone(newStreak);
         
-        
-
-      
         setTimeout(() => {
           setCurrentMilestone(newStreak);
           setShowMilestone(true);
@@ -310,6 +309,25 @@ function App() {
     setTimeout(() => {
       fetchQuestion();
     }, 1500);
+  }, []);
+
+  // Handler for skipping the tutorial
+  const handleSkipTutorial = useCallback(() => {
+    // Mark tutorial as completed
+    setTutorialMode(false);
+    StorageService.setTutorialCompleted(true);
+    
+    // Show game mode popup
+    setShowGameModePopup(true);
+    
+    // Activate time mode after a delay
+    setTimeout(() => {
+      setTimeMode(true);
+      console.log("Time mode activated after skipping tutorial!");
+    }, 1000);
+    
+    // Track tutorial skip
+    GoogleAnalyticsService.sendEvent('tutorial_skipped');
   }, []);
 
   // Check for tutorial completion based on questions answered
@@ -535,7 +553,7 @@ function App() {
     return unwatchedVideos[randomIndex];
   }, [videos, viewedVideoIds]);
 
-  // SIMPLIFIED AND FIXED: Handle answer submission function
+  // MODIFIED: Handle answer submission function to track tutorial correct answers
   const handleAnswerSubmit = useCallback((isCorrect, answerTimeValue = null) => {
     debugLog("Answer submitted", { isCorrect, answerTimeValue, timeMode, tutorialMode });
     
@@ -557,20 +575,31 @@ function App() {
     // Process correct or incorrect answer
     if (isCorrect) {
       processCorrectAnswer(answerTimeValue);
+      
+      // Update tutorial correct counter if in tutorial mode
+      if (tutorialMode) {
+        setTutorialCorrectCount(prevCount => {
+          const newCount = prevCount + 1;
+          console.log(`Tutorial correct count updated: ${newCount}`);
+          return newCount;
+        });
+      }
     } else {
       processIncorrectAnswer();
     }
   }, [processCorrectAnswer, processIncorrectAnswer, tutorialMode, timeMode, selectedSection]);
 
-  // Handle explanation continue
+  // MODIFIED: Handle explanation continue to control when videos are shown in tutorial mode
   const handleExplanationContinue = useCallback(() => {
     console.log("Explanation continue handler triggered");
     
     if (tutorialMode) {
-      // For tutorial mode, just show the video if available
-      if (currentVideo) {
-        setShowQuestion(false);
-      } else {
+      // Only show video after every 2 correct answers in tutorial mode
+      // AND if the last answer was correct (selectedAnswer === currentQuestion.correctAnswer)
+      const isLastAnswerCorrect = selectedAnswer === currentQuestion?.correctAnswer;
+      
+      if (isLastAnswerCorrect && tutorialCorrectCount % 2 === 0 && tutorialCorrectCount > 0) {
+        console.log("Tutorial mode: showing video after 2 correct answers");
         // Get and show a video
         const videoToPlay = getRandomVideo();
         if (videoToPlay) {
@@ -578,8 +607,12 @@ function App() {
           setViewedVideoIds(prev => new Set([...prev, videoToPlay.id]));
           setTimeout(() => setShowQuestion(false), 50);
         } else {
-          fetchQuestion();
+          fetchQuestion(); // Fallback if no video available
         }
+      } else {
+        console.log("Tutorial mode: proceeding to next question without video");
+        // If incorrect answer or not reached 2 correct answers yet, just fetch next question
+        fetchQuestion();
       }
     } else {
       // For regular mode, just fetch the next question
@@ -589,7 +622,7 @@ function App() {
     // Reset explanation state
     setExplanationVisible(false);
     setSwipeEnabled(false);
-  }, [tutorialMode, currentVideo, fetchQuestion, getRandomVideo]);
+  }, [tutorialMode, selectedAnswer, currentQuestion, tutorialCorrectCount, fetchQuestion, getRandomVideo]);
 
   // Updated watchVideo function with rewards flow
   const watchVideo = useCallback(async () => {
@@ -676,69 +709,69 @@ function App() {
     console.log("Video ended notification received in App component");
   }, []);
 
-// Updated handleVideoSkip for the continuous rewards flow with proper TikTok-style transitions
-const handleVideoSkip = useCallback(() => {
-  console.log("Video skip handler called", { inRewardsFlow, availableVideos });
-  
-  // Mark current video as viewed
-  if (currentVideo && currentVideo.id) {
-    setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
-  }
-  
-  // If in rewards flow and more videos available, go to next video
-  if (inRewardsFlow && availableVideos > 0) {
-    console.log("Getting next reward video");
-    // Get the next video
-    const nextVideo = getRandomVideo();
-    if (nextVideo) {
-      console.log("Found next video:", nextVideo.id);
-      
-      // Apply entering-from-bottom animation by preparing a class to body
-      document.body.classList.add('video-transition-active');
-      
-      // Mark video as viewed before setting it
-      setViewedVideoIds(prev => new Set([...prev, nextVideo.id]));
-      
-      // Important timing: Set next video AFTER current is transitioning out
-      // This helps ensure current video exits upward before next enters from bottom
-      setTimeout(() => {
-        // First, decrement available videos right before setting new video
-        setAvailableVideos(prev => prev - 1);
-        
-        // Then set the next video which will trigger the entrance animation
-        setCurrentVideo(nextVideo);
-        
-        // Remove transition class after animation completes
-        setTimeout(() => {
-          document.body.classList.remove('video-transition-active');
-        }, 400);
-      }, 150); // Wait for current video to start moving up
-      
-      return;
-    } else {
-      console.log("No next video found");
-    }
-  }
-  
-  // If in rewards flow but no more videos available, show completion message
-  if (inRewardsFlow && availableVideos === 0) {
-    console.log("No more rewards available, finishing flow");
-    finishRewardsFlow();
-    return;
-  }
-  
-  // Only if not in rewards flow, go back to questions
-  if (!inRewardsFlow) {
-    console.log("Not in rewards flow, going back to questions");
-    setCurrentVideo(null);
-    setShowQuestion(true);
+  // Updated handleVideoSkip for the continuous rewards flow with proper TikTok-style transitions
+  const handleVideoSkip = useCallback(() => {
+    console.log("Video skip handler called", { inRewardsFlow, availableVideos });
     
-    // In tutorial mode, fetch next question after video
-    if (tutorialMode) {
-      fetchQuestion();
+    // Mark current video as viewed
+    if (currentVideo && currentVideo.id) {
+      setViewedVideoIds(prev => new Set([...prev, currentVideo.id]));
     }
-  }
-}, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, getRandomVideo, finishRewardsFlow]);
+    
+    // If in rewards flow and more videos available, go to next video
+    if (inRewardsFlow && availableVideos > 0) {
+      console.log("Getting next reward video");
+      // Get the next video
+      const nextVideo = getRandomVideo();
+      if (nextVideo) {
+        console.log("Found next video:", nextVideo.id);
+        
+        // Apply entering-from-bottom animation by preparing a class to body
+        document.body.classList.add('video-transition-active');
+        
+        // Mark video as viewed before setting it
+        setViewedVideoIds(prev => new Set([...prev, nextVideo.id]));
+        
+        // Important timing: Set next video AFTER current is transitioning out
+        // This helps ensure current video exits upward before next enters from bottom
+        setTimeout(() => {
+          // First, decrement available videos right before setting new video
+          setAvailableVideos(prev => prev - 1);
+          
+          // Then set the next video which will trigger the entrance animation
+          setCurrentVideo(nextVideo);
+          
+          // Remove transition class after animation completes
+          setTimeout(() => {
+            document.body.classList.remove('video-transition-active');
+          }, 400);
+        }, 150); // Wait for current video to start moving up
+        
+        return;
+      } else {
+        console.log("No next video found");
+      }
+    }
+    
+    // If in rewards flow but no more videos available, show completion message
+    if (inRewardsFlow && availableVideos === 0) {
+      console.log("No more rewards available, finishing flow");
+      finishRewardsFlow();
+      return;
+    }
+    
+    // Only if not in rewards flow, go back to questions
+    if (!inRewardsFlow) {
+      console.log("Not in rewards flow, going back to questions");
+      setCurrentVideo(null);
+      setShowQuestion(true);
+      
+      // In tutorial mode, fetch next question after video
+      if (tutorialMode) {
+        fetchQuestion();
+      }
+    }
+  }, [tutorialMode, fetchQuestion, currentVideo, availableVideos, inRewardsFlow, getRandomVideo, finishRewardsFlow]);
 
   // Handle rewards confirmation responses
   const handleConfirmExitRewards = useCallback(() => {
@@ -1123,6 +1156,9 @@ const handleVideoSkip = useCallback(() => {
                   Tutorial Mode: Question {questionsAnswered} of 5
                 </div>
               )}
+              
+              {/* Skip Tutorial Button */}
+              {tutorialMode && <SkipTutorialButton onSkip={handleSkipTutorial} />}
               
               {isQuestionLoading ? (
                 <div className="flex items-center justify-center h-full my-20">
