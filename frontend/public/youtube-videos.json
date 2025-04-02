@@ -1,6 +1,69 @@
 {
   "videos": [
     {
+      "id": "Ko02mUWhItA",
+      "url": "https://www.youtube.com/shorts/Ko02mUWhItA",
+      "title": "Raindrops aren&#39;t shaped like raindrops",
+      "channelTitle": "Veritasium",
+      "channelHandle": "Veritasium",
+      "publishedAt": "2023-02-03T19:24:54Z",
+      "addedAt": "2025-04-02T01:47:45.620Z"
+    },
+    {
+      "id": "MzgvN4YKzu4",
+      "url": "https://www.youtube.com/shorts/MzgvN4YKzu4",
+      "title": "Should I Open it? Or Should I Keep it Sealed? Episode 163 - Super 3-Pack of #Pokemon from 1999",
+      "channelTitle": "ShortPocketMonster",
+      "channelHandle": "Shortpocketmonster",
+      "publishedAt": "2025-01-02T04:30:09Z",
+      "addedAt": "2025-04-02T01:47:48.083Z"
+    },
+    {
+      "id": "Qmm2mRVsYdw",
+      "url": "https://www.youtube.com/shorts/Qmm2mRVsYdw",
+      "title": "Shawarma Rice Filipino Style @lumpiaqueen",
+      "channelTitle": "The Golden Balance",
+      "channelHandle": "GoldenBalance",
+      "publishedAt": "2024-08-01T13:00:23Z",
+      "addedAt": "2025-04-02T01:47:58.186Z"
+    },
+    {
+      "id": "xkWoVrwnvbM",
+      "url": "https://www.youtube.com/shorts/xkWoVrwnvbM",
+      "title": "My first day as a mailman was not bad at all #learnfromkhaby  #comic  #comedy",
+      "channelTitle": "Khaby. Lame",
+      "channelHandle": "KhabyLame",
+      "publishedAt": "2023-08-07T18:20:38Z",
+      "addedAt": "2025-04-02T01:48:13.195Z"
+    },
+    {
+      "id": "KADV7x387hw",
+      "url": "https://www.youtube.com/shorts/KADV7x387hw",
+      "title": "Speedrunning YT Shorts #79",
+      "channelTitle": "Joe Caine",
+      "channelHandle": "joecain",
+      "publishedAt": "2023-04-25T17:45:00Z",
+      "addedAt": "2025-04-02T01:48:24.616Z"
+    },
+    {
+      "id": "rp46-D18ygA",
+      "url": "https://www.youtube.com/shorts/rp46-D18ygA",
+      "title": "LeBron encountered some haters in the elevator 🤣",
+      "channelTitle": "ESPN",
+      "channelHandle": "ESPN",
+      "publishedAt": "2025-03-26T16:38:30Z",
+      "addedAt": "2025-04-02T01:48:27.150Z"
+    },
+    {
+      "id": "DE-NXo-S2Os",
+      "url": "https://www.youtube.com/shorts/DE-NXo-S2Os",
+      "title": "REMOVING THE NUTS FROM MY CAR TIRES AND DRIVING IT",
+      "channelTitle": "Cheeky Boyos",
+      "channelHandle": "cheekyboyos",
+      "publishedAt": "2024-01-29T04:00:17Z",
+      "addedAt": "2025-04-02T01:48:28.413Z"
+    },
+    {
       "id": "q1fiPIoan2E",
       "url": "https://www.youtube.com/shorts/q1fiPIoan2E",
       "title": "When people try to be helpful, but they make things worse.",
@@ -4069,6 +4132,6 @@
       "addedAt": "2025-03-18T01:45:47.041Z"
     }
   ],
-  "lastUpdated": "2025-04-01T12:47:01.787Z",
-  "count": 452
+  "lastUpdated": "2025-04-02T01:48:33.172Z",
+  "count": 459
 }
