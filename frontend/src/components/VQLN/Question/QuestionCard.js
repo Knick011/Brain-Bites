@@ -1,4 +1,4 @@
-// Updated QuestionCard.js with repositioned stats
+// Updated QuestionCard.js with improved answer validation
 import React, { useState, useEffect } from 'react';
 import AnswerNotification from './AnswerNotification';
 import SoundEffects from '../../../utils/SoundEffects';
@@ -136,7 +136,7 @@ const QuestionCard = ({
     // Stop the timer
     setTimerActive(false);
     
-    // Check if the answer is correct
+    // Check if the answer is correct by comparing with the question's correctAnswer property
     const isCorrect = option === question.correctAnswer;
     debugLog("Answer validation", { 
       selected: option,
