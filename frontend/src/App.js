@@ -1,4 +1,4 @@
-// Complete Updated App.js with Tutorial Mode Improvements
+// Complete Updated App.js with Mascot Integration
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import VideoCard from './components/VQLN/Video/VideoCard';
 import QuestionCard from './components/VQLN/Question/QuestionCard';
@@ -19,6 +19,7 @@ import AllDoneMessage from './components/VQLN/AllDoneMessage';
 import StorageService from './utils/StorageService';
 import GoogleAnalyticsService from './utils/GoogleAnalyticsService';
 import SkipTutorialButton from './components/VQLN/SkipTutorialButton';
+import EnhancedMascotDisplay from './components/VQLN/EnhancedMascotDisplay';
 import { Home, X } from 'lucide-react';
 import './styles/theme.css';
 import './styles/GameStyles.css';
@@ -74,6 +75,12 @@ function App() {
   const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
   const [inRewardsFlow, setInRewardsFlow] = useState(false);
   const [totalVideos, setTotalVideos] = useState(0);
+
+  // Mascot state variables
+  const [mascotType, setMascotType] = useState('happy');
+  const [mascotPosition, setMascotPosition] = useState('left');
+  const [showMascot, setShowMascot] = useState(true);
+  const [mascotMessage, setMascotMessage] = useState(null);
 
   // Refs for performance optimization
   const contentRef = useRef(null);
@@ -184,6 +191,106 @@ function App() {
     // Keep track of previous tutorial mode state
     prevTutorialMode.current = tutorialMode;
   }, [score, availableVideos, streak, questionsAnswered, correctAnswers, tutorialMode]);
+  
+  // Mascot behavior based on app state
+  useEffect(() => {
+    // Handle last visit storage for returning user
+    const handleLastVisit = () => {
+      const lastVisitTime = localStorage.getItem('brain_bites_last_visit');
+      const currentTime = new Date().toISOString();
+      
+      // Store current visit time
+      localStorage.setItem('brain_bites_last_visit', currentTime);
+      
+      return lastVisitTime ? new Date(lastVisitTime) : null;
+    };
+    
+    const lastVisit = handleLastVisit();
+    
+    // Initial welcome screen
+    if (showWelcome) {
+      setMascotType('happy');
+      setMascotPosition('left');
+      setMascotMessage('Welcome to Brain Bites!');
+      setShowMascot(true);
+      return;
+    }
+    
+    // Selection screen
+    if (showSection) {
+      setMascotType('happy');
+      setMascotPosition('left');
+      setMascotMessage('Choose a category!');
+      setShowMascot(true);
+      return;
+    }
+    
+    // Tutorial mode
+    if (tutorialMode) {
+      setMascotType('happy');
+      setMascotPosition('left');
+      setMascotMessage('I\'ll guide you through the tutorial!');
+      setShowMascot(true);
+      return;
+    }
+    
+    // Game mode activation
+    if (showGameModePopup) {
+      setMascotType('gamemode');
+      setMascotPosition('right');
+      setMascotMessage('Time Mode activated!');
+      setShowMascot(true);
+      return;
+    }
+    
+    // During questions
+    if (showQuestion) {
+      // Wrong answer
+      if (selectedAnswer && selectedAnswer !== currentQuestion?.correctAnswer && selectedAnswer !== null) {
+        setMascotType('sad');
+        setMascotPosition('right');
+        setMascotMessage('Oh no! Try again next time.');
+        setShowMascot(true);
+        return;
+      }
+      
+      // Correct answer
+      if (selectedAnswer === currentQuestion?.correctAnswer && selectedAnswer !== null) {
+        // Milestone streak (multiple of 5)
+        if (streak > 0 && streak % 5 === 0) {
+          setMascotType('excited');
+          setMascotPosition('right');
+          setMascotMessage(`Amazing! ${streak} in a row!`);
+          setShowMascot(true);
+        } else {
+          // Regular correct answer
+          setMascotType('happy');
+          setMascotPosition('right');
+          setMascotMessage('Well done!');
+          setShowMascot(true);
+        }
+        return;
+      }
+      
+      // Default during questions
+      setMascotType('happy');
+      setMascotPosition('left');
+      setMascotMessage(null);
+      setShowMascot(true);
+    } else {
+      // Hide during video rewards
+      setShowMascot(false);
+    }
+  }, [
+    showWelcome, 
+    showSection, 
+    tutorialMode, 
+    showGameModePopup, 
+    showQuestion, 
+    selectedAnswer, 
+    currentQuestion, 
+    streak
+  ]);
   
   // Helper function to finish rewards flow
   const finishRewardsFlow = useCallback(() => {
@@ -1234,6 +1341,16 @@ function App() {
           }}
         />
       )}
+      
+      {/* Add the enhanced mascot component */}
+      <EnhancedMascotDisplay 
+        type={mascotType}
+        position={mascotPosition}
+        showMascot={showMascot}
+        message={mascotMessage}
+        autoHide={mascotType === 'sad' || mascotType === 'excited'} 
+        autoHideDuration={5000}
+      />
       
       {/* Error message */}
       {error && (
