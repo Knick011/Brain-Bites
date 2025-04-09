@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "id": "oopN7nJ_huU",
+      "url": "https://www.youtube.com/shorts/oopN7nJ_huU",
+      "title": "cats getting fluffier 😻 part3 #shorts",
+      "channelTitle": "The Meow Show",
+      "channelHandle": "cats",
+      "publishedAt": "2025-01-31T14:44:40Z",
+      "addedAt": "2025-04-09T01:47:39.075Z"
+    },
+    {
       "id": "dE5iMpuNV-8",
       "url": "https://www.youtube.com/shorts/dE5iMpuNV-8",
       "title": "Try Not to Laugh Challenge 369 🤣 #shorts #funny #viral",
@@ -4609,6 +4618,6 @@
       "addedAt": "2025-03-18T01:45:47.041Z"
     }
   ],
-  "lastUpdated": "2025-04-08T12:46:24.124Z",
-  "count": 512
+  "lastUpdated": "2025-04-09T01:47:56.384Z",
+  "count": 513
 }
