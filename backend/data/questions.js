@@ -1805,6 +1805,2322 @@ const questions = [
     correctAnswer: "B",
     explanation: "Venus is frequently visible at dawn or dusk, earning its nicknames."
   },
+{
+    id: 100151,
+    question: "Which mammal is known for laying eggs instead of giving birth to live young?",
+    options: {
+      A: "Kangaroo",
+      B: "Duck",
+      C: "Platypus",
+      D: "Whale"
+    },
+    correctAnswer: "C",
+    explanation: "The platypus is one of the few egg-laying mammals (monotremes)."
+  },
+  {
+    id: 100152,
+    question: "Which animal has fingerprints that are almost indistinguishable from human fingerprints?",
+    options: {
+      A: "Koala",
+      B: "Gorilla",
+      C: "Elephant",
+      D: "Tiger"
+    },
+    correctAnswer: "A",
+    explanation: "Koalas have fingerprints so similar to humans' that they can be hard to tell apart."
+  },
+  {
+    id: 100153,
+    question: "Which sea creature is known to have one of the fastest and most powerful punches in the animal kingdom, capable of breaking glass?",
+    options: {
+      A: "Dolphin",
+      B: "Mantis shrimp",
+      C: "Octopus",
+      D: "Sea turtle"
+    },
+    correctAnswer: "B",
+    explanation: "The mantis shrimp can strike with incredible speed and force, enough to shatter aquarium glass."
+  },
+  {
+    id: 100154,
+    question: "Which continent is the only one situated in all four hemispheres (Northern, Southern, Eastern, Western)?",
+    options: {
+      A: "Asia",
+      B: "Africa",
+      C: "South America",
+      D: "Europe"
+    },
+    correctAnswer: "B",
+    explanation: "Africa spans both sides of the equator and the prime meridian, placing parts of it in all four hemispheres."
+  },
+  {
+    id: 100155,
+    question: "Which animal is known for getting all the water it needs from its food and typically never drinks liquid water?",
+    options: {
+      A: "Camel",
+      B: "Kangaroo rat",
+      C: "Elephant",
+      D: "Penguin"
+    },
+    correctAnswer: "B",
+    explanation: "Kangaroo rats get moisture from the seeds they eat and usually do not need to drink water."
+  },
+  {
+    id: 100156,
+    question: "Which animal has extremely high blood pressure to circulate blood up its long neck to its brain?",
+    options: {
+      A: "Blue whale",
+      B: "Elephant",
+      C: "Giraffe",
+      D: "Cheetah"
+    },
+    correctAnswer: "C",
+    explanation: "Giraffes have very high blood pressure to pump blood up their long necks to their brains."
+  },
+  {
+    id: 100157,
+    question: "Which mammal is famously known as the slowest moving, often traveling only a few feet per minute?",
+    options: {
+      A: "Tortoise",
+      B: "Three-toed sloth",
+      C: "Koala",
+      D: "Snail"
+    },
+    correctAnswer: "B",
+    explanation: "The three-toed sloth is the slowest-moving mammal, spending most of its time hanging in trees."
+  },
+  {
+    id: 100158,
+    question: "What is the world's largest bird, which also lays the largest eggs of any living bird?",
+    options: {
+      A: "Eagle",
+      B: "Ostrich",
+      C: "Albatross",
+      D: "Penguin"
+    },
+    correctAnswer: "B",
+    explanation: "The ostrich is the largest living bird and lays the largest eggs of any bird species."
+  },
+  {
+    id: 100159,
+    question: "Which mammal is known to have the longest lifespan, sometimes living over 200 years?",
+    options: {
+      A: "Bowhead whale",
+      B: "Galápagos tortoise",
+      C: "Human",
+      D: "Elephant"
+    },
+    correctAnswer: "A",
+    explanation: "Bowhead whales have exceptionally long lifespans, with some individuals estimated to live over 200 years."
+  },
+  {
+    id: 100160,
+    question: "Which animal is known for having one of the strongest bite forces in the animal kingdom?",
+    options: {
+      A: "Grizzly bear",
+      B: "Lion",
+      C: "Gorilla",
+      D: "Crocodile"
+    },
+    correctAnswer: "D",
+    explanation: "Crocodiles have an extremely powerful bite, among the strongest of any animal on Earth."
+  },
+  {
+    id: 100161,
+    question: "What is the largest land carnivore currently on Earth?",
+    options: {
+      A: "Tiger",
+      B: "Polar bear",
+      C: "Lion",
+      D: "Komodo dragon"
+    },
+    correctAnswer: "B",
+    explanation: "The polar bear is considered the largest land carnivore, with adult males weighing up to 1500 pounds."
+  },
+  {
+    id: 100162,
+    question: "What is the tallest waterfall in the world by uninterrupted drop?",
+    options: {
+      A: "Niagara Falls",
+      B: "Angel Falls",
+      C: "Victoria Falls",
+      D: "Iguazu Falls"
+    },
+    correctAnswer: "B",
+    explanation: "Angel Falls in Venezuela is the tallest uninterrupted waterfall in the world, dropping over 800 meters."
+  },
+  {
+    id: 100163,
+    question: "Which is the smallest ocean in the world by area?",
+    options: {
+      A: "Indian Ocean",
+      B: "Southern Ocean",
+      C: "Arctic Ocean",
+      D: "Atlantic Ocean"
+    },
+    correctAnswer: "C",
+    explanation: "The Arctic Ocean is the smallest of Earth's five oceans in terms of surface area."
+  },
+  {
+    id: 100164,
+    question: "What is the name of the deepest known point in Earth's oceans?",
+    options: {
+      A: "Mariana Trench",
+      B: "Tonga Trench",
+      C: "Puerto Rico Trench",
+      D: "Java Trench"
+    },
+    correctAnswer: "A",
+    explanation: "The Mariana Trench in the Pacific Ocean contains the Challenger Deep, the deepest known point in the oceans."
+  },
+  {
+    id: 100165,
+    question: "What is the world's largest coral reef system, visible even from space?",
+    options: {
+      A: "Great Barrier Reef",
+      B: "Red Sea Coral Reef",
+      C: "Maldives Reef",
+      D: "Florida Reef"
+    },
+    correctAnswer: "A",
+    explanation: "Australia's Great Barrier Reef is the largest coral reef system in the world."
+  },
+  {
+    id: 100166,
+    question: "Which man-made structure is famous for being the longest wall in the world, stretching thousands of miles?",
+    options: {
+      A: "The Great Wall of China",
+      B: "Hadrian's Wall",
+      C: "Berlin Wall",
+      D: "Great Barrier Reef"
+    },
+    correctAnswer: "A",
+    explanation: "The Great Wall of China is the longest wall in the world, built over centuries and spanning thousands of miles."
+  },
+  {
+    id: 100167,
+    question: "What is the tallest building in the world as of 2025?",
+    options: {
+      A: "Shanghai Tower",
+      B: "Burj Khalifa",
+      C: "Eiffel Tower",
+      D: "Empire State Building"
+    },
+    correctAnswer: "B",
+    explanation: "The Burj Khalifa in Dubai, at over 828 meters tall, is the tallest building in the world."
+  },
+  {
+    id: 100168,
+    question: "As of 2025, which country has the largest population in the world?",
+    options: {
+      A: "India",
+      B: "China",
+      C: "United States",
+      D: "Russia"
+    },
+    correctAnswer: "A",
+    explanation: "India has surpassed China in population, making it the world's most populous country."
+  },
+  {
+    id: 100169,
+    question: "Which planet in our solar system is closest to the Sun?",
+    options: {
+      A: "Mercury",
+      B: "Venus",
+      C: "Earth",
+      D: "Mars"
+    },
+    correctAnswer: "A",
+    explanation: "Mercury is the closest planet to the Sun."
+  },
+  {
+    id: 100170,
+    question: "Which planet has the shortest year (orbital period) around the Sun?",
+    options: {
+      A: "Mercury",
+      B: "Mars",
+      C: "Neptune",
+      D: "Venus"
+    },
+    correctAnswer: "A",
+    explanation: "Mercury, being closest to the Sun, has the shortest orbital period (about 88 Earth days)."
+  },
+  {
+    id: 100171,
+    question: "Which planet in our solar system is currently known to have the most moons?",
+    options: {
+      A: "Jupiter",
+      B: "Mars",
+      C: "Saturn",
+      D: "Neptune"
+    },
+    correctAnswer: "C",
+    explanation: "Saturn has the most known moons of any planet in our solar system."
+  },
+  {
+    id: 100172,
+    question: "On which planet would you find the Great Red Spot, a giant storm that has lasted for centuries?",
+    options: {
+      A: "Mars",
+      B: "Jupiter",
+      C: "Saturn",
+      D: "Neptune"
+    },
+    correctAnswer: "B",
+    explanation: "The Great Red Spot is a massive storm on Jupiter that has been observed for hundreds of years."
+  },
+  {
+    id: 100173,
+    question: "Which planet has a day (one rotation) that is longer than its year (one orbit around the Sun)?",
+    options: {
+      A: "Venus",
+      B: "Mercury",
+      C: "Mars",
+      D: "Neptune"
+    },
+    correctAnswer: "A",
+    explanation: "Venus rotates very slowly; a single Venusian day is longer than a Venusian year."
+  },
+  {
+    id: 100174,
+    question: "What is the closest star to Earth?",
+    options: {
+      A: "Alpha Centauri",
+      B: "Polaris",
+      C: "Betelgeuse",
+      D: "The Sun"
+    },
+    correctAnswer: "D",
+    explanation: "The Sun is a star and is the closest one to Earth."
+  },
+  {
+    id: 100175,
+    question: "Which planet is often called the \"Blue Planet\" due to its appearance from space?",
+    options: {
+      A: "Earth",
+      B: "Neptune",
+      C: "Uranus",
+      D: "Mars"
+    },
+    correctAnswer: "A",
+    explanation: "Earth is known as the \"Blue Planet\" because its large oceans give it a blue appearance from space."
+  },
+  {
+    id: 100176,
+    question: "What is the highest mountain above sea level in the world?",
+    options: {
+      A: "K2",
+      B: "Mount Everest",
+      C: "Denali",
+      D: "Mount Kilimanjaro"
+    },
+    correctAnswer: "B",
+    explanation: "Mount Everest, in the Himalayas, is the tallest mountain above sea level on Earth."
+  },
+  {
+    id: 100177,
+    question: "Which river is traditionally considered the longest river in the world?",
+    options: {
+      A: "Amazon",
+      B: "Nile",
+      C: "Yangtze",
+      D: "Mississippi"
+    },
+    correctAnswer: "B",
+    explanation: "The Nile River is commonly regarded as the longest river in the world, flowing through northeastern Africa."
+  },
+  {
+    id: 100178,
+    question: "What is the largest lake in the world by surface area?",
+    options: {
+      A: "Lake Superior",
+      B: "Lake Victoria",
+      C: "Caspian Sea",
+      D: "Lake Baikal"
+    },
+    correctAnswer: "C",
+    explanation: "Although called a sea, the Caspian Sea is actually the world's largest inland lake by area."
+  },
+  {
+    id: 100179,
+    question: "What is the most abundant element in the Earth's crust by weight?",
+    options: {
+      A: "Oxygen",
+      B: "Silicon",
+      C: "Iron",
+      D: "Aluminum"
+    },
+    correctAnswer: "A",
+    explanation: "Oxygen makes up a large portion of the Earth's crust by mass, primarily in the form of oxides like silicon dioxide."
+  },
+  {
+    id: 100180,
+    question: "What is the largest organ of the human body?",
+    options: {
+      A: "Liver",
+      B: "Skin",
+      C: "Lungs",
+      D: "Brain"
+    },
+    correctAnswer: "B",
+    explanation: "The skin is the largest organ of the human body, covering and protecting the body."
+  },
+  {
+    id: 100181,
+    question: "Which bone is the longest bone in the human body?",
+    options: {
+      A: "Femur (thigh bone)",
+      B: "Spine",
+      C: "Skull",
+      D: "Humerus (upper arm bone)"
+    },
+    correctAnswer: "A",
+    explanation: "The femur, or thigh bone, is the longest bone in the human body."
+  },
+  {
+    id: 100182,
+    question: "How many permanent teeth does a typical adult human have?",
+    options: {
+      A: "20",
+      B: "24",
+      C: "28",
+      D: "32"
+    },
+    correctAnswer: "D",
+    explanation: "An average adult human has 32 permanent teeth, including wisdom teeth."
+  },
+  {
+    id: 100183,
+    question: "What component of blood is responsible for carrying oxygen to the body's tissues?",
+    options: {
+      A: "Red blood cells",
+      B: "White blood cells",
+      C: "Platelets",
+      D: "Plasma"
+    },
+    correctAnswer: "A",
+    explanation: "Red blood cells contain hemoglobin which binds oxygen and transports it to body tissues."
+  },
+  {
+    id: 100184,
+    question: "Which part of blood is primarily responsible for fighting infections?",
+    options: {
+      A: "Red blood cells",
+      B: "White blood cells",
+      C: "Platelets",
+      D: "Plasma"
+    },
+    correctAnswer: "B",
+    explanation: "White blood cells are the cells of the immune system that defend the body against infections."
+  },
+  {
+    id: 100185,
+    question: "Approximately what percentage of the Earth's surface is covered by water?",
+    options: {
+      A: "50%",
+      B: "71%",
+      C: "90%",
+      D: "25%"
+    },
+    correctAnswer: "B",
+    explanation: "About 71% of Earth's surface is covered by water, mostly by its oceans."
+  },
+  {
+    id: 100186,
+    question: "At standard atmospheric pressure, what is the boiling point of water in degrees Celsius?",
+    options: {
+      A: "100°C",
+      B: "212°C",
+      C: "0°C",
+      D: "50°C"
+    },
+    correctAnswer: "A",
+    explanation: "Water boils at 100°C (212°F) at standard atmospheric pressure (sea level)."
+  },
+  {
+    id: 100187,
+    question: "What is the only even prime number?",
+    options: {
+      A: "2",
+      B: "4",
+      C: "6",
+      D: "8"
+    },
+    correctAnswer: "A",
+    explanation: "2 is the only even prime number because all other even numbers are divisible by 2 and thus not prime."
+  },
+  {
+    id: 100188,
+    question: "How many months of the year have 28 days?",
+    options: {
+      A: "1",
+      B: "12",
+      C: "6",
+      D: "Depends on leap year"
+    },
+    correctAnswer: "B",
+    explanation: "All 12 months have at least 28 days. Every month has 28 days, even though February is the only one with exactly 28 in non-leap years."
+  },
+  {
+    id: 100189,
+    question: "If you have 3 apples and you take away 2, how many apples do you have?",
+    options: {
+      A: "1",
+      B: "2",
+      C: "3",
+      D: "5"
+    },
+    correctAnswer: "B",
+    explanation: "If you take 2 apples, you have those 2 apples. The riddle is tricky because it asks how many *you have*, not how many remain elsewhere."
+  },
+  {
+    id: 100190,
+    question: "An electric train is moving north at 100 mph and the wind is blowing west at 10 mph. Which direction does the smoke blow?",
+    options: {
+      A: "North",
+      B: "West",
+      C: "East",
+      D: "No direction (no smoke)"
+    },
+    correctAnswer: "D",
+    explanation: "It's an electric train, so there is no smoke."
+  },
+  {
+    id: 100191,
+    question: "What four-letter word can be written forward, backward, or upside down and still reads the same?",
+    options: {
+      A: "NOON",
+      B: "POOL",
+      C: "MOM",
+      D: "DEED"
+    },
+    correctAnswer: "A",
+    explanation: "The word \"NOON\" reads the same forward, backward, and upside down (on a seven-segment display), as well as in the mirror."
+  },
+  {
+    id: 100192,
+    question: "What is special about the sentence: \"The quick brown fox jumps over the lazy dog\"?",
+    options: {
+      A: "It is a palindrome",
+      B: "It uses every letter of the English alphabet",
+      C: "It is the longest English sentence",
+      D: "It contains no vowels"
+    },
+    correctAnswer: "B",
+    explanation: "The sentence \"The quick brown fox jumps over the lazy dog\" is a pangram, meaning it contains every letter of the English alphabet at least once."
+  },
+  {
+    id: 100193,
+    question: "Which is heavier: a pound of feathers or a pound of bricks?",
+    options: {
+      A: "A pound of feathers",
+      B: "A pound of bricks",
+      C: "They weigh the same",
+      D: "It depends on the scale"
+    },
+    correctAnswer: "C",
+    explanation: "A pound of feathers and a pound of bricks both weigh one pound, so they are the same weight."
+  },
+  {
+    id: 100194,
+    question: "What color is the pigment chlorophyll, which is essential for photosynthesis in plants?",
+    options: {
+      A: "Green",
+      B: "Red",
+      C: "Blue",
+      D: "Orange"
+    },
+    correctAnswer: "A",
+    explanation: "Chlorophyll is green, which is why most plant leaves appear green."
+  },
+  {
+    id: 100195,
+    question: "How many planets are in our solar system (not including dwarf planets)?",
+    options: {
+      A: "8",
+      B: "7",
+      C: "9",
+      D: "6"
+    },
+    correctAnswer: "A",
+    explanation: "There are 8 recognized planets in our solar system."
+  },
+  {
+    id: 100196,
+    question: "Which of these planets has no natural moons?",
+    options: {
+      A: "Mercury",
+      B: "Mars",
+      C: "Neptune",
+      D: "Earth"
+    },
+    correctAnswer: "A",
+    explanation: "Mercury has no moons. (Venus also has none, but among the options given, Mercury is the correct answer.)"
+  },
+  {
+    id: 100197,
+    question: "Despite being only about 2% of body weight, approximately what percentage of the body's oxygen does the human brain use?",
+    options: {
+      A: "20%",
+      B: "5%",
+      C: "50%",
+      D: "10%"
+    },
+    correctAnswer: "A",
+    explanation: "The human brain uses roughly 20% of the body's oxygen and energy, despite making up a small percentage of body weight."
+  },
+  {
+    id: 100198,
+    question: "What is the capital city of the United Kingdom?",
+    options: {
+      A: "London",
+      B: "Manchester",
+      C: "Edinburgh",
+      D: "Dublin"
+    },
+    correctAnswer: "A",
+    explanation: "London is the capital city of the United Kingdom."
+  },
+  {
+    id: 100199,
+    question: "What is the capital city of China?",
+    options: {
+      A: "Shanghai",
+      B: "Beijing",
+      C: "Hong Kong",
+      D: "Guangzhou"
+    },
+    correctAnswer: "B",
+    explanation: "Beijing is the capital of China."
+  },
+  {
+    id: 100200,
+    question: "What is the capital city of India?",
+    options: {
+      A: "New Delhi",
+      B: "Mumbai",
+      C: "Bangalore",
+      D: "Kolkata"
+    },
+    correctAnswer: "A",
+    explanation: "New Delhi is the capital city of India."
+  },
+  {
+    id: 100201,
+    question: "What is the capital city of Russia?",
+    options: {
+      A: "Saint Petersburg",
+      B: "Moscow",
+      C: "Kiev",
+      D: "Sochi"
+    },
+    correctAnswer: "B",
+    explanation: "Moscow is the capital of Russia."
+  },
+  {
+    id: 100202,
+    question: "What is the capital city of Egypt?",
+    options: {
+      A: "Cairo",
+      B: "Alexandria",
+      C: "Giza",
+      D: "Luxor"
+    },
+    correctAnswer: "A",
+    explanation: "Cairo is the capital of Egypt."
+  },
+  {
+    id: 100203,
+    question: "Which planet is home to the largest volcano in the solar system, Olympus Mons?",
+    options: {
+      A: "Venus",
+      B: "Mars",
+      C: "Jupiter",
+      D: "Mercury"
+    },
+    correctAnswer: "B",
+    explanation: "Mars has Olympus Mons, the largest known volcano in the solar system."
+  },
+  {
+    id: 100204,
+    question: "Which flower is known for having the largest bloom in the world?",
+    options: {
+      A: "Sunflower",
+      B: "Rafflesia (corpse flower)",
+      C: "Lotus",
+      D: "Rose"
+    },
+    correctAnswer: "B",
+    explanation: "The Rafflesia arnoldii, also known as the corpse flower, produces the largest individual bloom of any flower."
+  },
+  {
+    id: 100205,
+    question: "Who was the first person to walk on the Moon?",
+    options: {
+      A: "Yuri Gagarin",
+      B: "Buzz Aldrin",
+      C: "Neil Armstrong",
+      D: "Michael Collins"
+    },
+    correctAnswer: "C",
+    explanation: "Neil Armstrong became the first person to walk on the Moon on July 21, 1969."
+  },
+  {
+    id: 100206,
+    question: "Who is credited with developing the theory of relativity?",
+    options: {
+      A: "Isaac Newton",
+      B: "Galileo Galilei",
+      C: "Nikola Tesla",
+      D: "Albert Einstein"
+    },
+    correctAnswer: "D",
+    explanation: "Albert Einstein proposed the theory of relativity (both special and general relativity)."
+  },
+  {
+    id: 100207,
+    question: "What does DNA stand for?",
+    options: {
+      A: "Dynamic Nuclear Acid",
+      B: "Diethyl nucleic acid",
+      C: "Deoxyribonucleic Acid",
+      D: "Double helix acid"
+    },
+    correctAnswer: "C",
+    explanation: "DNA stands for Deoxyribonucleic Acid."
+  },
+  {
+    id: 100208,
+    question: "Which organ in the human body produces the hormone insulin?",
+    options: {
+      A: "Liver",
+      B: "Pancreas",
+      C: "Kidney",
+      D: "Thyroid"
+    },
+    correctAnswer: "B",
+    explanation: "The pancreas produces insulin, which helps regulate blood sugar levels."
+  },
+  {
+    id: 100209,
+    question: "Which vitamin is produced in the human skin when exposed to sunlight?",
+    options: {
+      A: "Vitamin C",
+      B: "Vitamin D",
+      C: "Vitamin B12",
+      D: "Vitamin A"
+    },
+    correctAnswer: "B",
+    explanation: "Sunlight triggers the production of Vitamin D in the skin."
+  },
+  {
+    id: 100210,
+    question: "Which cell organelle is known as the \"powerhouse of the cell\" for its role in energy production?",
+    options: {
+      A: "Nucleus",
+      B: "Mitochondrion",
+      C: "Ribosome",
+      D: "Golgi apparatus"
+    },
+    correctAnswer: "B",
+    explanation: "The mitochondrion is called the \"powerhouse of the cell\" because it produces energy (ATP) for cellular processes."
+  },
+  {
+    id: 100211,
+    question: "Before Mount Everest was discovered, what was the highest mountain in the world?",
+    options: {
+      A: "K2",
+      B: "Mount Kilimanjaro",
+      C: "Mount Everest",
+      D: "Mount Kangchenjunga"
+    },
+    correctAnswer: "C",
+    explanation: "Even before it was known to people, Mount Everest was still the highest mountain in the world."
+  },
+  {
+    id: 100212,
+    question: "What has 13 hearts, but no other organs?",
+    options: {
+      A: "An octopus",
+      B: "A deck of cards",
+      C: "A jellyfish",
+      D: "A guitar"
+    },
+    correctAnswer: "B",
+    explanation: "A standard deck of cards has 13 hearts (the hearts suit), but no physical organs."
+  },
+  {
+    id: 100213,
+    question: "What travels faster: light or sound?",
+    options: {
+      A: "Sound",
+      B: "Light",
+      C: "They travel at the same speed",
+      D: "It depends on the medium"
+    },
+    correctAnswer: "B",
+    explanation: "Light travels much faster than sound. For example, we see lightning before we hear the thunder."
+  },
+  {
+    id: 100214,
+    question: "Which two elements make up water (H2O)?",
+    options: {
+      A: "Hydrogen and Oxygen",
+      B: "Hydrogen and Nitrogen",
+      C: "Oxygen and Helium",
+      D: "Carbon and Oxygen"
+    },
+    correctAnswer: "A",
+    explanation: "Water (H2O) is composed of two hydrogen atoms and one oxygen atom."
+  },
+  {
+    id: 100215,
+    question: "Which chemical element has the atomic number 1, making it the lightest element?",
+    options: {
+      A: "Oxygen",
+      B: "Hydrogen",
+      C: "Helium",
+      D: "Carbon"
+    },
+    correctAnswer: "B",
+    explanation: "Hydrogen is the element with atomic number 1, the lightest and most abundant element in the universe."
+  },
+  {
+    id: 100216,
+    question: "What is the largest land animal currently living?",
+    options: {
+      A: "White rhinoceros",
+      B: "Giraffe",
+      C: "African elephant",
+      D: "Hippopotamus"
+    },
+    correctAnswer: "C",
+    explanation: "The African elephant is the largest land animal currently living, by weight and height."
+  },
+  {
+    id: 100217,
+    question: "Which male animal is known for carrying the babies during pregnancy?",
+    options: {
+      A: "Frog",
+      B: "Seahorse",
+      C: "Penguin",
+      D: "Kangaroo"
+    },
+    correctAnswer: "B",
+    explanation: "Male seahorses carry and give birth to the babies."
+  },
+  {
+    id: 100218,
+    question: "Which land animal has the longest gestation period (pregnancy)?",
+    options: {
+      A: "Cow",
+      B: "Elephant",
+      C: "Whale",
+      D: "Giraffe"
+    },
+    correctAnswer: "B",
+    explanation: "Elephants have the longest gestation period of any land animal, around 22 months."
+  },
+  {
+    id: 100219,
+    question: "How many bones are in the adult human body?",
+    options: {
+      A: "206",
+      B: "180",
+      C: "250",
+      D: "300"
+    },
+    correctAnswer: "A",
+    explanation: "An adult human has 206 bones."
+  },
+  {
+    id: 100220,
+    question: "Which part of the eye controls how much light enters?",
+    options: {
+      A: "Retina",
+      B: "Lens",
+      C: "Iris",
+      D: "Cornea"
+    },
+    correctAnswer: "C",
+    explanation: "The iris (colored part of the eye) controls the size of the pupil, thereby regulating how much light enters the eye."
+  },
+  {
+    id: 100221,
+    question: "What natural phenomenon is primarily responsible for the tides on Earth?",
+    options: {
+      A: "Sunlight",
+      B: "Wind",
+      C: "Moon's gravity",
+      D: "Earth's rotation"
+    },
+    correctAnswer: "C",
+    explanation: "The gravitational pull of the Moon (and to a lesser extent the Sun) on Earth's oceans causes tides."
+  },
+  {
+    id: 100222,
+    question: "What instrument is used to measure the magnitude of earthquakes?",
+    options: {
+      A: "Thermometer",
+      B: "Barometer",
+      C: "Seismograph",
+      D: "Hygrometer"
+    },
+    correctAnswer: "C",
+    explanation: "A seismograph is used to detect and record earthquakes."
+  },
+  {
+    id: 100223,
+    question: "What instrument is used to measure atmospheric pressure?",
+    options: {
+      A: "Barometer",
+      B: "Thermometer",
+      C: "Anemometer",
+      D: "Altimeter"
+    },
+    correctAnswer: "A",
+    explanation: "A barometer measures atmospheric pressure."
+  },
+  {
+    id: 100224,
+    question: "Who is credited with inventing the first practical incandescent light bulb?",
+    options: {
+      A: "Albert Einstein",
+      B: "Alexander Graham Bell",
+      C: "Nikola Tesla",
+      D: "Thomas Edison"
+    },
+    correctAnswer: "D",
+    explanation: "Thomas Edison is widely credited with inventing the first practical incandescent light bulb."
+  },
+  {
+    id: 100225,
+    question: "Who discovered penicillin, the first true antibiotic?",
+    options: {
+      A: "Marie Curie",
+      B: "Alexander Fleming",
+      C: "Louis Pasteur",
+      D: "Gregor Mendel"
+    },
+    correctAnswer: "B",
+    explanation: "Alexander Fleming discovered penicillin in 1928."
+  },
+  {
+    id: 100226,
+    question: "What is the official language of Brazil?",
+    options: {
+      A: "Spanish",
+      B: "Portuguese",
+      C: "English",
+      D: "Brazilian"
+    },
+    correctAnswer: "B",
+    explanation: "Brazil's official language is Portuguese."
+  },
+  {
+    id: 100227,
+    question: "What is the largest continent by land area?",
+    options: {
+      A: "Africa",
+      B: "Asia",
+      C: "North America",
+      D: "Antarctica"
+    },
+    correctAnswer: "B",
+    explanation: "Asia is the largest continent by land area."
+  },
+  {
+    id: 100228,
+    question: "What is the smallest continent by land area?",
+    options: {
+      A: "Europe",
+      B: "South America",
+      C: "Australia",
+      D: "Antarctica"
+    },
+    correctAnswer: "C",
+    explanation: "Australia is the smallest continent by land area."
+  },
+  {
+    id: 100229,
+    question: "Which planet is known as Earth's twin because of its similar size and density?",
+    options: {
+      A: "Mars",
+      B: "Venus",
+      C: "Jupiter",
+      D: "Mercury"
+    },
+    correctAnswer: "B",
+    explanation: "Venus is often called Earth's twin due to its similar size and density, even though its environment is very different."
+  },
+  {
+    id: 100230,
+    question: "What substance are human nails and hair primarily made of?",
+    options: {
+      A: "Keratin",
+      B: "Calcium",
+      C: "Chitin",
+      D: "Collagen"
+    },
+    correctAnswer: "A",
+    explanation: "Human hair and nails are made mostly of keratin, a type of protein."
+  },
+  {
+    id: 100231,
+    question: "Which mineral found in bananas is well-known for helping muscle function and preventing cramps?",
+    options: {
+      A: "Iron",
+      B: "Potassium",
+      C: "Calcium",
+      D: "Zinc"
+    },
+    correctAnswer: "B",
+    explanation: "Bananas are high in potassium, which is important for muscle function and can help prevent cramps."
+  },
+  {
+    id: 100232,
+    question: "How many chambers does the human heart have?",
+    options: {
+      A: "2",
+      B: "3",
+      C: "4",
+      D: "5"
+    },
+    correctAnswer: "C",
+    explanation: "The human heart has 4 chambers: two atria and two ventricles."
+  },
+  {
+    id: 100233,
+    question: "Which blood vessels carry blood away from the heart?",
+    options: {
+      A: "Veins",
+      B: "Arteries",
+      C: "Capillaries",
+      D: "Nerves"
+    },
+    correctAnswer: "B",
+    explanation: "Arteries carry blood away from the heart (veins carry blood back to the heart)."
+  },
+  {
+    id: 100234,
+    question: "What galaxy is Earth located in?",
+    options: {
+      A: "Andromeda Galaxy",
+      B: "Milky Way Galaxy",
+      C: "Whirlpool Galaxy",
+      D: "Sombrero Galaxy"
+    },
+    correctAnswer: "B",
+    explanation: "Earth is located in the Milky Way Galaxy."
+  },
+  {
+    id: 100235,
+    question: "Where would you find the Sea of Tranquility?",
+    options: {
+      A: "On the Moon",
+      B: "In the Pacific Ocean",
+      C: "On Mars",
+      D: "In Antarctica"
+    },
+    correctAnswer: "A",
+    explanation: "The Sea of Tranquility (Mare Tranquillitatis) is a lunar mare on the Moon and was the landing site of Apollo 11."
+  },
+  {
+    id: 100236,
+    question: "Which desert is the largest hot desert in the world?",
+    options: {
+      A: "Gobi Desert",
+      B: "Sahara Desert",
+      C: "Arabian Desert",
+      D: "Kalahari Desert"
+    },
+    correctAnswer: "B",
+    explanation: "The Sahara Desert in Africa is the largest hot desert in the world."
+  },
+  {
+    id: 100237,
+    question: "How many rings are on the Olympic flag?",
+    options: {
+      A: "5",
+      B: "4",
+      C: "7",
+      D: "3"
+    },
+    correctAnswer: "A",
+    explanation: "The Olympic flag features 5 interlocking rings, each a different color, representing the unity of the five continents."
+  },
+  {
+    id: 100238,
+    question: "What do we call animals that can live both in water and on land?",
+    options: {
+      A: "Reptiles",
+      B: "Amphibians",
+      C: "Mammals",
+      D: "Arachnids"
+    },
+    correctAnswer: "B",
+    explanation: "Animals that live both in water and on land are called amphibians (like frogs, toads, and salamanders)."
+  },
+  {
+    id: 100239,
+    question: "Which planet is named after the Roman god of war?",
+    options: {
+      A: "Mars",
+      B: "Jupiter",
+      C: "Saturn",
+      D: "Venus"
+    },
+    correctAnswer: "A",
+    explanation: "Mars is named after the Roman god of war (due to its reddish color, reminiscent of blood)."
+  },
+  {
+    id: 100240,
+    question: "If you mix red and blue paint, what color do you get?",
+    options: {
+      A: "Green",
+      B: "Purple",
+      C: "Orange",
+      D: "Brown"
+    },
+    correctAnswer: "B",
+    explanation: "Mixing red and blue paint produces purple."
+  },
+  {
+    id: 100241,
+    question: "How many legs do insects have?",
+    options: {
+      A: "4",
+      B: "6",
+      C: "8",
+      D: "10"
+    },
+    correctAnswer: "B",
+    explanation: "Insects have 6 legs. (Spiders, for example, are arachnids and have 8 legs, not 6)."
+  },
+  {
+    id: 100242,
+    question: "Which land mass is the largest island in the world (that is not a continent)?",
+    options: {
+      A: "Greenland",
+      B: "New Guinea",
+      C: "Madagascar",
+      D: "Borneo"
+    },
+    correctAnswer: "A",
+    explanation: "Greenland is the world's largest island that is not considered its own continent."
+  },
+  {
+    id: 100243,
+    question: "What is the only continent with no active native reptile species?",
+    options: {
+      A: "Antarctica",
+      B: "Europe",
+      C: "Asia",
+      D: "South America"
+    },
+    correctAnswer: "A",
+    explanation: "Antarctica has no native reptile species due to its extreme cold environment."
+  },
+  {
+    id: 100244,
+    question: "Which continent has no active volcanoes on its mainland?",
+    options: {
+      A: "Antarctica",
+      B: "Africa",
+      C: "Australia",
+      D: "South America"
+    },
+    correctAnswer: "C",
+    explanation: "Australia is the only continent without any active volcanoes on its mainland."
+  },
+  {
+    id: 100245,
+    question: "Which bird is often associated with delivering babies in folklore?",
+    options: {
+      A: "Eagle",
+      B: "Stork",
+      C: "Owl",
+      D: "Pelican"
+    },
+    correctAnswer: "B",
+    explanation: "According to folklore, storks deliver babies to new parents."
+  },
+  {
+    id: 100246,
+    question: "What is the largest species of the cat family (Felidae)?",
+    options: {
+      A: "Lion",
+      B: "Bengal Tiger",
+      C: "Leopard",
+      D: "Jaguar"
+    },
+    correctAnswer: "B",
+    explanation: "Tigers (specifically the Siberian tiger) are the largest members of the cat family."
+  },
+  {
+    id: 100247,
+    question: "Which bird has the largest wingspan of any living bird?",
+    options: {
+      A: "Bald Eagle",
+      B: "Wandering Albatross",
+      C: "Andean Condor",
+      D: "Ostrich"
+    },
+    correctAnswer: "B",
+    explanation: "The wandering albatross has the largest wingspan of any living bird, reaching up to about 3.5 meters."
+  },
+  {
+    id: 100248,
+    question: "Which animal is known as the \"king of the jungle\"?",
+    options: {
+      A: "Tiger",
+      B: "Elephant",
+      C: "Gorilla",
+      D: "Lion"
+    },
+    correctAnswer: "D",
+    explanation: "The lion is often called the \"king of the jungle\" in popular culture."
+  },
+  {
+    id: 100249,
+    question: "What is the main gas found in the Earth's atmosphere?",
+    options: {
+      A: "Oxygen",
+      B: "Hydrogen",
+      C: "Nitrogen",
+      D: "Carbon Dioxide"
+    },
+    correctAnswer: "C",
+    explanation: "Nitrogen makes up about 78% of Earth's atmosphere, making it the main component."
+  },
+  {
+    id: 100250,
+    question: "What is the term for a group of crows?",
+    options: {
+      A: "A flock",
+      B: "A murder",
+      C: "A school",
+      D: "A pack"
+    },
+    correctAnswer: "B",
+    explanation: "A group of crows is traditionally called a \"murder\" of crows."
+  },
+  {
+    id: 100251,
+    question: "What do you call a group of lions living together?",
+    options: {
+      A: "A pack",
+      B: "A clan",
+      C: "A pride",
+      D: "A troop"
+    },
+    correctAnswer: "C",
+    explanation: "A group of lions is known as a \"pride\"."
+  },
+  {
+    id: 100252,
+    question: "What is the term for a group of fish swimming together?",
+    options: {
+      A: "A flock",
+      B: "A herd",
+      C: "A school",
+      D: "A litter"
+    },
+    correctAnswer: "C",
+    explanation: "A group of fish swimming together is called a \"school\" of fish."
+  },
+  {
+    id: 100253,
+    question: "What is a group of wolves called?",
+    options: {
+      A: "A pack",
+      B: "A crowd",
+      C: "A colony",
+      D: "A herd"
+    },
+    correctAnswer: "A",
+    explanation: "A group of wolves is called a \"pack\"."
+  },
+  {
+    id: 100254,
+    question: "What is the term for a group of flamingos?",
+    options: {
+      A: "A gaggle",
+      B: "A flamboyance",
+      C: "A flock",
+      D: "A colony"
+    },
+    correctAnswer: "B",
+    explanation: "A group of flamingos is poetically called a \"flamboyance\" of flamingos."
+  },
+  {
+    id: 100255,
+    question: "Where does the sun rise and set?",
+    options: {
+      A: "Rises in the west and sets in the east",
+      B: "Rises in the east and sets in the west",
+      C: "Rises and sets in the north",
+      D: "It does not rise or set"
+    },
+    correctAnswer: "B",
+    explanation: "The sun appears to rise in the east and set in the west due to Earth's rotation."
+  },
+  {
+    id: 100256,
+    question: "Which country is known for the ancient pyramids at Giza?",
+    options: {
+      A: "Greece",
+      B: "Mexico",
+      C: "Egypt",
+      D: "China"
+    },
+    correctAnswer: "C",
+    explanation: "Egypt is famous for the Great Pyramids of Giza, built by ancient Egyptians."
+  },
+  {
+    id: 100257,
+    question: "Which ancient civilization built the Machu Picchu complex in Peru?",
+    options: {
+      A: "Aztec",
+      B: "Maya",
+      C: "Inca",
+      D: "Roman"
+    },
+    correctAnswer: "C",
+    explanation: "Machu Picchu was built by the Inca civilization in the 15th century."
+  },
+  {
+    id: 100258,
+    question: "Which country gifted the Statue of Liberty to the United States?",
+    options: {
+      A: "France",
+      B: "England",
+      C: "Canada",
+      D: "Germany"
+    },
+    correctAnswer: "A",
+    explanation: "France gifted the Statue of Liberty to the United States in 1886 as a symbol of friendship."
+  },
+  {
+    id: 100259,
+    question: "Which element is a diamond composed of?",
+    options: {
+      A: "Carbon",
+      B: "Silicon",
+      C: "Gold",
+      D: "Calcium"
+    },
+    correctAnswer: "A",
+    explanation: "Diamond is a form of carbon arranged in a crystal lattice structure."
+  },
+  {
+    id: 100260,
+    question: "What is the chemical symbol for iron?",
+    options: {
+      A: "Ir",
+      B: "Fe",
+      C: "In",
+      D: "Ag"
+    },
+    correctAnswer: "B",
+    explanation: "The chemical symbol for iron is Fe (from the Latin word 'Ferrum')."
+  },
+  {
+    id: 100261,
+    question: "Which two oceans are connected by the Panama Canal?",
+    options: {
+      A: "Atlantic and Pacific",
+      B: "Indian and Pacific",
+      C: "Atlantic and Indian",
+      D: "Arctic and Atlantic"
+    },
+    correctAnswer: "A",
+    explanation: "The Panama Canal connects the Atlantic Ocean (via the Caribbean Sea) with the Pacific Ocean."
+  },
+  {
+    id: 100262,
+    question: "Who was the first President of the United States?",
+    options: {
+      A: "Thomas Jefferson",
+      B: "Abraham Lincoln",
+      C: "George Washington",
+      D: "John Adams"
+    },
+    correctAnswer: "C",
+    explanation: "George Washington was the first President of the United States, serving from 1789 to 1797."
+  },
+  {
+    id: 100263,
+    question: "Who was the first person to orbit the Earth in space?",
+    options: {
+      A: "Neil Armstrong",
+      B: "Yuri Gagarin",
+      C: "John Glenn",
+      D: "Alan Shepard"
+    },
+    correctAnswer: "B",
+    explanation: "Yuri Gagarin, a Soviet cosmonaut, became the first human to orbit Earth on April 12, 1961."
+  },
+  {
+    id: 100264,
+    question: "Who wrote the play 'Romeo and Juliet'?",
+    options: {
+      A: "William Shakespeare",
+      B: "Charles Dickens",
+      C: "Mark Twain",
+      D: "Jane Austen"
+    },
+    correctAnswer: "A",
+    explanation: "The play 'Romeo and Juliet' was written by William Shakespeare."
+  },
+  {
+    id: 100265,
+    question: "Who painted the Mona Lisa?",
+    options: {
+      A: "Vincent van Gogh",
+      B: "Pablo Picasso",
+      C: "Leonardo da Vinci",
+      D: "Michelangelo"
+    },
+    correctAnswer: "C",
+    explanation: "The Mona Lisa was painted by Leonardo da Vinci in the early 16th century."
+  },
+  {
+    id: 100266,
+    question: "Which classical composer was deaf but still composed music, including his famous Ninth Symphony?",
+    options: {
+      A: "Wolfgang Amadeus Mozart",
+      B: "Ludwig van Beethoven",
+      C: "Johann Sebastian Bach",
+      D: "Franz Schubert"
+    },
+    correctAnswer: "B",
+    explanation: "Ludwig van Beethoven was mostly deaf by the time he composed his Ninth Symphony."
+  },
+  {
+    id: 100267,
+    question: "Which scientist is known for proposing the theory of evolution by natural selection?",
+    options: {
+      A: "Albert Einstein",
+      B: "Gregor Mendel",
+      C: "Charles Darwin",
+      D: "Isaac Newton"
+    },
+    correctAnswer: "C",
+    explanation: "Charles Darwin proposed the theory of evolution by natural selection, especially noted in his book 'On the Origin of Species'."
+  },
+  {
+    id: 100268,
+    question: "Which country has the maple leaf as its national symbol, appearing on its flag?",
+    options: {
+      A: "Canada",
+      B: "Australia",
+      C: "Germany",
+      D: "Brazil"
+    },
+    correctAnswer: "A",
+    explanation: "Canada's flag features a red maple leaf, a national symbol of the country."
+  },
+  {
+    id: 100269,
+    question: "In what country would you find the ancient pyramids built by the Mayans at Chichen Itza?",
+    options: {
+      A: "Egypt",
+      B: "Mexico",
+      C: "India",
+      D: "Cambodia"
+    },
+    correctAnswer: "B",
+    explanation: "Chichen Itza, including its famous pyramids like El Castillo, was built by the Maya and is found in Mexico."
+  },
+  {
+    id: 100270,
+    question: "Which famous naval route did Ferdinand Magellan's expedition first circumnavigate?",
+    options: {
+      A: "The Cape of Good Hope",
+      B: "The Strait of Magellan",
+      C: "The Northwest Passage",
+      D: "The Suez Canal"
+    },
+    correctAnswer: "B",
+    explanation: "Ferdinand Magellan's expedition was the first to circumnavigate the globe, passing through the Strait of Magellan at the southern tip of South America."
+  },
+  {
+    id: 100271,
+    question: "What are the primary colors of light?",
+    options: {
+      A: "Red, Yellow, Blue",
+      B: "Red, Green, Blue",
+      C: "Yellow, Cyan, Magenta",
+      D: "Orange, Green, Purple"
+    },
+    correctAnswer: "B",
+    explanation: "The primary colors of light are red, green, and blue (RGB)."
+  },
+  {
+    id: 100272,
+    question: "What organ do fish use to breathe underwater?",
+    options: {
+      A: "Lungs",
+      B: "Gills",
+      C: "Fins",
+      D: "Scales"
+    },
+    correctAnswer: "B",
+    explanation: "Fish use gills to extract oxygen from water, allowing them to breathe underwater."
+  },
+  {
+    id: 100273,
+    question: "Which metal is most well-known for being magnetic?",
+    options: {
+      A: "Gold",
+      B: "Iron",
+      C: "Aluminum",
+      D: "Copper"
+    },
+    correctAnswer: "B",
+    explanation: "Iron is a metal well-known for being magnetic (steel, which contains iron, is also magnetic)."
+  },
+  {
+    id: 100274,
+    question: "Which planet is often visible from Earth just before sunrise or just after sunset, earning it the name 'Morning Star' or 'Evening Star'?",
+    options: {
+      A: "Mars",
+      B: "Mercury",
+      C: "Venus",
+      D: "Jupiter"
+    },
+    correctAnswer: "C",
+    explanation: "Venus is often visible at dawn or dusk, leading to its nicknames 'Morning Star' and 'Evening Star'."
+  },
+  {
+    id: 100275,
+    question: "Which element on the periodic table is known for being a liquid metal at room temperature?",
+    options: {
+      A: "Mercury",
+      B: "Lead",
+      C: "Iron",
+      D: "Copper"
+    },
+    correctAnswer: "A",
+    explanation: "Mercury is the only metal that is liquid at standard room temperature."
+  },
+  {
+    id: 100276,
+    question: "Which country is home to the kangaroo?",
+    options: {
+      A: "India",
+      B: "Australia",
+      C: "South Africa",
+      D: "Brazil"
+    },
+    correctAnswer: "B",
+    explanation: "Kangaroos are native to Australia."
+  },
+  {
+    id: 100277,
+    question: "What is the freezing point of water in degrees Celsius at standard atmospheric pressure?",
+    options: {
+      A: "0°C",
+      B: "32°C",
+      C: "100°C",
+      D: "-32°C"
+    },
+    correctAnswer: "A",
+    explanation: "Water freezes at 0°C (which is 32°F) at standard atmospheric pressure."
+  },
+  {
+    id: 100278,
+    question: "What do we call the study of weather and the atmosphere?",
+    options: {
+      A: "Biology",
+      B: "Meteorology",
+      C: "Geology",
+      D: "Astronomy"
+    },
+    correctAnswer: "B",
+    explanation: "The study of weather and the atmosphere is called meteorology."
+  },
+  {
+    id: 100279,
+    question: "Which instrument is used to measure temperature?",
+    options: {
+      A: "Thermometer",
+      B: "Barometer",
+      C: "Odometer",
+      D: "Hygrometer"
+    },
+    correctAnswer: "A",
+    explanation: "A thermometer is used to measure temperature."
+  },
+  {
+    id: 100280,
+    question: "What is the largest ocean on Earth?",
+    options: {
+      A: "Atlantic Ocean",
+      B: "Indian Ocean",
+      C: "Pacific Ocean",
+      D: "Arctic Ocean"
+    },
+    correctAnswer: "C",
+    explanation: "The Pacific Ocean is the largest ocean on Earth, covering more area than all the landmasses combined."
+  },
+  {
+    id: 100281,
+    question: "Which planet is the second from the Sun?",
+    options: {
+      A: "Mercury",
+      B: "Venus",
+      C: "Mars",
+      D: "Jupiter"
+    },
+    correctAnswer: "B",
+    explanation: "Venus is the second planet from the Sun."
+  },
+  {
+    id: 100282,
+    question: "Which two numbers are needed to calculate speed?",
+    options: {
+      A: "Distance and Time",
+      B: "Mass and Acceleration",
+      C: "Force and Area",
+      D: "Energy and Time"
+    },
+    correctAnswer: "A",
+    explanation: "Speed is calculated as distance divided by time."
+  },
+  {
+    id: 100283,
+    question: "What is the powerhouse of the cell?",
+    options: {
+      A: "Nucleus",
+      B: "Mitochondria",
+      C: "Chloroplast",
+      D: "Ribosome"
+    },
+    correctAnswer: "B",
+    explanation: "The mitochondria are known as the powerhouse of the cell because they produce ATP, the cell's energy currency."
+  },
+  {
+    id: 100284,
+    question: "Which organ filters waste from the blood to produce urine?",
+    options: {
+      A: "Lungs",
+      B: "Liver",
+      C: "Kidney",
+      D: "Intestine"
+    },
+    correctAnswer: "C",
+    explanation: "The kidneys filter waste from the blood and produce urine."
+  },
+  {
+    id: 100285,
+    question: "In what state of matter are molecules closest together?",
+    options: {
+      A: "Gas",
+      B: "Solid",
+      C: "Liquid",
+      D: "Plasma"
+    },
+    correctAnswer: "B",
+    explanation: "In a solid, molecules are packed closely together in a fixed structure."
+  },
+  {
+    id: 100286,
+    question: "Which gas do humans need to breathe in to survive?",
+    options: {
+      A: "Carbon Dioxide",
+      B: "Oxygen",
+      C: "Nitrogen",
+      D: "Helium"
+    },
+    correctAnswer: "B",
+    explanation: "Humans need to breathe in oxygen; it is essential for cellular respiration."
+  },
+  {
+    id: 100287,
+    question: "Which large mammal is known for its trunk?",
+    options: {
+      A: "Elephant",
+      B: "Giraffe",
+      C: "Hippopotamus",
+      D: "Rhinoceros"
+    },
+    correctAnswer: "A",
+    explanation: "Elephants are known for their long trunks, which are a fusion of their nose and upper lip."
+  },
+  {
+    id: 100288,
+    question: "Which scientist introduced the idea of gravity after, according to legend, observing a falling apple?",
+    options: {
+      A: "Galileo Galilei",
+      B: "Isaac Newton",
+      C: "Albert Einstein",
+      D: "Nikola Tesla"
+    },
+    correctAnswer: "B",
+    explanation: "Sir Isaac Newton famously formulated the law of universal gravitation, with legend suggesting he was inspired by a falling apple."
+  },
+  {
+    id: 100289,
+    question: "Which country is famous for the Taj Mahal?",
+    options: {
+      A: "India",
+      B: "Egypt",
+      C: "Turkey",
+      D: "Saudi Arabia"
+    },
+    correctAnswer: "A",
+    explanation: "The Taj Mahal is a famous monument located in Agra, India."
+  },
+  {
+    id: 100290,
+    question: "What is the tallest mountain in Africa?",
+    options: {
+      A: "Mount Everest",
+      B: "Mount Kilimanjaro",
+      C: "Mount Kenya",
+      D: "Table Mountain"
+    },
+    correctAnswer: "B",
+    explanation: "Mount Kilimanjaro in Tanzania is the tallest mountain in Africa."
+  },
+  {
+    id: 100291,
+    question: "Which city hosted the ancient Olympic Games?",
+    options: {
+      A: "Athens",
+      B: "Olympia",
+      C: "Rome",
+      D: "Sparta"
+    },
+    correctAnswer: "B",
+    explanation: "The ancient Olympic Games were held in Olympia, Greece."
+  },
+  {
+    id: 100292,
+    question: "Which organ in the human body is primarily responsible for detoxifying chemicals and metabolizing drugs?",
+    options: {
+      A: "Heart",
+      B: "Kidney",
+      C: "Liver",
+      D: "Spleen"
+    },
+    correctAnswer: "C",
+    explanation: "The liver is responsible for detoxifying chemicals, metabolizing drugs, and other metabolic processes."
+  },
+  {
+    id: 100293,
+    question: "Which natural disaster is measured with a Richter scale?",
+    options: {
+      A: "Hurricane",
+      B: "Earthquake",
+      C: "Tornado",
+      D: "Flood"
+    },
+    correctAnswer: "B",
+    explanation: "Earthquake magnitudes were traditionally measured using the Richter scale (now often the moment magnitude scale)."
+  },
+  {
+    id: 100294,
+    question: "Which famous equation is attributed to Einstein?",
+    options: {
+      A: "F=ma",
+      B: "E=mc^2",
+      C: "a^2 + b^2 = c^2",
+      D: "V=IR"
+    },
+    correctAnswer: "B",
+    explanation: "Albert Einstein's famous equation is E=mc^2, which relates energy (E) and mass (m)."
+  },
+  {
+    id: 100295,
+    question: "In which country is the ancient city of Petra located?",
+    options: {
+      A: "Egypt",
+      B: "Greece",
+      C: "Jordan",
+      D: "India"
+    },
+    correctAnswer: "C",
+    explanation: "The ancient city of Petra is located in modern-day Jordan."
+  },
+  {
+    id: 100296,
+    question: "Which continent is known to have the greatest number of countries?",
+    options: {
+      A: "Asia",
+      B: "Europe",
+      C: "Africa",
+      D: "South America"
+    },
+    correctAnswer: "C",
+    explanation: "Africa has 54 countries, the most of any continent."
+  },
+  {
+    id: 100297,
+    question: "Which Middle Eastern city is home to the Dome of the Rock and the Western Wall?",
+    options: {
+      A: "Mecca",
+      B: "Jerusalem",
+      C: "Istanbul",
+      D: "Cairo"
+    },
+    correctAnswer: "B",
+    explanation: "Jerusalem contains the Dome of the Rock and the Western Wall, which are significant religious sites."
+  },
+  {
+    id: 100298,
+    question: "Which instrument is used to measure electric current?",
+    options: {
+      A: "Thermometer",
+      B: "Barometer",
+      C: "Ammeter",
+      D: "Voltmeter"
+    },
+    correctAnswer: "C",
+    explanation: "An ammeter is used to measure electric current."
+  },
+  {
+    id: 100299,
+    question: "Which element is present in all organic compounds?",
+    options: {
+      A: "Carbon",
+      B: "Calcium",
+      C: "Chlorine",
+      D: "Copper"
+    },
+    correctAnswer: "A",
+    explanation: "Carbon is present in all organic compounds; organic chemistry is essentially the chemistry of carbon."
+  },
+  {
+    id: 100300,
+    question: "Which part of the electromagnetic spectrum can humans see?",
+    options: {
+      A: "Ultraviolet",
+      B: "Visible light",
+      C: "Infrared",
+      D: "X-ray"
+    },
+    correctAnswer: "B",
+    explanation: "Humans can see the visible light portion of the electromagnetic spectrum."
+  },
+  {
+    id: 100301,
+    question: "Which letter is the only one that does not appear in the name of any U.S. state?",
+    options: {
+      A: "Z",
+      B: "Q",
+      C: "X",
+      D: "J"
+    },
+    correctAnswer: "B",
+    explanation: "The letter 'Q' is the only letter that does not appear in any U.S. state name."
+  },
+  {
+    id: 100302,
+    question: "Which planet did the rover Curiosity explore after its landing in 2012?",
+    options: {
+      A: "Mars",
+      B: "Venus",
+      C: "Jupiter",
+      D: "Mercury"
+    },
+    correctAnswer: "A",
+    explanation: "Curiosity is a NASA rover that landed on Mars in 2012 to explore the Martian surface."
+  },
+  {
+    id: 100303,
+    question: "Which country won the FIFA World Cup in 2018?",
+    options: {
+      A: "Brazil",
+      B: "Germany",
+      C: "France",
+      D: "Croatia"
+    },
+    correctAnswer: "C",
+    explanation: "France won the 2018 FIFA World Cup (the final was against Croatia)."
+  },
+  {
+    id: 100304,
+    question: "Which language is the most spoken worldwide by number of native speakers?",
+    options: {
+      A: "Mandarin Chinese",
+      B: "English",
+      C: "Spanish",
+      D: "Hindi"
+    },
+    correctAnswer: "A",
+    explanation: "Mandarin Chinese has the highest number of native speakers in the world."
+  },
+  {
+    id: 100305,
+    question: "What is the tallest animal in the world?",
+    options: {
+      A: "Elephant",
+      B: "Giraffe",
+      C: "Ostrich",
+      D: "Polar Bear"
+    },
+    correctAnswer: "B",
+    explanation: "The giraffe is the tallest land animal, with males standing up to 5.5 meters tall."
+  },
+  {
+    id: 100306,
+    question: "Which planet's moons include Europa, Ganymede, and Io?",
+    options: {
+      A: "Saturn",
+      B: "Neptune",
+      C: "Jupiter",
+      D: "Uranus"
+    },
+    correctAnswer: "C",
+    explanation: "Jupiter's moons include Europa, Ganymede, Io, and Callisto among many others."
+  },
+  {
+    id: 100307,
+    question: "What is the most abundant gas in Earth's atmosphere?",
+    options: {
+      A: "Nitrogen",
+      B: "Oxygen",
+      C: "Carbon Dioxide",
+      D: "Argon"
+    },
+    correctAnswer: "A",
+    explanation: "Nitrogen makes up about 78% of Earth's atmosphere, making it the most abundant gas."
+  },
+  {
+    id: 100308,
+    question: "Which sea is actually a lake known for its high salt content and for being the lowest elevation on land?",
+    options: {
+      A: "Dead Sea",
+      B: "Caspian Sea",
+      C: "Red Sea",
+      D: "Black Sea"
+    },
+    correctAnswer: "A",
+    explanation: "The Dead Sea is a salt lake known for its high salinity and for being the lowest land elevation on Earth, about 430 meters below sea level."
+  },
+  {
+    id: 100309,
+    question: "Which continent is known as the birthplace of humanity due to the oldest human fossils found there?",
+    options: {
+      A: "Asia",
+      B: "Europe",
+      C: "Africa",
+      D: "South America"
+    },
+    correctAnswer: "C",
+    explanation: "Africa is considered the birthplace of humanity, as the oldest human fossils (from early hominids) have been found there."
+  },
+  {
+    id: 100310,
+    question: "Which direction does the sun rise from?",
+    options: {
+      A: "North",
+      B: "South",
+      C: "East",
+      D: "West"
+    },
+    correctAnswer: "C",
+    explanation: "The sun rises in the East and sets in the West due to Earth's rotation direction."
+  },
+  {
+    id: 100311,
+    question: "Which element has the chemical symbol 'C'?",
+    options: {
+      A: "Calcium",
+      B: "Copper",
+      C: "Carbon",
+      D: "Chlorine"
+    },
+    correctAnswer: "C",
+    explanation: "The chemical symbol 'C' stands for Carbon."
+  },
+  {
+    id: 100312,
+    question: "Which country is known for the ancient Incan citadel Machu Picchu?",
+    options: {
+      A: "Peru",
+      B: "Mexico",
+      C: "India",
+      D: "Italy"
+    },
+    correctAnswer: "A",
+    explanation: "Machu Picchu is located in Peru."
+  },
+  {
+    id: 100313,
+    question: "What is the basic unit of electrical resistance, represented by the Greek letter omega (Ω)?",
+    options: {
+      A: "Volt",
+      B: "Ohm",
+      C: "Ampere",
+      D: "Watt"
+    },
+    correctAnswer: "B",
+    explanation: "Electrical resistance is measured in ohms (Ω)."
+  },
+  {
+    id: 100314,
+    question: "Which planet in our solar system has the highest mountain, Olympus Mons?",
+    options: {
+      A: "Mars",
+      B: "Earth",
+      C: "Venus",
+      D: "Mercury"
+    },
+    correctAnswer: "A",
+    explanation: "Olympus Mons, the tallest known mountain in the solar system, is located on Mars."
+  },
+  {
+    id: 100315,
+    question: "What is the primary language spoken in Brazil?",
+    options: {
+      A: "Spanish",
+      B: "Portuguese",
+      C: "English",
+      D: "Brazilian"
+    },
+    correctAnswer: "B",
+    explanation: "Portuguese is the primary language spoken in Brazil."
+  },
+  {
+    id: 100316,
+    question: "What does the 'www' prefix stand for in website addresses?",
+    options: {
+      A: "World Wide Web",
+      B: "World Wireless Wave",
+      C: "Wide World Web",
+      D: "Web Wave Wide"
+    },
+    correctAnswer: "A",
+    explanation: "\"www\" stands for World Wide Web."
+  },
+  {
+    id: 100317,
+    question: "What does the HTTP protocol stand for on the internet?",
+    options: {
+      A: "HyperText Transmission Protocol",
+      B: "HyperText Transfer Protocol",
+      C: "Hybrid Text Transfer Process",
+      D: "Home Telephone Transfer Protocol"
+    },
+    correctAnswer: "B",
+    explanation: "HTTP stands for HyperText Transfer Protocol, which is used for transmitting web pages on the internet."
+  },
+  {
+    id: 100318,
+    question: "What is the chemical name for household baking soda?",
+    options: {
+      A: "Sodium bicarbonate",
+      B: "Calcium carbonate",
+      C: "Sodium chloride",
+      D: "Potassium sulfate"
+    },
+    correctAnswer: "A",
+    explanation: "Baking soda is chemically known as sodium bicarbonate."
+  },
+  {
+    id: 100319,
+    question: "What is the tallest building in the United States as of 2025?",
+    options: {
+      A: "One World Trade Center",
+      B: "Empire State Building",
+      C: "Willis (Sears) Tower",
+      D: "Trump Tower"
+    },
+    correctAnswer: "A",
+    explanation: "One World Trade Center in New York City is the tallest building in the United States as of 2025."
+  },
+  {
+    id: 100320,
+    question: "What is the currency of Japan?",
+    options: {
+      A: "Yen",
+      B: "Won",
+      C: "Dollar",
+      D: "Yuan"
+    },
+    correctAnswer: "A",
+    explanation: "Japan's currency is the yen."
+  },
+  {
+    id: 100321,
+    question: "Which two continents are entirely in the Western Hemisphere?",
+    options: {
+      A: "Asia and Europe",
+      B: "North America and South America",
+      C: "Africa and Europe",
+      D: "Australia and Antarctica"
+    },
+    correctAnswer: "B",
+    explanation: "North America and South America are entirely in the Western Hemisphere."
+  },
+  {
+    id: 100322,
+    question: "Which month is Black History Month in the United States and Canada?",
+    options: {
+      A: "January",
+      B: "February",
+      C: "October",
+      D: "December"
+    },
+    correctAnswer: "B",
+    explanation: "February is observed as Black History Month in the United States and Canada."
+  },
+  {
+    id: 100323,
+    question: "Which shape is commonly used for stop signs in many countries?",
+    options: {
+      A: "Triangle",
+      B: "Circle",
+      C: "Octagon",
+      D: "Square"
+    },
+    correctAnswer: "C",
+    explanation: "Stop signs are typically octagonal (eight-sided)."
+  },
+  {
+    id: 100324,
+    question: "What substance do bees produce from nectar?",
+    options: {
+      A: "Honey",
+      B: "Milk",
+      C: "Silk",
+      D: "Wax"
+    },
+    correctAnswer: "A",
+    explanation: "Bees produce honey from collected nectar."
+  },
+  {
+    id: 100325,
+    question: "Which country is known as the Land of the Rising Sun?",
+    options: {
+      A: "India",
+      B: "New Zealand",
+      C: "Norway",
+      D: "Japan"
+    },
+    correctAnswer: "D",
+    explanation: "Japan is commonly known as the Land of the Rising Sun."
+  },
+  {
+    id: 100326,
+    question: "Which natural satellite is the largest in the solar system?",
+    options: {
+      A: "Moon (Earth's Moon)",
+      B: "Ganymede (Jupiter's moon)",
+      C: "Titan (Saturn's moon)",
+      D: "Europa (Jupiter's moon)"
+    },
+    correctAnswer: "B",
+    explanation: "Ganymede, a moon of Jupiter, is the largest natural satellite in the solar system (even larger than Mercury)."
+  },
+  {
+    id: 100327,
+    question: "Which country is famous for inventing pizza and pasta?",
+    options: {
+      A: "France",
+      B: "China",
+      C: "Italy",
+      D: "Greece"
+    },
+    correctAnswer: "C",
+    explanation: "Italy is famously known for its pizza and pasta cuisine."
+  },
+  {
+    id: 100328,
+    question: "Which city is famously built on canals and is known as 'The Floating City'?",
+    options: {
+      A: "Amsterdam",
+      B: "Venice",
+      C: "Bangkok",
+      D: "Copenhagen"
+    },
+    correctAnswer: "B",
+    explanation: "Venice in Italy is built on canals and often called 'The Floating City'."
+  },
+  {
+    id: 100329,
+    question: "What chemical is added to swimming pools to kill bacteria?",
+    options: {
+      A: "Chlorine",
+      B: "Fluorine",
+      C: "Iodine",
+      D: "Salt"
+    },
+    correctAnswer: "A",
+    explanation: "Chlorine is commonly added to swimming pools as a disinfectant to kill bacteria and other microbes."
+  },
+  {
+    id: 100330,
+    question: "Which planet is known as the 'Morning Star' or 'Evening Star' due to its brightness in the sky?",
+    options: {
+      A: "Mars",
+      B: "Mercury",
+      C: "Venus",
+      D: "Jupiter"
+    },
+    correctAnswer: "C",
+    explanation: "Venus is often visible around sunrise or sunset and is called the 'Morning Star' or 'Evening Star'."
+  },
+  {
+    id: 100331,
+    question: "Which metal is primarily used in the filament of old incandescent light bulbs?",
+    options: {
+      A: "Copper",
+      B: "Tungsten",
+      C: "Aluminum",
+      D: "Iron"
+    },
+    correctAnswer: "B",
+    explanation: "Tungsten is used for the filament in incandescent light bulbs because it has a very high melting point."
+  },
+  {
+    id: 100332,
+    question: "Which element is represented by the chemical symbol 'N'?",
+    options: {
+      A: "Neon",
+      B: "Nickel",
+      C: "Nitrogen",
+      D: "Sodium"
+    },
+    correctAnswer: "C",
+    explanation: "The chemical symbol 'N' stands for Nitrogen."
+  },
+  {
+    id: 100333,
+    question: "Which Asian country is an archipelago of over 7,000 islands and has Manila as its capital?",
+    options: {
+      A: "Indonesia",
+      B: "Philippines",
+      C: "Japan",
+      D: "Maldives"
+    },
+    correctAnswer: "B",
+    explanation: "The Philippines is an archipelago of over 7,000 islands, and its capital is Manila."
+  },
+  {
+    id: 100334,
+    question: "What is the main gas found in the air we exhale?",
+    options: {
+      A: "Oxygen",
+      B: "Carbon Dioxide",
+      C: "Nitrogen",
+      D: "Hydrogen"
+    },
+    correctAnswer: "B",
+    explanation: "When humans exhale, the air contains a higher concentration of carbon dioxide (CO2) compared to the air inhaled."
+  },
+  {
+    id: 100335,
+    question: "Which vitamin is abundant in citrus fruits like oranges and lemons?",
+    options: {
+      A: "Vitamin A",
+      B: "Vitamin B",
+      C: "Vitamin C",
+      D: "Vitamin D"
+    },
+    correctAnswer: "C",
+    explanation: "Citrus fruits are rich in Vitamin C."
+  },
+  {
+    id: 100336,
+    question: "Which planet is called the 'Blue Planet' because of its oceans?",
+    options: {
+      A: "Earth",
+      B: "Uranus",
+      C: "Neptune",
+      D: "Mars"
+    },
+    correctAnswer: "A",
+    explanation: "Earth is known as the 'Blue Planet' due to the vast oceans covering its surface."
+  },
+  {
+    id: 100337,
+    question: "Which two countries share the longest international border in the world?",
+    options: {
+      A: "USA and Canada",
+      B: "Russia and China",
+      C: "India and China",
+      D: "Argentina and Chile"
+    },
+    correctAnswer: "A",
+    explanation: "The United States and Canada share the longest international land border in the world."
+  },
+  {
+    id: 100338,
+    question: "In what organ of the human body would you find the hippocampus?",
+    options: {
+      A: "Brain",
+      B: "Heart",
+      C: "Liver",
+      D: "Kidney"
+    },
+    correctAnswer: "A",
+    explanation: "The hippocampus is a part of the brain involved in memory and navigation."
+  },
+  {
+    id: 100339,
+    question: "How many Apollo missions landed humans on the Moon?",
+    options: {
+      A: "2",
+      B: "6",
+      C: "8",
+      D: "12"
+    },
+    correctAnswer: "B",
+    explanation: "Six Apollo missions (Apollo 11, 12, 14, 15, 16, 17) successfully landed humans on the Moon."
+  },
+  {
+    id: 100340,
+    question: "Which natural process is responsible for the Earth's seasons?",
+    options: {
+      A: "Earth's distance from the Sun",
+      B: "The tilt of Earth's axis",
+      C: "Solar flares",
+      D: "Moon's gravitational pull"
+    },
+    correctAnswer: "B",
+    explanation: "The tilt of Earth's axis relative to its orbit around the Sun causes seasons."
+  },
+  {
+    id: 100341,
+    question: "Which gas found in Earth's ozone layer protects us from the Sun's ultraviolet rays?",
+    options: {
+      A: "Ozone",
+      B: "Oxygen",
+      C: "Carbon Dioxide",
+      D: "Nitrogen"
+    },
+    correctAnswer: "A",
+    explanation: "Ozone (O3) in the Earth's stratosphere absorbs and blocks much of the Sun's harmful ultraviolet radiation."
+  },
+  {
+    id: 100342,
+    question: "Which planet has a year that lasts approximately 88 Earth days?",
+    options: {
+      A: "Mercury",
+      B: "Venus",
+      C: "Mars",
+      D: "Neptune"
+    },
+    correctAnswer: "A",
+    explanation: "Mercury orbits the Sun in about 88 Earth days, so its year (one full orbit) is 88 days long."
+  },
+  {
+    id: 100343,
+    question: "What is the chemical formula for rust, which forms on iron?",
+    options: {
+      A: "Fe2O3",
+      B: "FeO",
+      C: "FeS2",
+      D: "FeCl3"
+    },
+    correctAnswer: "A",
+    explanation: "Rust is primarily iron(III) oxide, with the chemical formula Fe2O3."
+  },
   {
     id: 200001,
     question: "What is the scientific study of behavior and mental processes?",
@@ -3605,7 +5921,570 @@ const questions = [
     correctAnswer: "A",
     explanation: "An introductory psychology course aims to provide an overview of the scientific study of behavior and mental processes."
   }
-
+ {
+    id: 200151,
+    question: "Who is often credited as the founder of psychoanalysis?",
+    options: {
+      A: "Carl Jung",
+      B: "Sigmund Freud",
+      C: "Ivan Pavlov",
+      D: "Wilhelm Wundt"
+    },
+    correctAnswer: "B",
+    explanation: "Sigmund Freud is known as the founder of psychoanalysis, focusing on the unconscious mind and early experiences."
+  },
+  {
+    id: 200152,
+    question: "Which early psychologist established the first psychology laboratory in 1879, marking the beginning of experimental psychology?",
+    options: {
+      A: "William James",
+      B: "Wilhelm Wundt",
+      C: "Ivan Pavlov",
+      D: "John Watson"
+    },
+    correctAnswer: "B",
+    explanation: "Wilhelm Wundt established the first experimental psychology laboratory in 1879 in Leipzig, Germany, often regarded as the start of modern psychology."
+  },
+  {
+    id: 200153,
+    question: "William James was a prominent figure in which early psychological perspective that focused on the purpose of consciousness?",
+    options: {
+      A: "Structuralism",
+      B: "Functionalism",
+      C: "Behaviorism",
+      D: "Psychoanalysis"
+    },
+    correctAnswer: "B",
+    explanation: "William James was a leading functionalist, focusing on the functions and purpose of consciousness and behavior."
+  },
+  {
+    id: 200154,
+    question: "Which school of thought in psychology, founded by John B. Watson, focuses on observable behaviors only?",
+    options: {
+      A: "Behaviorism",
+      B: "Cognitive psychology",
+      C: "Functionalism",
+      D: "Structuralism"
+    },
+    correctAnswer: "A",
+    explanation: "Behaviorism, founded by John B. Watson and later championed by B.F. Skinner, focuses on observable behavior and dismisses introspection."
+  },
+  {
+    id: 200155,
+    question: "Who was the first woman to earn a PhD in psychology, known for her work in animal behavior?",
+    options: {
+      A: "Mary Whiton Calkins",
+      B: "Margaret Floy Washburn",
+      C: "Karen Horney",
+      D: "Anna Freud"
+    },
+    correctAnswer: "B",
+    explanation: "Margaret Floy Washburn was the first woman to earn a PhD in psychology and she wrote 'The Animal Mind' on animal behavior."
+  },
+  {
+    id: 200156,
+    question: "Which psychological approach emphasizes the growth potential of healthy individuals and personal growth?",
+    options: {
+      A: "Humanistic psychology",
+      B: "Behaviorism",
+      C: "Psychoanalytic theory",
+      D: "Cognitive psychology"
+    },
+    correctAnswer: "A",
+    explanation: "Humanistic psychology (with key figures like Carl Rogers and Abraham Maslow) emphasizes personal growth, free will, and the inherent goodness of people."
+  },
+  {
+    id: 200157,
+    question: "Carl Rogers is most associated with which type of therapy?",
+    options: {
+      A: "Psychoanalytic therapy",
+      B: "Client-centered (person-centered) therapy",
+      C: "Behavior therapy",
+      D: "Cognitive therapy"
+    },
+    correctAnswer: "B",
+    explanation: "Carl Rogers developed client-centered therapy, a humanistic approach that provides unconditional positive regard and empathy to the client."
+  },
+  {
+    id: 200158,
+    question: "What concept refers to accepting and valuing a person without requiring particular behaviors as a prerequisite (a key idea in Rogers' therapy)?",
+    options: {
+      A: "Self-actualization",
+      B: "Unconditional positive regard",
+      C: "Selective reinforcement",
+      D: "Conditional love"
+    },
+    correctAnswer: "B",
+    explanation: "Unconditional positive regard is accepting and valuing someone without conditions, a core component of Carl Rogers' client-centered therapy."
+  },
+  {
+    id: 200159,
+    question: "Which psychological perspective emphasizes unconscious drives and the influence of childhood experiences?",
+    options: {
+      A: "Humanistic",
+      B: "Psychoanalytic",
+      C: "Behavioral",
+      D: "Sociocultural"
+    },
+    correctAnswer: "B",
+    explanation: "The psychoanalytic perspective, founded by Freud, emphasizes the influence of the unconscious mind and early childhood experiences on behavior."
+  },
+  {
+    id: 200160,
+    question: "Which perspective in psychology focuses on how we encode, process, store, and retrieve information?",
+    options: {
+      A: "Cognitive perspective",
+      B: "Behavioral perspective",
+      C: "Evolutionary perspective",
+      D: "Humanistic perspective"
+    },
+    correctAnswer: "A",
+    explanation: "The cognitive perspective examines internal mental processes such as thinking, memory, and problem-solving."
+  },
+  {
+    id: 200161,
+    question: "Which perspective in psychology would be most interested in how natural selection might influence behavior or mental processes?",
+    options: {
+      A: "Behavioral",
+      B: "Evolutionary",
+      C: "Psychodynamic",
+      D: "Structuralist"
+    },
+    correctAnswer: "B",
+    explanation: "The evolutionary perspective in psychology looks at how evolution and natural selection influence behaviors and mental processes."
+  },
+  {
+    id: 200162,
+    question: "Which field of psychology studies how behavior and thinking vary across situations and cultures?",
+    options: {
+      A: "Developmental psychology",
+      B: "Social-cultural psychology",
+      C: "Cognitive psychology",
+      D: "Neuropsychology"
+    },
+    correctAnswer: "B",
+    explanation: "The social-cultural perspective studies how behavior and thinking are influenced by social situations and cultural factors."
+  },
+  {
+    id: 200163,
+    question: "In a psychological experiment, what is the independent variable?",
+    options: {
+      A: "The variable that is measured (outcome)",
+      B: "The variable that is manipulated by the researcher",
+      C: "A variable that is kept the same",
+      D: "A variable that shows no effect"
+    },
+    correctAnswer: "B",
+    explanation: "The independent variable is the factor that is manipulated by the researcher to observe its effect, while the dependent variable is what is measured."
+  },
+  {
+    id: 200164,
+    question: "In an experiment, what do we call the variable that is measured and expected to change when the independent variable is altered?",
+    options: {
+      A: "Dependent variable",
+      B: "Independent variable",
+      C: "Controlled variable",
+      D: "Confounding variable"
+    },
+    correctAnswer: "A",
+    explanation: "The dependent variable is what the researcher measures; it is expected to change depending on manipulations of the independent variable."
+  },
+  {
+    id: 200165,
+    question: "What is the main purpose of random assignment in an experiment?",
+    options: {
+      A: "To ensure each participant has an equal chance of being in any group",
+      B: "To randomly select participants from the population",
+      C: "To increase the sample size",
+      D: "To eliminate the need for a control group"
+    },
+    correctAnswer: "A",
+    explanation: "Random assignment is used to evenly distribute participant characteristics across experimental and control groups, giving each participant an equal chance of being assigned to any group."
+  },
+  {
+    id: 200166,
+    question: "What is random sampling in the context of research?",
+    options: {
+      A: "Randomly assigning subjects to experimental conditions",
+      B: "Randomly selecting participants from a population for a study",
+      C: "Randomly choosing which variables to measure",
+      D: "Randomly determining study outcomes"
+    },
+    correctAnswer: "B",
+    explanation: "Random sampling involves selecting participants from a larger population such that each individual has an equal chance of being chosen, which helps ensure the sample is representative of the population."
+  },
+  {
+    id: 200167,
+    question: "Why can't correlation prove causation?",
+    options: {
+      A: "Because correlation coefficients are always low",
+      B: "Because two variables may be related due to a third factor",
+      C: "Because experiments are required to test hypotheses",
+      D: "Because correlations are not statistically significant"
+    },
+    correctAnswer: "B",
+    explanation: "Correlation cannot prove causation because even if two variables are related, a third variable (confounding factor) might be causing both, so we can't know which causes which from correlation alone."
+  },
+  {
+    id: 200168,
+    question: "What is a hypothesis in the context of scientific research?",
+    options: {
+      A: "A testable prediction about how variables relate",
+      B: "A proven theory",
+      C: "A random guess without basis",
+      D: "An uncontrolled variable"
+    },
+    correctAnswer: "A",
+    explanation: "A hypothesis is a testable prediction, often derived from a theory, about the relationship between two or more variables."
+  },
+  {
+    id: 200169,
+    question: "What does informed consent in research entail?",
+    options: {
+      A: "Telling participants the hypothesis before the study",
+      B: "Fully explaining the research and obtaining voluntary agreement to participate",
+      C: "Paying participants for their time",
+      D: "Keeping participants' data entirely anonymous"
+    },
+    correctAnswer: "B",
+    explanation: "Informed consent means participants are given sufficient information about a study (including potential risks) to decide if they want to participate, and their participation is voluntary."
+  },
+  {
+    id: 200170,
+    question: "What is an operational definition in the context of research?",
+    options: {
+      A: "A statement of the procedures used to measure or define research variables",
+      B: "A prediction of the outcome of a study",
+      C: "A mathematical formula applied to results",
+      D: "A philosophical explanation of a concept"
+    },
+    correctAnswer: "A",
+    explanation: "An operational definition specifies how a concept or variable is measured or manipulated in a particular study, ensuring clarity in what is being studied."
+  },
+  {
+    id: 200171,
+    question: "What is a theory in scientific terms?",
+    options: {
+      A: "A testable prediction",
+      B: "An explanation that organizes observations and predicts behaviors or events",
+      C: "A wild guess",
+      D: "An unrelated set of ideas"
+    },
+    correctAnswer: "B",
+    explanation: "A theory is an explanation that integrates principles and organizes and predicts behavior or events. It's based on evidence and can lead to hypotheses."
+  },
+  {
+    id: 200172,
+    question: "What is the main advantage of conducting a double-blind study?",
+    options: {
+      A: "It allows researchers to study two things at once",
+      B: "It prevents bias by keeping both participants and researchers unaware of group assignments",
+      C: "It doubles the sample size for better results",
+      D: "It ensures that all variables are controlled"
+    },
+    correctAnswer: "B",
+    explanation: "A double-blind study is one in which neither the participants nor the researchers know who is in the experimental or control group, which prevents expectations from influencing results."
+  },
+  {
+    id: 200173,
+    question: "Which part of the neuron receives incoming messages from other neurons?",
+    options: {
+      A: "Axon",
+      B: "Dendrites",
+      C: "Myelin sheath",
+      D: "Axon terminal"
+    },
+    correctAnswer: "B",
+    explanation: "Dendrites are the branching structures of a neuron that receive neural messages from other neurons and convey them toward the cell body."
+  },
+  {
+    id: 200174,
+    question: "What is the synapse?",
+    options: {
+      A: "The electrical impulse traveling down a neuron",
+      B: "The junction or gap between two neurons",
+      C: "The fatty covering on some neurons",
+      D: "The cell body of a neuron"
+    },
+    correctAnswer: "B",
+    explanation: "A synapse is the tiny gap between neurons where neurotransmitters are released, allowing neurons to communicate with each other."
+  },
+  {
+    id: 200175,
+    question: "What is the function of the myelin sheath on a neuron?",
+    options: {
+      A: "It stores neurotransmitters",
+      B: "It insulates the axon and speeds up neural impulses",
+      C: "It connects dendrites to the cell body",
+      D: "It generates electrical impulses"
+    },
+    correctAnswer: "B",
+    explanation: "The myelin sheath is a fatty layer that covers the axon of some neurons, helping to insulate it and significantly increase the speed of electrical impulse transmission."
+  },
+  {
+    id: 200176,
+    question: "Which division of the nervous system consists of the brain and spinal cord?",
+    options: {
+      A: "Central nervous system (CNS)",
+      B: "Peripheral nervous system (PNS)",
+      C: "Autonomic nervous system (ANS)",
+      D: "Somatic nervous system"
+    },
+    correctAnswer: "A",
+    explanation: "The central nervous system (CNS) is composed of the brain and spinal cord."
+  },
+  {
+    id: 200177,
+    question: "Which part of the nervous system is activated in a fight-or-flight situation?",
+    options: {
+      A: "Parasympathetic nervous system",
+      B: "Sympathetic nervous system",
+      C: "Central nervous system",
+      D: "Somatic nervous system"
+    },
+    correctAnswer: "B",
+    explanation: "The sympathetic nervous system arouses the body, mobilizing its energy in stressful situations (the fight-or-flight response)."
+  },
+  {
+    id: 200178,
+    question: "Which branch of the autonomic nervous system calms the body and conserves energy after a stressful event?",
+    options: {
+      A: "Central nervous system",
+      B: "Parasympathetic nervous system",
+      C: "Sympathetic nervous system",
+      D: "Somatic nervous system"
+    },
+    correctAnswer: "B",
+    explanation: "The parasympathetic nervous system calms the body and conserves energy, often called the 'rest and digest' system, counteracting the sympathetic nervous system."
+  },
+  {
+    id: 200179,
+    question: "Which brain structure is often referred to as the 'brainstem' and controls basic life functions like heartbeat and breathing?",
+    options: {
+      A: "Cerebellum",
+      B: "Medulla oblongata",
+      C: "Amygdala",
+      D: "Thalamus"
+    },
+    correctAnswer: "B",
+    explanation: "The medulla oblongata, part of the brainstem, controls basic vital functions such as heart rate and breathing."
+  },
+  {
+    id: 200180,
+    question: "Which part of the brain is critical for balance and coordinating fine motor movements?",
+    options: {
+      A: "Cerebellum",
+      B: "Hypothalamus",
+      C: "Hippocampus",
+      D: "Medulla"
+    },
+    correctAnswer: "A",
+    explanation: "The cerebellum helps coordinate voluntary movements, balance, and posture."
+  },
+  {
+    id: 200181,
+    question: "Which brain structure acts as a sensory relay station, directing incoming sensory information to the appropriate regions of the brain?",
+    options: {
+      A: "Thalamus",
+      B: "Hypothalamus",
+      C: "Amygdala",
+      D: "Cerebellum"
+    },
+    correctAnswer: "A",
+    explanation: "The thalamus serves as a relay station, directing sensory signals (like visual, auditory, and touch information) to the correct areas of the cerebral cortex for processing."
+  },
+  {
+    id: 200182,
+    question: "Which part of the brain plays a central role in emotion, particularly fear and aggression?",
+    options: {
+      A: "Hippocampus",
+      B: "Amygdala",
+      C: "Cerebellum",
+      D: "Medulla"
+    },
+    correctAnswer: "B",
+    explanation: "The amygdala is involved in processing emotions such as fear and aggression."
+  },
+  {
+    id: 200183,
+    question: "Which brain structure is crucial for forming new memories?",
+    options: {
+      A: "Brainstem",
+      B: "Amygdala",
+      C: "Hippocampus",
+      D: "Basal ganglia"
+    },
+    correctAnswer: "C",
+    explanation: "The hippocampus is essential for the formation of new memories. Damage to the hippocampus can result in difficulty forming new memories."
+  },
+  {
+    id: 200184,
+    question: "Which lobe of the brain is primarily responsible for processing visual information?",
+    options: {
+      A: "Frontal lobe",
+      B: "Parietal lobe",
+      C: "Occipital lobe",
+      D: "Temporal lobe"
+    },
+    correctAnswer: "C",
+    explanation: "The occipital lobe, located at the back of the brain, is the primary region for processing visual information."
+  },
+  {
+    id: 200185,
+    question: "Which lobe of the brain contains the primary auditory cortex and is involved in hearing and language processing?",
+    options: {
+      A: "Frontal lobe",
+      B: "Parietal lobe",
+      C: "Occipital lobe",
+      D: "Temporal lobe"
+    },
+    correctAnswer: "D",
+    explanation: "The temporal lobe contains the primary auditory cortex and is involved in processing auditory information and language."
+  },
+  {
+    id: 200186,
+    question: "Which lobe of the brain is involved in planning, decision-making, and controlling voluntary movements?",
+    options: {
+      A: "Frontal lobe",
+      B: "Occipital lobe",
+      C: "Temporal lobe",
+      D: "Parietal lobe"
+    },
+    correctAnswer: "A",
+    explanation: "The frontal lobe is associated with higher cognitive functions (planning, decision-making) and contains the motor cortex for voluntary movement."
+  },
+  {
+    id: 200187,
+    question: "Which brain area is primarily responsible for producing spoken language (speech production)?",
+    options: {
+      A: "Wernicke's area",
+      B: "Broca's area",
+      C: "Angular gyrus",
+      D: "Motor cortex"
+    },
+    correctAnswer: "B",
+    explanation: "Broca's area, typically located in the left frontal lobe, is crucial for speech production. Damage to this area can cause Broca's aphasia, affecting speech fluency."
+  },
+  {
+    id: 200188,
+    question: "Which brain area is primarily responsible for understanding (comprehension of) language?",
+    options: {
+      A: "Wernicke's area",
+      B: "Broca's area",
+      C: "Visual cortex",
+      D: "Amygdala"
+    },
+    correctAnswer: "A",
+    explanation: "Wernicke's area, usually in the left temporal lobe, is involved in language comprehension. Damage to this area can result in Wernicke's aphasia, affecting understanding of language."
+  },
+  {
+    id: 200189,
+    question: "Which thick band of fibers connects the left and right hemispheres of the brain, allowing them to communicate?",
+    options: {
+      A: "Corpus callosum",
+      B: "Thalamus",
+      C: "Hippocampus",
+      D: "Reticular formation"
+    },
+    correctAnswer: "A",
+    explanation: "The corpus callosum is a large bundle of nerve fibers that connects the two cerebral hemispheres and allows them to communicate with each other."
+  },
+  {
+    id: 200190,
+    question: "Which gland is often referred to as the 'master gland' because it regulates many other endocrine glands?",
+    options: {
+      A: "Adrenal gland",
+      B: "Pituitary gland",
+      C: "Thyroid gland",
+      D: "Pancreas"
+    },
+    correctAnswer: "B",
+    explanation: "The pituitary gland is called the 'master gland' because it releases hormones that regulate other endocrine glands in the body."
+  },
+  {
+    id: 200191,
+    question: "Which hormone, produced by the adrenal glands, helps trigger the 'fight or flight' response?",
+    options: {
+      A: "Adrenaline (epinephrine)",
+      B: "Insulin",
+      C: "Testosterone",
+      D: "Melatonin"
+    },
+    correctAnswer: "A",
+    explanation: "Adrenaline (also called epinephrine) is produced by the adrenal glands and prepares the body for a fight-or-flight response in a stressful situation."
+  },
+  {
+    id: 200192,
+    question: "Which neurotransmitter is primarily associated with the brain's reward and pleasure centers and is implicated in Parkinson's disease when levels are low?",
+    options: {
+      A: "Serotonin",
+      B: "Dopamine",
+      C: "Acetylcholine",
+      D: "GABA"
+    },
+    correctAnswer: "B",
+    explanation: "Dopamine is linked with reward, motivation, and motor control; low levels of dopamine in the brain are associated with Parkinson's disease."
+  },
+  {
+    id: 200193,
+    question: "Which neurotransmitter is often linked with mood, sleep, and appetite, and is targeted by many antidepressant medications?",
+    options: {
+      A: "Serotonin",
+      B: "Dopamine",
+      C: "Acetylcholine",
+      D: "Endorphin"
+    },
+    correctAnswer: "A",
+    explanation: "Serotonin influences mood, sleep, and appetite; many antidepressants (SSRIs) work by increasing serotonin levels in the brain."
+  },
+  {
+    id: 200194,
+    question: "Which neurotransmitters are natural painkillers produced by the body?",
+    options: {
+      A: "Endorphins",
+      B: "Dopamines",
+      C: "Corticoids",
+      D: "Glutamates"
+    },
+    correctAnswer: "A",
+    explanation: "Endorphins are neurotransmitters that act as natural pain relievers and can produce feelings of pleasure (they're released during exercise, for example)."
+  },
+  {
+    id: 200195,
+    question: "What is neuroplasticity?",
+    options: {
+      A: "The brain's ability to change and reorganize itself",
+      B: "The brain's tendency to degenerate with age",
+      C: "The concept that we only use 10% of our brain",
+      D: "The loss of neurons over time"
+    },
+    correctAnswer: "A",
+    explanation: "Neuroplasticity is the brain's ability to change and reorganize by forming new connections, especially in response to learning or after injury."
+  },
+  {
+    id: 200196,
+    question: "Damage to Broca's area in the brain can result in which of the following?",
+    options: {
+      A: "Inability to comprehend language",
+      B: "Inability to produce speech fluently",
+      C: "Loss of vision",
+      D: "Loss of motor coordination"
+    },
+    correctAnswer: "B",
+    explanation: "Damage to Broca's area (usually in the left frontal lobe) can cause Broca's aphasia, where a person has trouble producing fluent speech, though comprehension may largely remain intact."
+  },
+  {
+    id: 200197,
+    question: "What do we call the minimum level of stimulation needed for a neuron to fire or for a stimulus to be detected 50% of the time?",
+    options: {
+      A: "Absolute threshold",
+      B: "Difference threshold",
+      C: "Refractory period",
+      D: "Subliminal threshold"
+    },
+    correctAnswer: "A",
+    explanation: "The absolute threshold is the minimum stimulation needed to detect a particular stimulus (such as light, sound, pressure,
+  }   
 ];
 
 module.exports = questions;
