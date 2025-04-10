@@ -5920,7 +5920,7 @@ const questions = [
     },
     correctAnswer: "A",
     explanation: "An introductory psychology course aims to provide an overview of the scientific study of behavior and mental processes."
-  }
+  },
  {
     id: 200151,
     question: "Who is often credited as the founder of psychoanalysis?",
