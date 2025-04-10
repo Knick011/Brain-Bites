@@ -16,11 +16,15 @@ const EnhancedMascotDisplay = ({
   const [isWaving, setIsWaving] = useState(false);
   const [isSinking, setIsSinking] = useState(false);
   const [isPeeking, setIsPeeking] = useState(false);
+  const [displayedMessage, setDisplayedMessage] = useState(message);
   const autoHideTimer = useRef(null);
   const sinkTimer = useRef(null);
   const entryDelay = 300;
   
-  // Determine mascot type based on props and conditions
+  // Keep track of if the message has been seen
+  const messageShown = useRef(false);
+  
+  // Effect for handling changes to props
   useEffect(() => {
     // Check if returning user after 1+ days
     if (lastVisit && type === 'happy') {
@@ -34,15 +38,23 @@ const EnhancedMascotDisplay = ({
       setMascotType(type);
     }
     
-    // Reset states when type changes
-    if (isSinking) setIsSinking(false);
-    if (isPeeking) setIsPeeking(false);
+    // Update the displayed message when message prop changes
+    if (message !== null && message !== displayedMessage) {
+      setDisplayedMessage(message);
+      messageShown.current = false; // Reset message shown flag when message changes
+    }
     
-    // Animate entrance after a short delay
-    if (showMascot) {
+  }, [type, lastVisit, message, displayedMessage]);
+  
+  // Effect for controlling visibility and animations
+  useEffect(() => {
+    // Reset states when visibility changes
+    if (showMascot && !isVisible) {
+      setIsSinking(false);
+      
+      // Delay showing the mascot slightly for a smoother appearance
       const timer = setTimeout(() => {
         setIsVisible(true);
-        setIsSinking(false);
         setIsPeeking(false);
         
         // Add a little wave animation after appearing
@@ -51,17 +63,19 @@ const EnhancedMascotDisplay = ({
           setTimeout(() => setIsWaving(false), 1000);
         }, 500);
         
-        // Set up sink timer - mascot sinks after 3 seconds
-        clearTimeout(sinkTimer.current);
-        sinkTimer.current = setTimeout(() => {
-          setIsSinking(true);
-          
-          // After sinking animation completes, show peeking mascot
-          setTimeout(() => {
-            setIsVisible(false);
-            setIsPeeking(true);
-          }, 500); // Matches the duration of the sinking animation
-        }, 3000); // 3 seconds before sinking
+        // Only start the sinking timer if we don't have a new message to show
+        // or the message has already been shown
+        if (!message || messageShown.current) {
+          startSinkingTimer();
+        } else {
+          // If we have a message to show, leave the mascot visible longer
+          // This ensures users can read the "well done" or other messages
+          clearTimeout(sinkTimer.current);
+          sinkTimer.current = setTimeout(() => {
+            messageShown.current = true; // Mark message as shown
+            startSinkingTimer();
+          }, 5000); // Show message for 5 seconds before sinking
+        }
         
         // Set up auto-hide if enabled (overrides sinking behavior)
         if (autoHide) {
@@ -82,16 +96,31 @@ const EnhancedMascotDisplay = ({
         clearTimeout(sinkTimer.current);
         clearTimeout(autoHideTimer.current);
       };
-    } else {
+    } else if (!showMascot && isVisible) {
+      // When explicitly hiding mascot
       setIsVisible(false);
-      // When explicitly hiding mascot, also hide peeking version
       setIsPeeking(false);
     }
-  }, [type, showMascot, lastVisit, autoHide, autoHideDuration, onDismiss]);
+  }, [showMascot, autoHide, autoHideDuration, onDismiss, message, isVisible]);
+  
+  // Helper function to start the sinking timer
+  const startSinkingTimer = () => {
+    clearTimeout(sinkTimer.current);
+    sinkTimer.current = setTimeout(() => {
+      setIsSinking(true);
+      
+      // After sinking animation completes, show peeking mascot
+      setTimeout(() => {
+        setIsVisible(false);
+        setIsPeeking(true);
+      }, 500); // Matches the duration of the sinking animation
+    }, 3000); // 3 seconds before sinking
+  };
 
   // Handle mascot dismissal
   const handleDismiss = () => {
     setIsSinking(true);
+    messageShown.current = true; // Mark message as shown on dismiss
     
     setTimeout(() => {
       setIsVisible(false);
@@ -110,14 +139,7 @@ const EnhancedMascotDisplay = ({
       setIsSinking(false);
       
       // Reset sinking timer
-      clearTimeout(sinkTimer.current);
-      sinkTimer.current = setTimeout(() => {
-        setIsSinking(true);
-        setTimeout(() => {
-          setIsVisible(false);
-          setIsPeeking(true);
-        }, 500);
-      }, 3000);
+      startSinkingTimer();
     }, 100);
   };
   
@@ -139,10 +161,10 @@ const EnhancedMascotDisplay = ({
           />
           <div className="mascot-stick"></div>
           
-          {/* Optional speech bubble */}
-          {message && isVisible && !isSinking && (
+          {/* Speech bubble - now using displayedMessage state */}
+          {displayedMessage && isVisible && !isSinking && (
             <div className={`speech-bubble ${position}`}>
-              {message}
+              {displayedMessage}
               <div className="speech-bubble-arrow"></div>
             </div>
           )}
@@ -243,16 +265,16 @@ const EnhancedMascotDisplay = ({
           position: absolute;
           top: -80px;
           background-color: #FFF8E7; /* App background color */
-          padding: 10px 14px;
+          padding: 12px 16px;
           border-radius: 12px;
           max-width: 240px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          font-size: 16px;
+          font-size: 18px; /* Slightly larger */
           font-family: 'Fredoka', sans-serif; /* Match app font */
           font-weight: 500;
           color: #333333; /* Match app text color */
           opacity: 0;
-          animation: fadeIn 0.3s ease forwards 0.5s;
+          animation: fadeIn 0.3s ease forwards 0.3s;
           z-index: 51;
           border: 2px solid #FF9F1C; /* App primary orange */
         }
@@ -302,9 +324,9 @@ const EnhancedMascotDisplay = ({
         
         @keyframes peekIn {
           0% { transform: translateX(-50%) translateY(100%); }
-          60% { transform: translateX(-50%) translateY(24%); } /* 85% visible (15% still hidden) */
-          70% { transform: translateX(-50%) translateY(29%); } /* Slight bounce with 80% visible */
-          100% { transform: translateX(-50%) translateY(24%); } /* Final position - 85% visible */
+          60% { transform: translateX(-50%) translateY(22%); } /* 85% visible (15% still hidden) */
+          70% { transform: translateX(-50%) translateY(28%); } /* Slight bounce with 80% visible */
+          100% { transform: translateX(-50%) translateY(22%); } /* Final position - 85% visible */
         }
         
         /* Media queries for responsive design */
