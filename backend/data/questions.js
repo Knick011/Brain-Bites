@@ -6,7 +6,7 @@
 
 const questions = [
   {
-    id: 1,
+    id: 100001,
     question: "What is the only mammal capable of true flight?",
     options: {
       A: "Flying squirrel",
@@ -18,7 +18,7 @@ const questions = [
     explanation: "Bats are the only mammals that can truly fly."
   },
   {
-    id: 2,
+    id: 100002,
     question: "Which animal is known to have the longest migration route?",
     options: {
       A: "Humpback whale",
@@ -30,7 +30,7 @@ const questions = [
     explanation: "The Arctic tern migrates from the Arctic to the Antarctic and back each year."
   },
   {
-    id: 3,
+    id: 100003,
     question: "What gets wetter as it dries?",
     options: {
       A: "Sponge",
@@ -42,7 +42,7 @@ const questions = [
     explanation: "A towel gets wet as it dries you off."
   },
   {
-    id: 4,
+    id: 100004,
     question: "Which planet is known as the Red Planet?",
     options: {
       A: "Saturn",
@@ -54,7 +54,7 @@ const questions = [
     explanation: "Mars is often called the Red Planet due to its reddish appearance."
   },
   {
-    id: 5,
+    id: 100005,
     question: "What is the largest living species of lizard?",
     options: {
       A: "Monitor lizard",
@@ -66,7 +66,7 @@ const questions = [
     explanation: "The Komodo dragon is the largest living species of lizard."
   },
   {
-    id: 6,
+    id: 100006,
     question: "I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?",
     options: {
       A: "Shadow",
@@ -78,7 +78,7 @@ const questions = [
     explanation: "An echo is sound reflected back to the listener."
   },
   {
-    id: 7,
+    id: 100007,
     question: "Which bird is known for its ability to solve complex puzzles and use tools?",
     options: {
       A: "Eagle",
@@ -90,7 +90,7 @@ const questions = [
     explanation: "Crows are highly intelligent birds known for their problem-solving skills and tool use."
   },
   {
-    id: 8,
+    id: 100008,
     question: "What has keys but can't open locks?",
     options: {
       A: "Map",
@@ -102,7 +102,7 @@ const questions = [
     explanation: "A piano has keys but cannot open locks."
   },
   {
-    id: 9,
+    id: 100009,
     question: "Which animal is the fastest land animal in the world?",
     options: {
       A: "Lion",
@@ -114,7 +114,7 @@ const questions = [
     explanation: "The cheetah can reach speeds up to 60-70 mph."
   },
   {
-    id: 10,
+    id: 100010,
     question: "What comes once in a minute, twice in a moment, but never in a thousand years?",
     options: {
       A: "The letter 'N'",
@@ -126,7 +126,7 @@ const questions = [
     explanation: "The letter 'M' appears once in 'minute', twice in 'moment', and not at all in 'thousand years'."
   },
   {
-    id: 11,
+    id: 100011,
     question: "Which marine creature is known for its ability to regenerate lost limbs?",
     options: {
       A: "Shark",
@@ -138,7 +138,7 @@ const questions = [
     explanation: "Starfish can regenerate lost arms."
   },
   {
-    id: 12,
+    id: 100012,
     question: "What is the largest species of shark currently living?",
     options: {
       A: "Tiger shark",
@@ -150,7 +150,7 @@ const questions = [
     explanation: "The whale shark is the largest living species of shark."
   },
   {
-    id: 13,
+    id: 100013,
     question: "The more you take, the more you leave behind. What am I?",
     options: {
       A: "Memories",
@@ -162,7 +162,7 @@ const questions = [
     explanation: "The riddle refers to footsteps."
   },
   {
-    id: 14,
+    id: 100014,
     question: "Which insect is known for its impressive architectural skills, creating intricate hives?",
     options: {
       A: "Termite",
@@ -174,7 +174,7 @@ const questions = [
     explanation: "Bees construct complex hives with hexagonal cells."
   },
   {
-    id: 15,
+    id: 100015,
     question: "What has a head, a tail, is brown, and has no legs?",
     options: {
       A: "A snake",
@@ -186,7 +186,7 @@ const questions = [
     explanation: "The riddle describes a penny."
   },
   {
-    id: 16,
+    id: 100016,
     question: "Which animal is capable of changing its color for camouflage and communication?",
     options: {
       A: "Frog",
@@ -198,7 +198,7 @@ const questions = [
     explanation: "Chameleons can change color to blend into their surroundings."
   },
   {
-    id: 17,
+    id: 100017,
     question: "What is the only bird known to fly backwards?",
     options: {
       A: "Penguin",
@@ -210,7 +210,7 @@ const questions = [
     explanation: "Hummingbirds have a unique wing structure that allows them to fly backwards."
   },
   {
-    id: 18,
+    id: 100018,
     question: "If you have me, you want to share me. If you share me, you don't have me. What am I?",
     options: {
       A: "Happiness",
@@ -222,7 +222,7 @@ const questions = [
     explanation: "A secret loses its secrecy once shared."
   },
   {
-    id: 19,
+    id: 100019,
     question: "Which mammal is known to have one of the most powerful bites?",
     options: {
       A: "Lion",
@@ -234,7 +234,7 @@ const questions = [
     explanation: "Hippopotamuses have extremely powerful jaws."
   },
   {
-    id: 20,
+    id: 100020,
     question: "What can travel around the world while staying in a corner?",
     options: {
       A: "Shadow",
@@ -246,7 +246,7 @@ const questions = [
     explanation: "A postage stamp stays in the corner of an envelope while traveling globally."
   },
   {
-    id: 21,
+    id: 100021,
     question: "Which creature is known as the 'master of disguise' in the ocean due to its ability to mimic its surroundings?",
     options: {
       A: "Jellyfish",
@@ -258,7 +258,7 @@ const questions = [
     explanation: "Cuttlefish can rapidly change their skin appearance."
   },
   {
-    id: 22,
+    id: 100022,
     question: "Which animal has the longest pregnancy, lasting up to 22 months?",
     options: {
       A: "Rhinoceros",
@@ -270,7 +270,7 @@ const questions = [
     explanation: "Elephants have one of the longest gestation periods."
   },
   {
-    id: 23,
+    id: 100023,
     question: "What begins with an 'e' and contains only one letter?",
     options: {
       A: "Eye",
@@ -282,7 +282,7 @@ const questions = [
     explanation: "An envelope begins with 'e' and typically contains a letter."
   },
   {
-    id: 24,
+    id: 100024,
     question: "Which animal is known for its unique black and white striped pattern that helps confuse predators?",
     options: {
       A: "Skunk",
@@ -294,7 +294,7 @@ const questions = [
     explanation: "Zebras have distinctive stripes that can confuse predators."
   },
   {
-    id: 25,
+    id: 100025,
     question: "Which amphibian can survive freezing temperatures by partially freezing its body?",
     options: {
       A: "Bullfrog",
@@ -306,7 +306,7 @@ const questions = [
     explanation: "The wood frog can tolerate freezing temperatures."
   },
   {
-    id: 26,
+    id: 100026,
     question: "What has cities, but no houses; forests, but no trees; and water, but no fish?",
     options: {
       A: "Riddle",
@@ -318,7 +318,7 @@ const questions = [
     explanation: "A map represents these elements symbolically."
   },
   {
-    id: 27,
+    id: 100027,
     question: "Which animal can sleep for up to 20 hours a day?",
     options: {
       A: "Lion",
@@ -330,7 +330,7 @@ const questions = [
     explanation: "Koalas are known for their long hours of sleep."
   },
   {
-    id: 28,
+    id: 100028,
     question: "Which class of animals typically has a three-chambered heart?",
     options: {
       A: "Mammals",
@@ -342,7 +342,7 @@ const questions = [
     explanation: "Most amphibians have a three-chambered heart."
   },
   {
-    id: 29,
+    id: 100029,
     question: "I am taken from a mine and shut in a wooden case, from which I am never released, and yet I am used by almost every person. What am I?",
     options: {
       A: "Diamond",
@@ -354,7 +354,7 @@ const questions = [
     explanation: "Pencil lead (graphite) is mined and encased in wood."
   },
   {
-    id: 30,
+    id: 100030,
     question: "Which sea creature has three hearts?",
     options: {
       A: "Jellyfish",
@@ -378,7 +378,7 @@ const questions = [
     explanation: "A deck of cards contains a suit called hearts."
   },
   {
-    id: 32,
+    id: 100032,
     question: "What can fill a room but takes up no space?",
     options: {
       A: "Water",
@@ -390,7 +390,7 @@ const questions = [
     explanation: "Light fills a room without occupying physical space."
   },
   {
-    id: 33,
+    id: 100033,
     question: "I have keys but no locks. I have space but no rooms. You can enter, but you can't go outside. What am I?",
     options: {
       A: "House",
@@ -402,7 +402,7 @@ const questions = [
     explanation: "A keyboard has keys and a space bar."
   },
   {
-    id: 34,
+    id: 100034,
     question: "What gets broken without being held?",
     options: {
       A: "Glass",
@@ -414,7 +414,7 @@ const questions = [
     explanation: "A promise can be broken without any physical interaction."
   },
   {
-    id: 35,
+    id: 100035,
     question: "What invention lets you look right through a wall?",
     options: {
       A: "Door",
@@ -426,7 +426,7 @@ const questions = [
     explanation: "A window allows you to see through a wall."
   },
   {
-    id: 36,
+    id: 100036,
     question: "What has one eye but cannot see?",
     options: {
       A: "Cyclone",
@@ -438,7 +438,7 @@ const questions = [
     explanation: "A needle has an eye for threading but cannot see."
   },
   {
-    id: 37,
+    id: 100037,
     question: "I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?",
     options: {
       A: "Wind",
@@ -450,7 +450,7 @@ const questions = [
     explanation: "Fire grows, needs air, and is extinguished by water."
   },
   {
-    id: 38,
+    id: 100038,
     question: "What belongs to you but is used more by others?",
     options: {
       A: "Your phone",
@@ -462,7 +462,7 @@ const questions = [
     explanation: "Your name is used more frequently by others than by you."
   },
   {
-    id: 39,
+    id: 100039,
     question: "What can run but never walks?",
     options: {
       A: "Car",
@@ -474,7 +474,7 @@ const questions = [
     explanation: "A river runs continuously without walking."
   },
   {
-    id: 40,
+    id: 100040,
     question: "What gets sharper the more you use it?",
     options: {
       A: "Pencil",
@@ -486,7 +486,7 @@ const questions = [
     explanation: "Your mind improves and becomes sharper with use."
   },
   {
-    id: 41,
+    id: 100041,
     question: "What has many teeth but cannot bite?",
     options: {
       A: "Fork",
@@ -498,7 +498,7 @@ const questions = [
     explanation: "A comb has teeth but cannot bite."
   },
   {
-    id: 42,
+    id: 100042,
     question: "What goes up but never comes down?",
     options: {
       A: "Helium",
@@ -510,7 +510,7 @@ const questions = [
     explanation: "Your age only increases over time."
   },
   {
-    id: 43,
+    id: 100043,
     question: "What has a face and two hands but no arms or legs?",
     options: {
       A: "Book",
@@ -522,7 +522,7 @@ const questions = [
     explanation: "A clock has a face and hands but no limbs."
   },
   {
-    id: 44,
+    id: 100044,
     question: "What has a bottom at the top?",
     options: {
       A: "Tree",
@@ -534,7 +534,7 @@ const questions = [
     explanation: "This riddle plays on words: a leg’s 'bottom' (buttocks) is humorously referenced."
   },
   {
-    id: 45,
+    id: 100045,
     question: "What comes down but never goes up?",
     options: {
       A: "Sun",
@@ -546,7 +546,7 @@ const questions = [
     explanation: "Rain falls and does not come back up."
   },
   {
-    id: 46,
+    id: 100046,
     question: "I’m tall when I’m young, and I’m short when I’m old. What am I?",
     options: {
       A: "Person",
@@ -558,7 +558,7 @@ const questions = [
     explanation: "A candle burns down over time, becoming shorter."
   },
   {
-    id: 47,
+    id: 100047,
     question: "What can you catch but not throw?",
     options: {
       A: "Idea",
@@ -570,7 +570,7 @@ const questions = [
     explanation: "You can catch a cold, but you can't physically throw it."
   },
   {
-    id: 48,
+    id: 100048,
     question: "What has to be broken before you can use it?",
     options: {
       A: "Nut",
@@ -582,7 +582,7 @@ const questions = [
     explanation: "An egg must be cracked open before it can be used."
   },
   {
-    id: 49,
+    id: 100049,
     question: "What has one head, one foot, and four legs?",
     options: {
       A: "Chair",
@@ -594,7 +594,7 @@ const questions = [
     explanation: "A bed has a headboard, a footboard, and four legs."
   },
   {
-    id: 50,
+    id: 100050,
     question: "What has words but never speaks?",
     options: {
       A: "Radio",
@@ -606,7 +606,7 @@ const questions = [
     explanation: "A book contains words but does not speak."
   },
   {
-    id: 51,
+    id: 100051,
     question: "What is always in front of you but can’t be seen?",
     options: {
       A: "Mirror",
@@ -618,7 +618,7 @@ const questions = [
     explanation: "The future is unseen yet always ahead."
   },
   {
-    id: 52,
+    id: 100052,
     question: "What begins with T, ends with T, and has T in it?",
     options: {
       A: "Truck",
@@ -630,7 +630,7 @@ const questions = [
     explanation: "A teapot starts and ends with the letter 'T' and holds tea."
   },
   {
-    id: 53,
+    id: 100053,
     question: "What is so fragile that saying its name breaks it?",
     options: {
       A: "Glass",
@@ -642,7 +642,7 @@ const questions = [
     explanation: "Silence is broken when you speak."
   },
   {
-    id: 54,
+    id: 100054,
     question: "What can you hold in your left hand but not in your right hand?",
     options: {
       A: "A book",
@@ -654,7 +654,7 @@ const questions = [
     explanation: "You cannot hold your right hand with your right hand."
   },
   {
-    id: 55,
+    id: 100055,
     question: "What gets bigger the more you take away from it?",
     options: {
       A: "A tree",
@@ -666,7 +666,7 @@ const questions = [
     explanation: "Removing material from a hole makes it larger."
   },
   {
-    id: 56,
+    id: 100056,
     question: "What has a ring but no finger?",
     options: {
       A: "Doorbell",
@@ -678,7 +678,7 @@ const questions = [
     explanation: "A telephone rings but doesn't have fingers."
   },
   {
-    id: 57,
+    id: 100057,
     question: "What has a neck but no head?",
     options: {
       A: "Shirt",
@@ -690,7 +690,7 @@ const questions = [
     explanation: "A bottle has a neck but no head."
   },
   {
-    id: 58,
+    id: 100058,
     question: "What kind of room has no doors or windows?",
     options: {
       A: "Classroom",
@@ -702,7 +702,7 @@ const questions = [
     explanation: "Mushroom is a play on words that sounds like a room."
   },
   {
-    id: 59,
+    id: 100059,
     question: "What can run but never walks, has a mouth but never talks?",
     options: {
       A: "Car",
@@ -714,7 +714,7 @@ const questions = [
     explanation: "A river runs and has a mouth but does not speak."
   },
   {
-    id: 60,
+    id: 100060,
     question: "What begins with an E, ends with an E, but only contains one letter?",
     options: {
       A: "Edge",
@@ -726,7 +726,7 @@ const questions = [
     explanation: "An envelope fits the description."
   },
   {
-    id: 61,
+    id: 100061,
     question: "What has hands but cannot clap?",
     options: {
       A: "Book",
@@ -738,7 +738,7 @@ const questions = [
     explanation: "A clock's hands cannot clap."
   },
   {
-    id: 62,
+    id: 100062,
     question: "What has a thumb and four fingers but is not alive?",
     options: {
       A: "Fist",
@@ -750,7 +750,7 @@ const questions = [
     explanation: "A glove has a thumb and four finger slots but is not living."
   },
   {
-    id: 63,
+    id: 100063,
     question: "What flies without wings?",
     options: {
       A: "Kite",
@@ -762,7 +762,7 @@ const questions = [
     explanation: "Time flies, at least metaphorically."
   },
   {
-    id: 64,
+    id: 100064,
     question: "What starts with a 'P', ends with an 'E', and has thousands of letters?",
     options: {
       A: "Pen",
@@ -774,7 +774,7 @@ const questions = [
     explanation: "A post office handles thousands of letters."
   },
   {
-    id: 65,
+    id: 100065,
     question: "What kind of tree can you carry in your hand?",
     options: {
       A: "Maple",
@@ -786,7 +786,7 @@ const questions = [
     explanation: "The word 'palm' refers to both a type of tree and the inside of your hand."
   },
   {
-    id: 66,
+    id: 100066,
     question: "What goes through cities and fields but never moves?",
     options: {
       A: "Train",
@@ -798,7 +798,7 @@ const questions = [
     explanation: "A road stretches across areas without moving."
   },
   {
-    id: 67,
+    id: 100067,
     question: "I have branches, but no fruit, trunk, or leaves. What am I?",
     options: {
       A: "Company",
@@ -810,7 +810,7 @@ const questions = [
     explanation: "A bank has branches, though not in the botanical sense."
   },
   {
-    id: 68,
+    id: 100068,
     question: "What has a bed but never sleeps?",
     options: {
       A: "Car",
@@ -822,7 +822,7 @@ const questions = [
     explanation: "A river has a bed but never sleeps."
   },
   {
-    id: 69,
+    id: 100069,
     question: "What can you keep after giving it to someone?",
     options: {
       A: "Time",
@@ -834,7 +834,7 @@ const questions = [
     explanation: "Your word remains with you even after you give it."
   },
   {
-    id: 70,
+    id: 100070,
     question: "What has legs but doesn't walk?",
     options: {
       A: "Chair",
@@ -846,7 +846,7 @@ const questions = [
     explanation: "A table has legs but cannot move on its own."
   },
   {
-    id: 71,
+    id: 100071,
     question: "What has a face but no eyes?",
     options: {
       A: "Dice",
@@ -858,7 +858,7 @@ const questions = [
     explanation: "A coin has a face (heads) but no eyes."
   },
   {
-    id: 72,
+    id: 100072,
     question: "What word is spelled incorrectly in every single dictionary?",
     options: {
       A: "Typo",
@@ -870,7 +870,7 @@ const questions = [
     explanation: "The word 'incorrectly' is always spelled as 'incorrectly' in dictionaries."
   },
   {
-    id: 73,
+    id: 100073,
     question: "I’m light as a feather, yet the strongest man can’t hold me for more than 5 minutes. What am I?",
     options: {
       A: "Air",
@@ -882,7 +882,7 @@ const questions = [
     explanation: "Breath is light, yet no one can hold it for very long."
   },
   {
-    id: 74,
+    id: 100074,
     question: "What runs around the whole yard without moving?",
     options: {
       A: "Dog",
@@ -894,7 +894,7 @@ const questions = [
     explanation: "A fence encloses a yard but doesn't move."
   },
   {
-    id: 75,
+    id: 100075,
     question: "What has holes but still holds water?",
     options: {
       A: "Bucket",
@@ -906,7 +906,7 @@ const questions = [
     explanation: "A sponge is porous yet absorbs water."
   },
   {
-    id: 76,
+    id: 100076,
     question: "What has a head and a tail but no body?",
     options: {
       A: "Snake",
@@ -918,7 +918,7 @@ const questions = [
     explanation: "A coin has a head and a tail but no body."
   },
   {
-    id: 77,
+    id: 100077,
     question: "What comes once in a year, twice in a week, but never in a day?",
     options: {
       A: "The letter Y",
@@ -930,7 +930,7 @@ const questions = [
     explanation: "The letter E appears once in 'year', twice in 'week', and not in 'day'."
   },
   {
-    id: 78,
+    id: 100078,
     question: "What can you break, even if you never pick it up or touch it?",
     options: {
       A: "Heart",
@@ -942,7 +942,7 @@ const questions = [
     explanation: "A promise can be broken without any physical interaction."
   },
   {
-    id: 79,
+    id: 100079,
     question: "What has rivers with no water, forests with no trees, and cities with no buildings?",
     options: {
       A: "Drawing",
@@ -954,7 +954,7 @@ const questions = [
     explanation: "A map represents these features symbolically."
   },
   {
-    id: 80,
+    id: 100080,
     question: "What kind of band never plays music?",
     options: {
       A: "Marching band",
@@ -966,7 +966,7 @@ const questions = [
     explanation: "A rubber band is not a musical band."
   },
   {
-    id: 81,
+    id: 100081,
     question: "What has an eye but cannot see, and is also a type of storm?",
     options: {
       A: "Needle",
@@ -978,7 +978,7 @@ const questions = [
     explanation: "A hurricane has an eye, but it cannot see."
   },
   {
-    id: 82,
+    id: 100082,
     question: "What goes through cities and fields but never moves?",
     options: {
       A: "Train",
@@ -990,7 +990,7 @@ const questions = [
     explanation: "A road stretches across areas without moving."
   },
   {
-    id: 83,
+    id: 100083,
     question: "I have branches, but no fruit, trunk, or leaves. What am I?",
     options: {
       A: "Government",
@@ -1002,7 +1002,7 @@ const questions = [
     explanation: "A bank has branches, though not in the botanical sense."
   },
   {
-    id: 84,
+    id: 100084,
     question: "What has a bed but never sleeps?",
     options: {
       A: "Book",
@@ -1014,7 +1014,7 @@ const questions = [
     explanation: "A river has a bed but never sleeps."
   },
   {
-    id: 85,
+    id: 100085,
     question: "What can you keep after giving it to someone?",
     options: {
       A: "Time",
@@ -1026,7 +1026,7 @@ const questions = [
     explanation: "Your word remains with you even after you give it."
   },
   {
-    id: 86,
+    id: 100086,
     question: "What has legs but doesn't walk?",
     options: {
       A: "Snake",
@@ -1038,7 +1038,7 @@ const questions = [
     explanation: "A table has legs but cannot move on its own."
   },
   {
-    id: 87,
+    id: 100087,
     question: "What flies without wings?",
     options: {
       A: "Kite",
@@ -1050,7 +1050,7 @@ const questions = [
     explanation: "Time flies, at least metaphorically."
   },
   {
-    id: 88,
+    id: 100088,
     question: "Which animal is known for having the longest lifespan in captivity?",
     options: {
       A: "Elephant",
@@ -1062,7 +1062,7 @@ const questions = [
     explanation: "Some tortoises can live over 100 years in captivity."
   },
   {
-    id: 89,
+    id: 100089,
     question: "What is the fastest marine animal?",
     options: {
       A: "Marlin",
@@ -1074,7 +1074,7 @@ const questions = [
     explanation: "The sailfish is considered the fastest marine animal."
   },
   {
-    id: 90,
+    id: 100090,
     question: "Which bird is known for its elaborate courtship dance?",
     options: {
       A: "Peacock",
@@ -1086,7 +1086,7 @@ const questions = [
     explanation: "The sage grouse is famous for its intricate mating dance."
   },
   {
-    id: 91,
+    id: 100091,
     question: "Which mammal is known to have the most powerful sense of smell?",
     options: {
       A: "Bear",
@@ -1098,7 +1098,7 @@ const questions = [
     explanation: "Bloodhounds have an extraordinarily keen sense of smell."
   },
   {
-    id: 92,
+    id: 100092,
     question: "Which insect can lift objects many times its own weight?",
     options: {
       A: "Beetle",
@@ -1110,7 +1110,7 @@ const questions = [
     explanation: "Ants can carry several times their body weight."
   },
   {
-    id: 93,
+    id: 100093,
     question: "Which animal has the highest brain-to-body mass ratio?",
     options: {
       A: "Owl",
@@ -1122,7 +1122,7 @@ const questions = [
     explanation: "Shrews have one of the highest brain-to-body mass ratios among mammals."
   },
   {
-    id: 94,
+    id: 100094,
     question: "What is the tallest animal on Earth?",
     options: {
       A: "Elephant",
@@ -1134,7 +1134,7 @@ const questions = [
     explanation: "Giraffes are the tallest land animals."
   },
   {
-    id: 95,
+    id: 100095,
     question: "What is the largest animal in the world?",
     options: {
       A: "African elephant",
@@ -1146,7 +1146,7 @@ const questions = [
     explanation: "The blue whale is the largest animal known to have ever existed."
   },
   {
-    id: 96,
+    id: 100096,
     question: "Which animal is known for its ability to mimic human speech?",
     options: {
       A: "Peacock",
@@ -1158,7 +1158,7 @@ const questions = [
     explanation: "Parrots are famous for their ability to mimic human speech."
   },
   {
-    id: 97,
+    id: 100097,
     question: "Which animal is known to be the largest rodent in the world?",
     options: {
       A: "Beaver",
@@ -1170,7 +1170,7 @@ const questions = [
     explanation: "The capybara is the largest rodent in the world."
   },
   {
-    id: 98,
+    id: 100098,
     question: "What is the smallest country in the world by land area?",
     options: {
       A: "Nauru",
@@ -1182,7 +1182,7 @@ const questions = [
     explanation: "Vatican City is the smallest country in the world by area."
   },
   {
-    id: 99,
+    id: 100099,
     question: "What is the hottest planet in our solar system?",
     options: {
       A: "Mercury",
@@ -1194,7 +1194,7 @@ const questions = [
     explanation: "Venus is the hottest planet due to its thick, heat-trapping atmosphere."
   },
   {
-    id: 100,
+    id: 100100,
     question: "What word becomes shorter when you add two letters to it?",
     options: {
       A: "Small",
@@ -1206,7 +1206,7 @@ const questions = [
     explanation: "Adding 'er' to 'short' literally makes it 'shorter'."
   },
   {
-    id: 101,
+    id: 100101,
     question: "What has roots that nobody sees, is taller than trees, and whose head is in the clouds?",
     options: {
       A: "Skyscraper",
@@ -1218,7 +1218,7 @@ const questions = [
     explanation: "This classic riddle describes a mountain."
   },
   {
-    id: 102,
+    id: 100102,
     question: "What is always coming but never arrives?",
     options: {
       A: "Tomorrow",
@@ -1230,7 +1230,7 @@ const questions = [
     explanation: "Tomorrow is perpetually in the future."
   },
   {
-    id: 103,
+    id: 100103,
     question: "What goes up and down but doesn't move?",
     options: {
       A: "Yo-yo",
@@ -1242,7 +1242,7 @@ const questions = [
     explanation: "Stairs go up and down but remain stationary."
   },
   {
-    id: 104,
+    id: 100104,
     question: "I shave every day, but my beard stays the same. Who am I?",
     options: {
       A: "Barber",
@@ -1254,7 +1254,7 @@ const questions = [
     explanation: "A barber shaves others every day, yet his own beard remains unchanged."
   },
   {
-    id: 105,
+    id: 100105,
     question: "What is black when it's clean and white when it's dirty?",
     options: {
       A: "Paper",
@@ -1266,7 +1266,7 @@ const questions = [
     explanation: "A chalkboard is black when clean, and becomes white when covered in chalk dust."
   },
   {
-    id: 106,
+    id: 100106,
     question: "What is in the middle of March and April?",
     options: {
       A: "A",
@@ -1278,7 +1278,7 @@ const questions = [
     explanation: "The middle letter of both 'March' and 'April' is R."
   },
   {
-    id: 107,
+    id: 100107,
     question: "What word, when pronounced wrong, is right?",
     options: {
       A: "Incorrect",
@@ -1290,7 +1290,7 @@ const questions = [
     explanation: "When you say the word 'wrong' incorrectly, it sounds like 'right'."
   },
   {
-    id: 108,
+    id: 100108,
     question: "What can you serve but not eat?",
     options: {
       A: "A sandwich",
@@ -1302,7 +1302,7 @@ const questions = [
     explanation: "In sports, you serve a tennis ball, which isn’t edible."
   },
   {
-    id: 109,
+    id: 100109,
     question: "What has a spine but no bones?",
     options: {
       A: "Cactus",
@@ -1314,7 +1314,7 @@ const questions = [
     explanation: "A book has a spine—the binding edge—but no bones."
   },
   {
-    id: 110,
+    id: 100110,
     question: "What has ears but cannot hear?",
     options: {
       A: "Rock",
@@ -1326,7 +1326,7 @@ const questions = [
     explanation: "Corn has 'ears' but cannot actually hear."
   },
   {
-    id: 111,
+    id: 100111,
     question: "What can you hold without using your hands?",
     options: {
       A: "Water",
@@ -1338,7 +1338,7 @@ const questions = [
     explanation: "You can hold your breath, but you cannot physically grasp it."
   },
   {
-    id: 112,
+    id: 100112,
     question: "Which planet spins on its side, giving it extreme seasonal variations?",
     options: {
       A: "Neptune",
@@ -1350,7 +1350,7 @@ const questions = [
     explanation: "Uranus rotates on its side, leading to unusual seasonal changes."
   },
   {
-    id: 113,
+    id: 100113,
     question: "Which animal is known for its unique ability to sleep standing up?",
     options: {
       A: "Cow",
@@ -1362,7 +1362,7 @@ const questions = [
     explanation: "Horses are known to sleep while standing up."
   },
   {
-    id: 114,
+    id: 100114,
     question: "What is the largest internal organ in the human body?",
     options: {
       A: "Heart",
@@ -1374,7 +1374,7 @@ const questions = [
     explanation: "The liver is the largest internal organ responsible for many vital functions."
   },
   {
-    id: 115,
+    id: 100115,
     question: "Which animal is known as the 'Ship of the Desert'?",
     options: {
       A: "Camel",
@@ -1386,7 +1386,7 @@ const questions = [
     explanation: "Camels are known as the 'Ship of the Desert' due to their ability to travel long distances in arid regions."
   },
   {
-    id: 116,
+    id: 100116,
     question: "What is the only fruit that has its seeds on the outside?",
     options: {
       A: "Apple",
@@ -1398,7 +1398,7 @@ const questions = [
     explanation: "Strawberries are unique in that their seeds are on the outside."
   },
   {
-    id: 117,
+    id: 100117,
     question: "What is the world's most widely spoken language by native speakers?",
     options: {
       A: "English",
@@ -1410,7 +1410,7 @@ const questions = [
     explanation: "Mandarin Chinese has the highest number of native speakers in the world."
   },
   {
-    id: 118,
+    id: 100118,
     question: "What is the hardest natural substance on Earth?",
     options: {
       A: "Graphite",
@@ -1422,7 +1422,7 @@ const questions = [
     explanation: "Diamond is the hardest naturally occurring material known."
   },
   {
-    id: 119,
+    id: 100119,
     question: "What is the smallest bone in the human body?",
     options: {
       A: "Femur",
@@ -1434,7 +1434,7 @@ const questions = [
     explanation: "The stapes, located in the middle ear, is the smallest bone in the human body."
   },
   {
-    id: 120,
+    id: 100120,
     question: "Which element has the chemical symbol 'O'?",
     options: {
       A: "Osmium",
@@ -1446,7 +1446,7 @@ const questions = [
     explanation: "Oxygen is represented by the symbol 'O' and is essential for life."
   },
   {
-    id: 121,
+    id: 100121,
     question: "Which planet is famous for its prominent ring system?",
     options: {
       A: "Uranus",
@@ -1458,7 +1458,7 @@ const questions = [
     explanation: "Saturn is renowned for its stunning rings."
   },
   {
-    id: 122,
+    id: 100122,
     question: "Which ocean is the largest on Earth?",
     options: {
       A: "Atlantic Ocean",
@@ -1470,7 +1470,7 @@ const questions = [
     explanation: "The Pacific Ocean is the largest ocean on the planet."
   },
   {
-    id: 123,
+    id: 100123,
     question: "What is the main gas found in Earth's atmosphere?",
     options: {
       A: "Oxygen",
@@ -1482,7 +1482,7 @@ const questions = [
     explanation: "Nitrogen makes up about 78% of the Earth's atmosphere."
   },
   {
-    id: 124,
+    id: 100124,
     question: "Which animal is known for having one of the longest lifespans, sometimes exceeding 150 years?",
     options: {
       A: "Blue whale",
@@ -1494,7 +1494,7 @@ const questions = [
     explanation: "Certain species of tortoise are known to live for over 150 years."
   },
   {
-    id: 125,
+    id: 100125,
     question: "Which country is home to the Great Pyramid of Giza?",
     options: {
       A: "Mexico",
@@ -1506,7 +1506,7 @@ const questions = [
     explanation: "The Great Pyramid of Giza is located in Egypt."
   },
   {
-    id: 126,
+    id: 100126,
     question: "What is the largest mammal on Earth?",
     options: {
       A: "African elephant",
@@ -1518,7 +1518,7 @@ const questions = [
     explanation: "The blue whale is the largest animal known to have ever existed."
   },
   {
-    id: 127,
+    id: 100127,
     question: "Which metal is liquid at room temperature?",
     options: {
       A: "Lead",
@@ -1530,7 +1530,7 @@ const questions = [
     explanation: "Mercury is the only metal that is liquid at room temperature."
   },
   {
-    id: 128,
+    id: 100128,
     question: "What is the primary ingredient in traditional Japanese miso soup?",
     options: {
       A: "Seaweed",
@@ -1542,7 +1542,7 @@ const questions = [
     explanation: "Soybean paste (miso) is the key ingredient in miso soup."
   },
   {
-    id: 129,
+    id: 100129,
     question: "Which country is credited with inventing paper?",
     options: {
       A: "Egypt",
@@ -1554,7 +1554,7 @@ const questions = [
     explanation: "Paper was invented in ancient China."
   },
   {
-    id: 130,
+    id: 100130,
     question: "What is the largest planet in our solar system?",
     options: {
       A: "Saturn",
@@ -1566,7 +1566,7 @@ const questions = [
     explanation: "Jupiter is the largest planet in our solar system."
   },
   {
-    id: 131,
+    id: 100131,
     question: "Which instrument typically has 88 keys?",
     options: {
       A: "Guitar",
@@ -1578,7 +1578,7 @@ const questions = [
     explanation: "A standard piano has 88 keys."
   },
   {
-    id: 132,
+    id: 100132,
     question: "What is the chemical formula for water?",
     options: {
       A: "CO2",
@@ -1590,7 +1590,7 @@ const questions = [
     explanation: "Water is composed of two hydrogen atoms and one oxygen atom (H2O)."
   },
   {
-    id: 133,
+    id: 100133,
     question: "Which bird is often associated with delivering babies in folklore?",
     options: {
       A: "Owl",
@@ -1602,7 +1602,7 @@ const questions = [
     explanation: "Folklore often depicts storks as deliverers of babies."
   },
   {
-    id: 134,
+    id: 100134,
     question: "Which insect is renowned for building intricate hives and producing honey?",
     options: {
       A: "Ant",
@@ -1614,7 +1614,7 @@ const questions = [
     explanation: "Bees build complex hives and produce honey."
   },
   {
-    id: 135,
+    id: 100135,
     question: "Which organ in the human body is responsible for pumping blood?",
     options: {
       A: "Kidney",
@@ -1626,7 +1626,7 @@ const questions = [
     explanation: "The heart pumps blood throughout the body."
   },
   {
-    id: 136,
+    id: 100136,
     question: "Which element is represented by the symbol 'Fe'?",
     options: {
       A: "Gold",
@@ -1638,7 +1638,7 @@ const questions = [
     explanation: "The chemical symbol 'Fe' stands for iron."
   },
   {
-    id: 137,
+    id: 100137,
     question: "What process do plants use to convert sunlight into energy?",
     options: {
       A: "Respiration",
@@ -1650,7 +1650,7 @@ const questions = [
     explanation: "Photosynthesis allows plants to convert sunlight into energy."
   },
   {
-    id: 138,
+    id: 100138,
     question: "Which gas do plants primarily absorb from the atmosphere?",
     options: {
       A: "Helium",
@@ -1662,7 +1662,7 @@ const questions = [
     explanation: "Plants absorb carbon dioxide during photosynthesis."
   },
   {
-    id: 139,
+    id: 100139,
     question: "At what temperature does water freeze in degrees Celsius?",
     options: {
       A: "32°C",
@@ -1674,7 +1674,7 @@ const questions = [
     explanation: "Water freezes at 0°C under standard conditions."
   },
   {
-    id: 140,
+    id: 100140,
     question: "Which continent has the most countries?",
     options: {
       A: "Asia",
@@ -1686,7 +1686,7 @@ const questions = [
     explanation: "Africa has 54 recognized countries, the most of any continent."
   },
   {
-    id: 141,
+    id: 100141,
     question: "Which organ is primarily responsible for filtering blood in the human body?",
     options: {
       A: "Liver",
@@ -1698,7 +1698,7 @@ const questions = [
     explanation: "The kidneys filter waste from the blood."
   },
   {
-    id: 142,
+    id: 100142,
     question: "What is the largest hot desert in the world?",
     options: {
       A: "Arabian Desert",
@@ -1710,7 +1710,7 @@ const questions = [
     explanation: "The Sahara is the largest hot desert on Earth."
   },
   {
-    id: 143,
+    id: 100143,
     question: "Which sea creature is notorious for its venomous sting and long tentacles?",
     options: {
       A: "Starfish",
@@ -1722,7 +1722,7 @@ const questions = [
     explanation: "The box jellyfish is known for its dangerous, venomous sting."
   },
   {
-    id: 144,
+    id: 100144,
     question: "Which metal is most commonly used in coinage?",
     options: {
       A: "Gold",
@@ -1734,7 +1734,7 @@ const questions = [
     explanation: "Copper is widely used for making coins."
   },
   {
-    id: 145,
+    id: 100145,
     question: "What is the primary language spoken in Brazil?",
     options: {
       A: "Spanish",
@@ -1746,7 +1746,7 @@ const questions = [
     explanation: "Brazil's official language is Portuguese."
   },
   {
-    id: 146,
+    id: 100146,
     question: "Which animal, native to China, is famous for its distinctive black and white markings?",
     options: {
       A: "Red panda",
@@ -1758,7 +1758,7 @@ const questions = [
     explanation: "The giant panda is known for its unique black and white fur."
   },
   {
-    id: 147,
+    id: 100147,
     question: "Which fruit is often called the 'king of fruits' in Southeast Asia?",
     options: {
       A: "Pineapple",
@@ -1770,7 +1770,7 @@ const questions = [
     explanation: "Durian is renowned in Southeast Asia for its strong odor and distinctive taste."
   },
   {
-    id: 148,
+    id: 100148,
     question: "What is the capital city of Japan?",
     options: {
       A: "Kyoto",
@@ -1782,7 +1782,7 @@ const questions = [
     explanation: "Tokyo is the capital of Japan."
   },
   {
-    id: 149,
+    id: 100149,
     question: "Which famous scientist developed the theory of relativity?",
     options: {
       A: "Isaac Newton",
@@ -1794,7 +1794,7 @@ const questions = [
     explanation: "Albert Einstein is renowned for formulating the theory of relativity."
   },
   {
-    id: 150,
+    id: 100150,
     question: "Which planet is often called the 'Morning Star' or 'Evening Star'?",
     options: {
       A: "Mars",
@@ -1806,7 +1806,7 @@ const questions = [
     explanation: "Venus is frequently visible at dawn or dusk, earning its nicknames."
   },
   {
-    id: 151,
+    id: 200001,
     question: "What is the scientific study of behavior and mental processes?",
     options: {
       A: "Sociology",
@@ -1818,7 +1818,7 @@ const questions = [
     explanation: "Psychology is defined as the scientific study of behavior and mental processes."
   },
   {
-    id: 152,
+    id: 200002,
     question: "Who is considered the father of modern psychology for establishing the first experimental laboratory?",
     options: {
       A: "Sigmund Freud",
@@ -1830,7 +1830,7 @@ const questions = [
     explanation: "Wilhelm Wundt is credited with founding the first psychological laboratory in 1879."
   },
   {
-    id: 153,
+    id: 200003,
     question: "Which psychological perspective focuses on observable behavior rather than internal mental states?",
     options: {
       A: "Behaviorism",
@@ -1842,7 +1842,7 @@ const questions = [
     explanation: "Behaviorism emphasizes observable behavior and dismisses introspection."
   },
   {
-    id: 154,
+    id: 200004,
     question: "Which perspective emphasizes the role of unconscious processes and early childhood experiences?",
     options: {
       A: "Cognitive psychology",
@@ -1854,7 +1854,7 @@ const questions = [
     explanation: "Psychoanalysis, founded by Freud, focuses on unconscious processes and early experiences."
   },
   {
-    id: 155,
+    id: 200005,
     question: "Which psychological approach focuses on personal growth and self-actualization?",
     options: {
       A: "Humanistic psychology",
@@ -1866,7 +1866,7 @@ const questions = [
     explanation: "Humanistic psychology emphasizes personal growth and self-actualization."
   },
   {
-    id: 156,
+    id: 200006,
     question: "Which perspective studies mental processes such as perception, memory, and language?",
     options: {
       A: "Behaviorism",
@@ -1878,7 +1878,7 @@ const questions = [
     explanation: "Cognitive psychology focuses on internal mental processes."
   },
   {
-    id: 157,
+    id: 200007,
     question: "What does biopsychology primarily study?",
     options: {
       A: "Social behavior",
@@ -1890,7 +1890,7 @@ const questions = [
     explanation: "Biopsychology examines how biological processes influence behavior."
   },
   {
-    id: 158,
+    id: 200008,
     question: "What does the term 'nature vs. nurture' refer to?",
     options: {
       A: "The debate over free will and determinism",
@@ -1902,7 +1902,7 @@ const questions = [
     explanation: "Nature vs. nurture refers to the relative influence of genetics and environment on behavior."
   },
   {
-    id: 159,
+    id: 200009,
     question: "What is the primary purpose of using the scientific method in psychology?",
     options: {
       A: "To validate personal beliefs",
@@ -1914,7 +1914,7 @@ const questions = [
     explanation: "The scientific method allows psychologists to systematically test and refine hypotheses."
   },
   {
-    id: 160,
+    id: 200010,
     question: "Which research method involves an in-depth study of a single individual or small group?",
     options: {
       A: "Survey",
@@ -1926,7 +1926,7 @@ const questions = [
     explanation: "Case studies involve an intensive examination of a single subject or small group."
   },
   {
-    id: 161,
+    id: 200011,
     question: "Which research method involves observing behavior in a natural setting without interference?",
     options: {
       A: "Laboratory experiment",
@@ -1938,7 +1938,7 @@ const questions = [
     explanation: "Naturalistic observation involves watching behavior in its natural context."
   },
   {
-    id: 162,
+    id: 200012,
     question: "What type of study examines the relationship between variables without manipulating them?",
     options: {
       A: "Experimental study",
@@ -1950,7 +1950,7 @@ const questions = [
     explanation: "Correlational studies investigate the association between variables without experimental manipulation."
   },
   {
-    id: 163,
+    id: 200013,
     question: "What is an educated guess or prediction called in psychological research?",
     options: {
       A: "Theory",
@@ -1962,7 +1962,7 @@ const questions = [
     explanation: "A hypothesis is a testable prediction derived from theory."
   },
   {
-    id: 164,
+    id: 200014,
     question: "What is the systematic process of gathering data to answer research questions called?",
     options: {
       A: "Analysis",
@@ -1974,7 +1974,7 @@ const questions = [
     explanation: "Research is the process of gathering, analyzing, and interpreting information."
   },
   {
-    id: 165,
+    id: 200015,
     question: "Which ethical principle requires that participants voluntarily agree to take part in research?",
     options: {
       A: "Beneficence",
@@ -1986,7 +1986,7 @@ const questions = [
     explanation: "Informed consent ensures that participants are aware of and agree to the research procedures."
   },
   {
-    id: 166,
+    id: 200016,
     question: "Which ethical guideline in research emphasizes keeping participants’ data private?",
     options: {
       A: "Debriefing",
@@ -1998,7 +1998,7 @@ const questions = [
     explanation: "Confidentiality involves protecting participants' private information."
   },
   {
-    id: 167,
+    id: 200017,
     question: "What is a double-blind study?",
     options: {
       A: "A study where only the participants are unaware of the treatment",
@@ -2010,7 +2010,7 @@ const questions = [
     explanation: "In a double-blind study, neither the participants nor the researchers know who is receiving the treatment."
   },
   {
-    id: 168,
+    id: 200018,
     question: "Which area of psychology studies human growth and change across the lifespan?",
     options: {
       A: "Cognitive psychology",
@@ -2022,7 +2022,7 @@ const questions = [
     explanation: "Developmental psychology examines changes that occur throughout a person’s life."
   },
   {
-    id: 169,
+    id: 200019,
     question: "Which field of psychology focuses on how people think, learn, and remember?",
     options: {
       A: "Cognitive psychology",
@@ -2034,7 +2034,7 @@ const questions = [
     explanation: "Cognitive psychology studies internal mental processes such as thinking and memory."
   },
   {
-    id: 170,
+    id: 200020,
     question: "What are mental shortcuts that help simplify decision making called?",
     options: {
       A: "Biases",
@@ -2046,7 +2046,7 @@ const questions = [
     explanation: "Heuristics are simple rules or shortcuts used to make decisions quickly."
   },
   {
-    id: 171,
+    id: 200021,
     question: "Which bias involves favoring information that confirms our existing beliefs?",
     options: {
       A: "Confirmation bias",
@@ -2058,7 +2058,7 @@ const questions = [
     explanation: "Confirmation bias is the tendency to seek and remember information that confirms one's beliefs."
   },
   {
-    id: 172,
+    id: 200022,
     question: "What are the basic units of memory storage sometimes called?",
     options: {
       A: "Neurons",
@@ -2070,7 +2070,7 @@ const questions = [
     explanation: "Memory traces refer to the theoretical physical or biochemical changes that occur when memories form."
   },
   {
-    id: 173,
+    id: 200023,
     question: "Which type of memory has the shortest duration?",
     options: {
       A: "Long-term memory",
@@ -2082,7 +2082,7 @@ const questions = [
     explanation: "Sensory memory holds sensory information for a very brief period."
   },
   {
-    id: 174,
+    id: 200024,
     question: "Which type of memory holds a limited amount of information temporarily?",
     options: {
       A: "Short-term memory",
@@ -2094,7 +2094,7 @@ const questions = [
     explanation: "Short-term memory retains a limited amount of information for a brief period."
   },
   {
-    id: 175,
+    id: 200025,
     question: "Which type of memory can store information for an indefinite period?",
     options: {
       A: "Long-term memory",
@@ -2106,7 +2106,7 @@ const questions = [
     explanation: "Long-term memory can store information over extended periods."
   },
   {
-    id: 176,
+    id: 200026,
     question: "What is the process of transferring information from short-term to long-term memory called?",
     options: {
       A: "Encoding",
@@ -2118,7 +2118,7 @@ const questions = [
     explanation: "Consolidation is the process of stabilizing a memory trace after its initial acquisition."
   },
   {
-    id: 177,
+    id: 200027,
     question: "What is the term for the loss of memory due to brain injury or trauma?",
     options: {
       A: "Aphasia",
@@ -2130,7 +2130,7 @@ const questions = [
     explanation: "Amnesia is the inability to recall past events, often due to injury or trauma."
   },
   {
-    id: 178,
+    id: 200028,
     question: "Which brain structure is primarily involved in forming new memories?",
     options: {
       A: "Amygdala",
@@ -2142,7 +2142,7 @@ const questions = [
     explanation: "The hippocampus plays a crucial role in the formation of new memories."
   },
   {
-    id: 179,
+    id: 200029,
     question: "What does behavioral psychology primarily study?",
     options: {
       A: "Internal thoughts",
@@ -2154,7 +2154,7 @@ const questions = [
     explanation: "Behavioral psychology focuses on observable behavior rather than internal mental states."
   },
   {
-    id: 180,
+    id: 200030,
     question: "What is classical conditioning?",
     options: {
       A: "Learning through rewards and punishments",
@@ -2166,7 +2166,7 @@ const questions = [
     explanation: "Classical conditioning involves pairing a neutral stimulus with an unconditioned stimulus to elicit a conditioned response."
   },
   {
-    id: 181,
+    id: 200031,
     question: "What is operant conditioning?",
     options: {
       A: "Learning based on the consequences of behavior",
@@ -2178,7 +2178,7 @@ const questions = [
     explanation: "Operant conditioning involves learning through rewards and punishments."
   },
   {
-    id: 182,
+    id: 200032,
     question: "Which psychologist is best known for his work on classical conditioning?",
     options: {
       A: "B.F. Skinner",
@@ -2190,7 +2190,7 @@ const questions = [
     explanation: "Ivan Pavlov is famous for his experiments on classical conditioning with dogs."
   },
   {
-    id: 183,
+    id: 200033,
     question: "Which psychologist is closely associated with operant conditioning?",
     options: {
       A: "Sigmund Freud",
@@ -2202,7 +2202,7 @@ const questions = [
     explanation: "B.F. Skinner is known for his research on operant conditioning."
   },
   {
-    id: 184,
+    id: 200034,
     question: "What is reinforcement in operant conditioning?",
     options: {
       A: "A consequence that decreases behavior",
@@ -2214,7 +2214,7 @@ const questions = [
     explanation: "Reinforcement increases the likelihood that a behavior will occur again."
   },
   {
-    id: 185,
+    id: 200035,
     question: "What is punishment in the context of operant conditioning?",
     options: {
       A: "A consequence that increases behavior",
@@ -2226,7 +2226,7 @@ const questions = [
     explanation: "Punishment is used to decrease the likelihood of a behavior."
   },
   {
-    id: 186,
+    id: 200036,
     question: "What is observational learning?",
     options: {
       A: "Learning by trial and error",
@@ -2238,7 +2238,7 @@ const questions = [
     explanation: "Observational learning involves acquiring new behaviors by watching others."
   },
   {
-    id: 187,
+    id: 200037,
     question: "Which psychologist is associated with social learning theory?",
     options: {
       A: "Albert Bandura",
@@ -2250,7 +2250,7 @@ const questions = [
     explanation: "Albert Bandura is known for his contributions to social learning theory."
   },
   {
-    id: 188,
+    id: 200038,
     question: "What is self-efficacy?",
     options: {
       A: "The ability to control emotions",
@@ -2262,7 +2262,7 @@ const questions = [
     explanation: "Self-efficacy is the belief in one’s capacity to execute behaviors necessary to produce specific performance attainments."
   },
   {
-    id: 189,
+    id: 200039,
     question: "What does the term 'cognition' refer to?",
     options: {
       A: "Emotional experiences",
@@ -2274,7 +2274,7 @@ const questions = [
     explanation: "Cognition refers to mental processes involved in acquiring knowledge and understanding."
   },
   {
-    id: 190,
+    id: 200040,
     question: "What is perception in psychology?",
     options: {
       A: "The process of storing information",
@@ -2286,7 +2286,7 @@ const questions = [
     explanation: "Perception involves organizing and interpreting sensory information."
   },
   {
-    id: 191,
+    id: 200041,
     question: "What is the difference between sensation and perception?",
     options: {
       A: "Sensation is interpretation; perception is reception",
@@ -2298,7 +2298,7 @@ const questions = [
     explanation: "Sensation is the initial process of receiving stimuli, while perception is the interpretation of that sensory information."
   },
   {
-    id: 192,
+    id: 200042,
     question: "What is selective attention?",
     options: {
       A: "Focusing on all stimuli at once",
@@ -2310,7 +2310,7 @@ const questions = [
     explanation: "Selective attention involves focusing on a particular stimulus while excluding others."
   },
   {
-    id: 193,
+    id: 200043,
     question: "What is the 'cocktail party effect'?",
     options: {
       A: "Forgetting names at a party",
@@ -2322,7 +2322,7 @@ const questions = [
     explanation: "The cocktail party effect is the ability to focus on one conversation among many."
   },
   {
-    id: 194,
+    id: 200044,
     question: "Which psychologist is known for his hierarchy of needs theory?",
     options: {
       A: "Abraham Maslow",
@@ -2334,7 +2334,7 @@ const questions = [
     explanation: "Maslow’s hierarchy of needs describes a progression of human needs from basic to self-fulfillment."
   },
   {
-    id: 195,
+    id: 200045,
     question: "What is self-actualization?",
     options: {
       A: "The process of forgetting past events",
@@ -2346,7 +2346,7 @@ const questions = [
     explanation: "Self-actualization is the realization or fulfillment of one's talents and potential."
   },
   {
-    id: 196,
+    id: 200046,
     question: "Which perspective in psychology emphasizes free will and personal growth?",
     options: {
       A: "Psychoanalytic",
@@ -2358,7 +2358,7 @@ const questions = [
     explanation: "The humanistic perspective emphasizes free will, self-actualization, and personal growth."
   },
   {
-    id: 197,
+    id: 200047,
     question: "What does the term 'personality' refer to?",
     options: {
       A: "A temporary emotional state",
@@ -2370,7 +2370,7 @@ const questions = [
     explanation: "Personality refers to the stable set of characteristics that influence an individual's behavior."
   },
   {
-    id: 198,
+    id: 200048,
     question: "Which theory of personality emphasizes unconscious motives?",
     options: {
       A: "Cognitive theory",
@@ -2382,7 +2382,7 @@ const questions = [
     explanation: "Psychoanalytic theory, introduced by Freud, focuses on unconscious motivations."
   },
   {
-    id: 199,
+    id: 200049,
     question: "Which theory of personality emphasizes observable behavior and environmental influences?",
     options: {
       A: "Behaviorist theory",
@@ -2394,7 +2394,7 @@ const questions = [
     explanation: "Behaviorist theory explains personality in terms of learned behaviors and environmental reinforcement."
   },
   {
-    id: 200,
+    id: 200050,
     question: "Which personality theory focuses on self-fulfillment and personal growth?",
     options: {
       A: "Trait theory",
@@ -2406,7 +2406,7 @@ const questions = [
     explanation: "Humanistic theory centers on the individual's drive for self-actualization and personal growth."
   },
   {
-    id: 201,
+    id: 200051,
     question: "What are the Big Five personality traits?",
     options: {
       A: "Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism",
@@ -2418,7 +2418,7 @@ const questions = [
     explanation: "The Big Five traits are openness, conscientiousness, extraversion, agreeableness, and neuroticism."
   },
   {
-    id: 202,
+    id: 200052,
     question: "What is extraversion characterized by?",
     options: {
       A: "Reserved behavior",
@@ -2430,7 +2430,7 @@ const questions = [
     explanation: "Extraversion is marked by sociability, assertiveness, and high energy."
   },
   {
-    id: 203,
+    id: 200053,
     question: "What does introversion refer to?",
     options: {
       A: "Sociability and high energy",
@@ -2442,7 +2442,7 @@ const questions = [
     explanation: "Introversion is characterized by a focus on internal thoughts and reserved behavior."
   },
   {
-    id: 204,
+    id: 200054,
     question: "What is meant by 'locus of control'?",
     options: {
       A: "The degree to which individuals believe they can control events affecting them",
@@ -2454,7 +2454,7 @@ const questions = [
     explanation: "Locus of control refers to the degree to which people believe they have control over the events in their lives."
   },
   {
-    id: 205,
+    id: 200055,
     question: "What is cognitive dissonance?",
     options: {
       A: "A state of mental relaxation",
@@ -2466,7 +2466,7 @@ const questions = [
     explanation: "Cognitive dissonance is the mental discomfort experienced when holding contradictory beliefs or attitudes."
   },
   {
-    id: 206,
+    id: 200056,
     question: "Which psychologist proposed the theory of cognitive dissonance?",
     options: {
       A: "Leon Festinger",
@@ -2478,7 +2478,7 @@ const questions = [
     explanation: "Leon Festinger is known for developing the theory of cognitive dissonance."
   },
   {
-    id: 207,
+    id: 200057,
     question: "What is the fundamental attribution error?",
     options: {
       A: "Attributing one’s own behavior to external causes",
@@ -2490,7 +2490,7 @@ const questions = [
     explanation: "The fundamental attribution error is the tendency to overemphasize personality traits when explaining others' behavior."
   },
   {
-    id: 208,
+    id: 200058,
     question: "What does social psychology study?",
     options: {
       A: "The biological basis of behavior",
@@ -2502,7 +2502,7 @@ const questions = [
     explanation: "Social psychology examines how individuals are influenced by the presence of others."
   },
   {
-    id: 209,
+    id: 200059,
     question: "What is conformity?",
     options: {
       A: "The tendency to act independently",
@@ -2514,7 +2514,7 @@ const questions = [
     explanation: "Conformity is the adjustment of one's behavior or thinking to match those of the group."
   },
   {
-    id: 210,
+    id: 200060,
     question: "What is obedience in a social context?",
     options: {
       A: "Defying authority",
@@ -2526,7 +2526,7 @@ const questions = [
     explanation: "Obedience involves following direct commands or orders from an authority figure."
   },
   {
-    id: 211,
+    id: 200061,
     question: "Which famous experiment demonstrated conformity in groups?",
     options: {
       A: "Milgram's obedience study",
@@ -2538,7 +2538,7 @@ const questions = [
     explanation: "The Asch conformity experiments showed how individuals yield to group pressure."
   },
   {
-    id: 212,
+    id: 200062,
     question: "What is groupthink?",
     options: {
       A: "An effective decision-making process in groups",
@@ -2550,7 +2550,7 @@ const questions = [
     explanation: "Groupthink is the phenomenon where a group prioritizes consensus over critical analysis."
   },
   {
-    id: 213,
+    id: 200063,
     question: "What is prejudice?",
     options: {
       A: "A rational judgment about a group",
@@ -2562,7 +2562,7 @@ const questions = [
     explanation: "Prejudice is a preconceived and usually unfavorable opinion formed without factual basis."
   },
   {
-    id: 214,
+    id: 200064,
     question: "What is discrimination?",
     options: {
       A: "Treating individuals fairly",
@@ -2574,7 +2574,7 @@ const questions = [
     explanation: "Discrimination is the unjust treatment of different categories of people, often based on prejudice."
   },
   {
-    id: 215,
+    id: 200065,
     question: "What is a stereotype?",
     options: {
       A: "A generalized belief about a group of people",
@@ -2586,7 +2586,7 @@ const questions = [
     explanation: "A stereotype is a generalized and oversimplified belief about a particular group."
   },
   {
-    id: 216,
+    id: 200066,
     question: "What is the bystander effect?",
     options: {
       A: "The tendency for people to help more when alone",
@@ -2598,7 +2598,7 @@ const questions = [
     explanation: "The bystander effect describes how the presence of others inhibits helping behavior."
   },
   {
-    id: 217,
+    id: 200067,
     question: "What is attribution in social psychology?",
     options: {
       A: "The process of assigning causes to behavior",
@@ -2610,7 +2610,7 @@ const questions = [
     explanation: "Attribution is the process by which people explain the causes of behavior and events."
   },
   {
-    id: 218,
+    id: 200068,
     question: "Which perspective emphasizes the role of unconscious processes and early childhood experiences?",
     options: {
       A: "Cognitive",
@@ -2622,7 +2622,7 @@ const questions = [
     explanation: "The psychoanalytic perspective focuses on unconscious processes and early developmental experiences."
   },
   {
-    id: 219,
+    id: 200069,
     question: "Who is the founder of psychoanalysis?",
     options: {
       A: "Carl Rogers",
@@ -2634,7 +2634,7 @@ const questions = [
     explanation: "Sigmund Freud is widely recognized as the founder of psychoanalysis."
   },
   {
-    id: 220,
+    id: 200070,
     question: "In Freudian theory, what does the 'id' represent?",
     options: {
       A: "The rational part of the mind",
@@ -2646,7 +2646,7 @@ const questions = [
     explanation: "The id contains the basic instinctual drives and operates on the pleasure principle."
   },
   {
-    id: 221,
+    id: 200071,
     question: "In Freudian theory, what is the function of the 'ego'?",
     options: {
       A: "To enforce social rules",
@@ -2658,7 +2658,7 @@ const questions = [
     explanation: "The ego mediates between the impulsive demands of the id and the constraints of reality."
   },
   {
-    id: 222,
+    id: 200072,
     question: "What does the 'superego' represent in Freudian theory?",
     options: {
       A: "The impulsive desires of the mind",
@@ -2670,7 +2670,7 @@ const questions = [
     explanation: "The superego is the part of personality that internalizes societal and parental standards of conduct."
   },
   {
-    id: 223,
+    id: 200073,
     question: "What are defense mechanisms in psychoanalytic theory?",
     options: {
       A: "Conscious strategies for decision making",
@@ -2682,7 +2682,7 @@ const questions = [
     explanation: "Defense mechanisms are unconscious strategies used to protect the ego from anxiety."
   },
   {
-    id: 224,
+    id: 200074,
     question: "Which defense mechanism involves attributing one’s own unacceptable feelings to someone else?",
     options: {
       A: "Denial",
@@ -2694,7 +2694,7 @@ const questions = [
     explanation: "Projection is the defense mechanism of attributing one’s own undesirable feelings to others."
   },
   {
-    id: 225,
+    id: 200075,
     question: "According to Freud, what is the term for the energy that drives behavior?",
     options: {
       A: "Ego energy",
@@ -2706,7 +2706,7 @@ const questions = [
     explanation: "Libido refers to the sexual energy that Freud believed drives behavior."
   },
   {
-    id: 226,
+    id: 200076,
     question: "What is the primary goal of psychodynamic therapy?",
     options: {
       A: "To change behavior through reinforcement",
@@ -2718,7 +2718,7 @@ const questions = [
     explanation: "Psychodynamic therapy aims to reveal and resolve unconscious conflicts that influence behavior."
   },
   {
-    id: 227,
+    id: 200077,
     question: "Which therapy focuses on modifying maladaptive behaviors using conditioning techniques?",
     options: {
       A: "Cognitive therapy",
@@ -2730,7 +2730,7 @@ const questions = [
     explanation: "Behavior therapy uses learning principles such as conditioning to change behavior."
   },
   {
-    id: 228,
+    id: 200078,
     question: "What is systematic desensitization?",
     options: {
       A: "A method of cognitive restructuring",
@@ -2742,7 +2742,7 @@ const questions = [
     explanation: "Systematic desensitization is a behavioral technique used to reduce anxiety through gradual exposure."
   },
   {
-    id: 229,
+    id: 200079,
     question: "What is cognitive-behavioral therapy (CBT)?",
     options: {
       A: "A therapy that focuses solely on behavior modification",
@@ -2754,7 +2754,7 @@ const questions = [
     explanation: "CBT combines cognitive and behavioral strategies to address maladaptive thoughts and behaviors."
   },
   {
-    id: 230,
+    id: 200080,
     question: "What is meant by mindfulness in therapy?",
     options: {
       A: "Focusing on future goals",
@@ -2766,7 +2766,7 @@ const questions = [
     explanation: "Mindfulness is the practice of being fully present and aware of one's current experience without judgment."
   },
   {
-    id: 231,
+    id: 200081,
     question: "Which perspective emphasizes the study of internal mental processes?",
     options: {
       A: "Behavioral",
@@ -2778,7 +2778,7 @@ const questions = [
     explanation: "Cognitive psychology focuses on internal processes such as perception, memory, and problem solving."
   },
   {
-    id: 232,
+    id: 200082,
     question: "What is an 'aha' moment in problem solving commonly referred to as?",
     options: {
       A: "Incubation",
@@ -2790,7 +2790,7 @@ const questions = [
     explanation: "An insight is a sudden realization or understanding that leads to a solution."
   },
   {
-    id: 233,
+    id: 200083,
     question: "What does the serial position effect describe?",
     options: {
       A: "The tendency to remember items in the middle of a list best",
@@ -2802,7 +2802,7 @@ const questions = [
     explanation: "The serial position effect is the phenomenon of better recalling items at the beginning and end of a list."
   },
   {
-    id: 234,
+    id: 200084,
     question: "What are schemas?",
     options: {
       A: "Detailed recollections of past events",
@@ -2814,7 +2814,7 @@ const questions = [
     explanation: "Schemas are mental structures that help individuals organize and interpret information."
   },
   {
-    id: 235,
+    id: 200085,
     question: "What is the difference between assimilation and accommodation?",
     options: {
       A: "Assimilation is changing schemas; accommodation is fitting new information into existing schemas",
@@ -2826,7 +2826,7 @@ const questions = [
     explanation: "Assimilation involves incorporating new information into existing schemas, while accommodation involves modifying schemas to incorporate new information."
   },
   {
-    id: 236,
+    id: 200086,
     question: "What is a concept in psychology?",
     options: {
       A: "A detailed description of a theory",
@@ -2838,7 +2838,7 @@ const questions = [
     explanation: "A concept is a mental grouping of similar objects, events, or people."
   },
   {
-    id: 237,
+    id: 200087,
     question: "What is selective exposure?",
     options: {
       A: "The tendency to seek out information that challenges your beliefs",
@@ -2850,7 +2850,7 @@ const questions = [
     explanation: "Selective exposure is the tendency to favor information that reinforces existing beliefs."
   },
   {
-    id: 238,
+    id: 200088,
     question: "What is the placebo effect?",
     options: {
       A: "An improvement resulting from the belief in the effectiveness of a treatment",
@@ -2862,7 +2862,7 @@ const questions = [
     explanation: "The placebo effect occurs when a person experiences real changes after receiving a treatment with no active therapeutic effect."
   },
   {
-    id: 239,
+    id: 200089,
     question: "What is random assignment in an experiment?",
     options: {
       A: "Assigning participants to groups based on age",
@@ -2874,7 +2874,7 @@ const questions = [
     explanation: "Random assignment is a method used to ensure each participant has an equal chance of being assigned to any group."
   },
   {
-    id: 240,
+    id: 200090,
     question: "What is a control group in an experiment?",
     options: {
       A: "A group that receives the experimental treatment",
@@ -2886,7 +2886,7 @@ const questions = [
     explanation: "A control group is used as a baseline to compare with the experimental group that receives the treatment."
   },
   {
-    id: 241,
+    id: 200091,
     question: "What is the independent variable in an experiment?",
     options: {
       A: "The variable that is measured",
@@ -2898,7 +2898,7 @@ const questions = [
     explanation: "The independent variable is the one that is manipulated to observe its effect on the dependent variable."
   },
   {
-    id: 242,
+    id: 200092,
     question: "What is the dependent variable in an experiment?",
     options: {
       A: "The variable that is controlled by the researcher",
@@ -2910,7 +2910,7 @@ const questions = [
     explanation: "The dependent variable is what is measured to determine the effect of the independent variable."
   },
   {
-    id: 243,
+    id: 200093,
     question: "What is an operational definition in research?",
     options: {
       A: "A vague explanation of a concept",
@@ -2922,7 +2922,7 @@ const questions = [
     explanation: "An operational definition specifies how a concept is measured or manipulated in a study."
   },
   {
-    id: 244,
+    id: 200094,
     question: "What is the purpose of a literature review in research?",
     options: {
       A: "To present new experimental data",
@@ -2934,7 +2934,7 @@ const questions = [
     explanation: "A literature review surveys previous research to provide context and support for a new study."
   },
   {
-    id: 245,
+    id: 200095,
     question: "What does the correlation coefficient measure?",
     options: {
       A: "The difference between groups",
@@ -2946,7 +2946,7 @@ const questions = [
     explanation: "The correlation coefficient quantifies the strength and direction of the relationship between two variables."
   },
   {
-    id: 246,
+    id: 200096,
     question: "What is the difference between a positive and a negative correlation?",
     options: {
       A: "Positive correlation means variables move in opposite directions; negative means they move together",
@@ -2958,7 +2958,7 @@ const questions = [
     explanation: "In a positive correlation, variables increase or decrease together; in a negative correlation, one variable increases as the other decreases."
   },
   {
-    id: 247,
+    id: 200097,
     question: "What does statistical significance indicate in research?",
     options: {
       A: "That a result is likely due to chance",
@@ -2970,7 +2970,7 @@ const questions = [
     explanation: "Statistical significance indicates that the observed result is unlikely to have occurred by chance."
   },
   {
-    id: 248,
+    id: 200098,
     question: "What is a meta-analysis?",
     options: {
       A: "A study that collects qualitative data",
@@ -2982,7 +2982,7 @@ const questions = [
     explanation: "A meta-analysis aggregates and analyzes data from multiple studies to draw overall conclusions."
   },
   {
-    id: 249,
+    id: 200099,
     question: "What is a longitudinal study?",
     options: {
       A: "A study that compares different groups at one point in time",
@@ -2994,7 +2994,7 @@ const questions = [
     explanation: "A longitudinal study tracks the same participants over time to observe changes."
   },
   {
-    id: 250,
+    id: 200100,
     question: "What is a cross-sectional study?",
     options: {
       A: "A study that collects data from different age groups at a single point in time",
@@ -3006,7 +3006,7 @@ const questions = [
     explanation: "A cross-sectional study examines data from various groups at a single point in time."
   },
   {
-    id: 251,
+    id: 200101,
     question: "What is the main focus of social psychology?",
     options: {
       A: "Biological processes",
@@ -3018,7 +3018,7 @@ const questions = [
     explanation: "Social psychology explores how individuals’ thoughts, feelings, and behaviors are influenced by the presence of others."
   },
   {
-    id: 252,
+    id: 200102,
     question: "What does self-esteem refer to?",
     options: {
       A: "One’s academic achievements",
@@ -3030,7 +3030,7 @@ const questions = [
     explanation: "Self-esteem is a person's overall evaluation of their own worth."
   },
   {
-    id: 253,
+    id: 200103,
     question: "What is social identity?",
     options: {
       A: "A group of friends",
@@ -3042,7 +3042,7 @@ const questions = [
     explanation: "Social identity is the part of an individual’s self-concept derived from their group memberships."
   },
   {
-    id: 254,
+    id: 200104,
     question: "What phenomenon describes the reduction in helping behavior when others are present?",
     options: {
       A: "Group polarization",
@@ -3054,7 +3054,7 @@ const questions = [
     explanation: "The bystander effect occurs when individuals are less likely to help in the presence of others."
   },
   {
-    id: 255,
+    id: 200105,
     question: "What does cognitive psychology primarily study?",
     options: {
       A: "Observable behavior",
@@ -3066,7 +3066,7 @@ const questions = [
     explanation: "Cognitive psychology examines mental processes such as thinking, memory, and language."
   },
   {
-    id: 256,
+    id: 200106,
     question: "What is a heuristic in problem solving?",
     options: {
       A: "A detailed algorithm",
@@ -3078,7 +3078,7 @@ const questions = [
     explanation: "Heuristics are simple strategies that help in problem solving and decision making."
   },
   {
-    id: 257,
+    id: 200107,
     question: "What is the difference between intrinsic and extrinsic motivation?",
     options: {
       A: "Intrinsic motivation comes from external rewards; extrinsic from personal interest",
@@ -3090,7 +3090,7 @@ const questions = [
     explanation: "Intrinsic motivation is driven by internal rewards, while extrinsic motivation is driven by external rewards."
   },
   {
-    id: 258,
+    id: 200108,
     question: "What is self-regulation?",
     options: {
       A: "The ability to control one's emotions and behavior",
@@ -3102,7 +3102,7 @@ const questions = [
     explanation: "Self-regulation is the ability to manage one’s thoughts, emotions, and behaviors effectively."
   },
   {
-    id: 259,
+    id: 200109,
     question: "What is an emotion?",
     options: {
       A: "A long-lasting mood",
@@ -3114,7 +3114,7 @@ const questions = [
     explanation: "An emotion is a short-term, intense feeling accompanied by physical changes."
   },
   {
-    id: 260,
+    id: 200110,
     question: "What does the James-Lange theory of emotion propose?",
     options: {
       A: "Emotions occur simultaneously with physiological reactions",
@@ -3126,7 +3126,7 @@ const questions = [
     explanation: "The James-Lange theory suggests that physiological reactions occur first, and the emotion is experienced afterward."
   },
   {
-    id: 261,
+    id: 200111,
     question: "What does the Cannon-Bard theory of emotion suggest?",
     options: {
       A: "Emotions occur before physiological responses",
@@ -3138,7 +3138,7 @@ const questions = [
     explanation: "According to the Cannon-Bard theory, both physiological responses and emotional experiences occur simultaneously."
   },
   {
-    id: 262,
+    id: 200112,
     question: "What is the two-factor theory of emotion?",
     options: {
       A: "Emotion is based solely on physiological arousal",
@@ -3150,7 +3150,7 @@ const questions = [
     explanation: "The two-factor theory posits that emotion results from a combination of physiological arousal and a cognitive label."
   },
   {
-    id: 263,
+    id: 200113,
     question: "What is mood?",
     options: {
       A: "A brief emotional state",
@@ -3162,7 +3162,7 @@ const questions = [
     explanation: "Mood refers to a general, long-lasting emotional state."
   },
   {
-    id: 264,
+    id: 200114,
     question: "What is the primary focus of abnormal psychology?",
     options: {
       A: "Studying normal behavior patterns",
@@ -3174,7 +3174,7 @@ const questions = [
     explanation: "Abnormal psychology focuses on studying atypical patterns of behavior and mental disorders."
   },
   {
-    id: 265,
+    id: 200115,
     question: "What is the DSM used for?",
     options: {
       A: "Developing new therapies",
@@ -3186,7 +3186,7 @@ const questions = [
     explanation: "The DSM (Diagnostic and Statistical Manual of Mental Disorders) is used for diagnosing mental disorders."
   },
   {
-    id: 266,
+    id: 200116,
     question: "What is a phobia?",
     options: {
       A: "A rational fear of common objects",
@@ -3198,7 +3198,7 @@ const questions = [
     explanation: "A phobia is an irrational and persistent fear of a specific object or situation."
   },
   {
-    id: 267,
+    id: 200117,
     question: "What is clinical psychology primarily concerned with?",
     options: {
       A: "Enhancing cognitive skills",
@@ -3210,7 +3210,7 @@ const questions = [
     explanation: "Clinical psychology involves the assessment and treatment of mental disorders."
   },
   {
-    id: 268,
+    id: 200118,
     question: "What is psychotherapy?",
     options: {
       A: "A method of medical surgery",
@@ -3222,7 +3222,7 @@ const questions = [
     explanation: "Psychotherapy involves using psychological methods to help individuals overcome problems and improve mental health."
   },
   {
-    id: 269,
+    id: 200119,
     question: "What is cognitive-behavioral therapy (CBT)?",
     options: {
       A: "A therapy based solely on medication",
@@ -3234,7 +3234,7 @@ const questions = [
     explanation: "CBT combines cognitive and behavioral approaches to treat a variety of mental disorders."
   },
   {
-    id: 270,
+    id: 200120,
     question: "What is the primary goal of humanistic therapy?",
     options: {
       A: "To identify repressed memories",
@@ -3246,7 +3246,7 @@ const questions = [
     explanation: "Humanistic therapy focuses on fostering personal growth and self-actualization."
   },
   {
-    id: 271,
+    id: 200121,
     question: "What is short-term therapy?",
     options: {
       A: "A therapy that lasts several years",
@@ -3258,7 +3258,7 @@ const questions = [
     explanation: "Short-term therapy is a focused and time-limited approach to addressing current problems."
   },
   {
-    id: 272,
+    id: 200122,
     question: "In Freudian theory, what is repression?",
     options: {
       A: "The conscious suppression of information",
@@ -3270,7 +3270,7 @@ const questions = [
     explanation: "Repression is an unconscious defense mechanism that keeps distressing thoughts out of awareness."
   },
   {
-    id: 273,
+    id: 200123,
     question: "What is projection in psychoanalytic theory?",
     options: {
       A: "Attributing one's own unacceptable thoughts or feelings to others",
@@ -3282,7 +3282,7 @@ const questions = [
     explanation: "Projection involves attributing one's own undesirable feelings to someone else."
   },
   {
-    id: 274,
+    id: 200124,
     question: "What is sublimation according to Freudian theory?",
     options: {
       A: "Channeling unacceptable impulses into socially acceptable behaviors",
@@ -3294,7 +3294,7 @@ const questions = [
     explanation: "Sublimation is a defense mechanism that transforms unacceptable impulses into constructive activities."
   },
   {
-    id: 275,
+    id: 200125,
     question: "Which research method involves studying behavior under controlled conditions?",
     options: {
       A: "Naturalistic observation",
@@ -3306,7 +3306,7 @@ const questions = [
     explanation: "Experiments involve controlled conditions to determine cause-and-effect relationships."
   },
   {
-    id: 276,
+    id: 200126,
     question: "What is a control variable?",
     options: {
       A: "A variable that is intentionally manipulated",
@@ -3318,7 +3318,7 @@ const questions = [
     explanation: "A control variable is kept constant to accurately assess the effect of the independent variable."
   },
   {
-    id: 277,
+    id: 200127,
     question: "What does operationalization mean in research?",
     options: {
       A: "Defining variables in measurable terms",
@@ -3330,7 +3330,7 @@ const questions = [
     explanation: "Operationalization involves defining variables in specific, measurable terms."
   },
   {
-    id: 278,
+    id: 200128,
     question: "What is the purpose of debriefing after an experiment?",
     options: {
       A: "To conceal the true purpose of the study",
@@ -3342,7 +3342,7 @@ const questions = [
     explanation: "Debriefing ensures that participants understand the study and can address any concerns."
   },
   {
-    id: 279,
+    id: 200129,
     question: "What is a longitudinal design in research?",
     options: {
       A: "Studying different groups at one time",
@@ -3354,7 +3354,7 @@ const questions = [
     explanation: "A longitudinal design follows the same participants over an extended period."
   },
   {
-    id: 280,
+    id: 200130,
     question: "Which research design studies different participants at one point in time?",
     options: {
       A: "Longitudinal design",
@@ -3366,7 +3366,7 @@ const questions = [
     explanation: "A cross-sectional design compares different groups at a single point in time."
   },
   {
-    id: 281,
+    id: 200131,
     question: "Which perspective emphasizes the role of unconscious forces in behavior?",
     options: {
       A: "Cognitive",
@@ -3378,7 +3378,7 @@ const questions = [
     explanation: "The psychoanalytic perspective focuses on unconscious forces that shape behavior."
   },
   {
-    id: 282,
+    id: 200132,
     question: "Which perspective emphasizes observable behavior?",
     options: {
       A: "Behavioral",
@@ -3390,7 +3390,7 @@ const questions = [
     explanation: "The behavioral perspective focuses on observable actions and their environmental determinants."
   },
   {
-    id: 283,
+    id: 200133,
     question: "Which perspective focuses on mental processes such as thinking and memory?",
     options: {
       A: "Humanistic",
@@ -3402,7 +3402,7 @@ const questions = [
     explanation: "Cognitive psychology examines internal mental processes like perception, memory, and problem solving."
   },
   {
-    id: 284,
+    id: 200134,
     question: "Which perspective emphasizes the influence of social and cultural factors on behavior?",
     options: {
       A: "Biopsychology",
@@ -3414,7 +3414,7 @@ const questions = [
     explanation: "The sociocultural perspective examines how social and cultural contexts influence behavior."
   },
   {
-    id: 285,
+    id: 200135,
     question: "What is meant by 'individual differences' in psychology?",
     options: {
       A: "Similarities among people",
@@ -3426,7 +3426,7 @@ const questions = [
     explanation: "Individual differences refer to the unique variations in behavior, personality, and cognitive processes among people."
   },
   {
-    id: 286,
+    id: 200136,
     question: "What does 'personality' refer to?",
     options: {
       A: "A set of temporary moods",
@@ -3438,7 +3438,7 @@ const questions = [
     explanation: "Personality is the consistent pattern of behaviors, thoughts, and emotions that characterize an individual."
   },
   {
-    id: 287,
+    id: 200137,
     question: "Which branch of psychology focuses on the relationship between the brain and behavior?",
     options: {
       A: "Cognitive psychology",
@@ -3450,7 +3450,7 @@ const questions = [
     explanation: "Biopsychology studies how biological processes, especially brain function, influence behavior."
   },
   {
-    id: 288,
+    id: 200138,
     question: "What is neuroplasticity?",
     options: {
       A: "The brain's ability to remain unchanged",
@@ -3462,7 +3462,7 @@ const questions = [
     explanation: "Neuroplasticity refers to the brain's capacity to change and form new neural connections."
   },
   {
-    id: 289,
+    id: 200139,
     question: "Which area of psychology studies how people learn and behave in social settings?",
     options: {
       A: "Social psychology",
@@ -3474,7 +3474,7 @@ const questions = [
     explanation: "Social psychology examines how social influences affect behavior and thought."
   },
   {
-    id: 290,
+    id: 200140,
     question: "What is social anxiety?",
     options: {
       A: "A fear of social situations",
@@ -3486,7 +3486,7 @@ const questions = [
     explanation: "Social anxiety is the intense fear or discomfort in social situations."
   },
   {
-    id: 291,
+    id: 200141,
     question: "What is the self-concept?",
     options: {
       A: "An individual's perception of their own identity and attributes",
@@ -3498,7 +3498,7 @@ const questions = [
     explanation: "Self-concept is the overall idea of who a person is, including their beliefs and feelings about themselves."
   },
   {
-    id: 292,
+    id: 200142,
     question: "What does 'adjustment' refer to in psychology?",
     options: {
       A: "The process of changing behavior to adapt to new conditions",
@@ -3510,7 +3510,7 @@ const questions = [
     explanation: "Adjustment is the process of adapting to new or challenging circumstances."
   },
   {
-    id: 293,
+    id: 200143,
     question: "Which theory emphasizes the role of environmental stimuli and responses in behavior?",
     options: {
       A: "Cognitive theory",
@@ -3522,7 +3522,7 @@ const questions = [
     explanation: "Behaviorism focuses on how environmental stimuli influence responses and behavior."
   },
   {
-    id: 294,
+    id: 200144,
     question: "What is intrinsic motivation?",
     options: {
       A: "Motivation driven by external rewards",
@@ -3534,7 +3534,7 @@ const questions = [
     explanation: "Intrinsic motivation comes from internal satisfaction and interest rather than external rewards."
   },
   {
-    id: 295,
+    id: 200145,
     question: "What is extrinsic motivation?",
     options: {
       A: "Motivation driven by internal satisfaction",
@@ -3546,7 +3546,7 @@ const questions = [
     explanation: "Extrinsic motivation is based on external rewards such as money, praise, or recognition."
   },
   {
-    id: 296,
+    id: 200146,
     question: "What is a logical fallacy?",
     options: {
       A: "An error in reasoning that undermines the logic of an argument",
@@ -3558,7 +3558,7 @@ const questions = [
     explanation: "A logical fallacy is an error in reasoning that results in an invalid argument."
   },
   {
-    id: 297,
+    id: 200147,
     question: "What is a self-fulfilling prophecy?",
     options: {
       A: "A prediction that has no effect on behavior",
@@ -3570,7 +3570,7 @@ const questions = [
     explanation: "A self-fulfilling prophecy occurs when a belief or expectation leads to behavior that causes the belief to come true."
   },
   {
-    id: 298,
+    id: 200148,
     question: "What is the study of human behavior and mental processes called?",
     options: {
       A: "Psychology",
@@ -3582,7 +3582,7 @@ const questions = [
     explanation: "Psychology is the scientific study of behavior and mental processes."
   },
   {
-    id: 299,
+    id: 200149,
     question: "What does an introduction to psychology course primarily cover?",
     options: {
       A: "Advanced statistical methods",
@@ -3594,7 +3594,7 @@ const questions = [
     explanation: "An introductory course in psychology covers the history, major theories, research methods, and fundamental concepts of the discipline."
   },
   {
-    id: 300,
+    id: 200150,
     question: "What is the primary goal of an introduction to psychology course?",
     options: {
       A: "To explore the scientific study of behavior and mental processes",
