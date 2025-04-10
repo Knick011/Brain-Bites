@@ -149,7 +149,7 @@ const EnhancedMascotDisplay = ({
         </div>
       </div>
       
-      {/* Peeking mascot at bottom - now centered and fully visible */}
+      {/* Peeking mascot at bottom - now centered and 85% visible */}
       {isPeeking && (
         <div 
           className="peeking-mascot"
@@ -221,7 +221,7 @@ const EnhancedMascotDisplay = ({
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         
-        /* Peeking mascot styles - now centered and fully visible */
+        /* Peeking mascot styles - now centered and 85% visible */
         .peeking-mascot {
           position: fixed;
           bottom: 0;
@@ -302,9 +302,9 @@ const EnhancedMascotDisplay = ({
         
         @keyframes peekIn {
           0% { transform: translateX(-50%) translateY(100%); }
-          60% { transform: translateX(-50%) translateY(0%); } /* Now fully visible (0% hidden) */
-          70% { transform: translateX(-50%) translateY(5%); } /* Slight bounce down */
-          100% { transform: translateX(-50%) translateY(0%); } /* Final position - fully visible */
+          60% { transform: translateX(-50%) translateY(15%); } /* 85% visible (15% still hidden) */
+          70% { transform: translateX(-50%) translateY(20%); } /* Slight bounce with 80% visible */
+          100% { transform: translateX(-50%) translateY(15%); } /* Final position - 85% visible */
         }
         
         /* Media queries for responsive design */
