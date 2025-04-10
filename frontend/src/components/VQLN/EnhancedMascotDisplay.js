@@ -302,9 +302,9 @@ const EnhancedMascotDisplay = ({
         
         @keyframes peekIn {
           0% { transform: translateX(-50%) translateY(100%); }
-          60% { transform: translateX(-50%) translateY(15%); } /* 85% visible (15% still hidden) */
-          70% { transform: translateX(-50%) translateY(20%); } /* Slight bounce with 80% visible */
-          100% { transform: translateX(-50%) translateY(15%); } /* Final position - 85% visible */
+          60% { transform: translateX(-50%) translateY(22%); } /* 85% visible (15% still hidden) */
+          70% { transform: translateX(-50%) translateY(27%); } /* Slight bounce with 80% visible */
+          100% { transform: translateX(-50%) translateY(22%); } /* Final position - 85% visible */
         }
         
         /* Media queries for responsive design */
