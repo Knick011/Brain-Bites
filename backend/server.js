@@ -13,14 +13,14 @@ const getRandomItem = (array) => {
 
 // Endpoint for fun facts questions (IDs 31-60)
 app.get('/api/questions/random/funfacts', (req, res) => {
-    const funFactQuestions = questions.filter(q => q.id >= 100001 && q.id <= 100150);
+    const funFactQuestions = questions.filter(q => q.id >= 100001 && q.id <= 100343);
     const randomQuestion = getRandomItem(funFactQuestions);
     res.json(randomQuestion);
 });
 
 // Endpoint for psychology questions (IDs 1-30)
 app.get('/api/questions/random/psychology', (req, res) => {
-    const psychQuestions = questions.filter(q => q.id >= 200001 && q.id <= 200150);
+    const psychQuestions = questions.filter(q => q.id >= 200001 && q.id <= 200197);
     const randomQuestion = getRandomItem(psychQuestions);
     res.json(randomQuestion);
 });
