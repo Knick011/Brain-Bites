@@ -19,12 +19,10 @@ const EnhancedMascotDisplay = ({
   const [displayedMessage, setDisplayedMessage] = useState(message);
   const autoHideTimer = useRef(null);
   const sinkTimer = useRef(null);
+  const messageTimer = useRef(null);
   const entryDelay = 300;
   
-  // Keep track of if the message has been seen
-  const messageShown = useRef(false);
-  
-  // Effect for handling changes to props
+  // Update mascot type when prop changes
   useEffect(() => {
     // Check if returning user after 1+ days
     if (lastVisit && type === 'happy') {
@@ -37,49 +35,59 @@ const EnhancedMascotDisplay = ({
     } else {
       setMascotType(type);
     }
-    
-    // Update the displayed message when message prop changes
-    if (message !== null && message !== displayedMessage) {
-      setDisplayedMessage(message);
-      messageShown.current = false; // Reset message shown flag when message changes
-    }
-    
-  }, [type, lastVisit, message, displayedMessage]);
+  }, [type, lastVisit]);
   
-  // Effect for controlling visibility and animations
+  // Handle message updates
   useEffect(() => {
-    // Reset states when visibility changes
-    if (showMascot && !isVisible) {
-      setIsSinking(false);
+    setDisplayedMessage(message);
+  }, [message]);
+  
+  // Main effect to control visibility and animations
+  useEffect(() => {
+    // Clear all timers when component unmounts or dependencies change
+    const clearAllTimers = () => {
+      clearTimeout(sinkTimer.current);
+      clearTimeout(autoHideTimer.current);
+      clearTimeout(messageTimer.current);
+    };
+    
+    if (showMascot) {
+      // Clear any existing timers
+      clearAllTimers();
       
-      // Delay showing the mascot slightly for a smoother appearance
+      // If we're already showing the peeking mascot and want to show
+      // the main mascot, hide the peeking one first
+      if (isPeeking) {
+        setIsPeeking(false);
+      }
+      
+      // Show the main mascot after a short delay
       const timer = setTimeout(() => {
         setIsVisible(true);
-        setIsPeeking(false);
+        setIsSinking(false);
         
-        // Add a little wave animation after appearing
+        // Add a wave animation
         setTimeout(() => {
           setIsWaving(true);
           setTimeout(() => setIsWaving(false), 1000);
         }, 500);
         
-        // Only start the sinking timer if we don't have a new message to show
-        // or the message has already been shown
-        if (!message || messageShown.current) {
-          startSinkingTimer();
-        } else {
-          // If we have a message to show, leave the mascot visible longer
-          // This ensures users can read the "well done" or other messages
-          clearTimeout(sinkTimer.current);
-          sinkTimer.current = setTimeout(() => {
-            messageShown.current = true; // Mark message as shown
-            startSinkingTimer();
-          }, 5000); // Show message for 5 seconds before sinking
-        }
+        // For messages, display longer (5s) vs standard (3s)
+        const displayDuration = displayedMessage ? 5000 : 3000;
+        
+        // Schedule the mascot to sink after the display duration
+        sinkTimer.current = setTimeout(() => {
+          setIsSinking(true);
+          
+          // After sinking animation completes, show peeking mascot
+          setTimeout(() => {
+            setIsVisible(false);
+            setIsPeeking(true);
+          }, 500); // Sinking animation duration
+        }, displayDuration);
         
         // Set up auto-hide if enabled (overrides sinking behavior)
         if (autoHide) {
-          clearTimeout(autoHideTimer.current);
           autoHideTimer.current = setTimeout(() => {
             setIsSinking(true);
             setTimeout(() => {
@@ -93,34 +101,37 @@ const EnhancedMascotDisplay = ({
       
       return () => {
         clearTimeout(timer);
-        clearTimeout(sinkTimer.current);
-        clearTimeout(autoHideTimer.current);
+        clearAllTimers();
       };
-    } else if (!showMascot && isVisible) {
-      // When explicitly hiding mascot
+    } else {
+      // When instructed to hide, hide everything
       setIsVisible(false);
       setIsPeeking(false);
     }
-  }, [showMascot, autoHide, autoHideDuration, onDismiss, message, isVisible]);
+  }, [showMascot, autoHide, autoHideDuration, onDismiss, displayedMessage]);
   
-  // Helper function to start the sinking timer
-  const startSinkingTimer = () => {
-    clearTimeout(sinkTimer.current);
-    sinkTimer.current = setTimeout(() => {
-      setIsSinking(true);
+  // Handle new message arrival - reset timers to give user time to read
+  useEffect(() => {
+    if (isVisible && displayedMessage && !isSinking) {
+      // Clear any existing sink timer to give user time to read the message
+      clearTimeout(sinkTimer.current);
       
-      // After sinking animation completes, show peeking mascot
-      setTimeout(() => {
-        setIsVisible(false);
-        setIsPeeking(true);
-      }, 500); // Matches the duration of the sinking animation
-    }, 3000); // 3 seconds before sinking
-  };
+      // Set new sink timer
+      sinkTimer.current = setTimeout(() => {
+        setIsSinking(true);
+        
+        // After sinking animation completes, show peeking mascot
+        setTimeout(() => {
+          setIsVisible(false);
+          setIsPeeking(true);
+        }, 500); // Matches the duration of the sinking animation
+      }, 5000); // 5 seconds for messages
+    }
+  }, [displayedMessage, isVisible, isSinking]);
 
   // Handle mascot dismissal
   const handleDismiss = () => {
     setIsSinking(true);
-    messageShown.current = true; // Mark message as shown on dismiss
     
     setTimeout(() => {
       setIsVisible(false);
@@ -134,12 +145,22 @@ const EnhancedMascotDisplay = ({
   // Handle click on peeking mascot
   const handlePeekClick = () => {
     setIsPeeking(false);
+    
     setTimeout(() => {
       setIsVisible(true);
       setIsSinking(false);
       
-      // Reset sinking timer
-      startSinkingTimer();
+      // Reset sinking timer - sink after 3 seconds (or 5 if has message)
+      const displayDuration = displayedMessage ? 5000 : 3000;
+      
+      clearTimeout(sinkTimer.current);
+      sinkTimer.current = setTimeout(() => {
+        setIsSinking(true);
+        setTimeout(() => {
+          setIsVisible(false);
+          setIsPeeking(true);
+        }, 500);
+      }, displayDuration);
     }, 100);
   };
   
@@ -161,7 +182,7 @@ const EnhancedMascotDisplay = ({
           />
           <div className="mascot-stick"></div>
           
-          {/* Speech bubble - now using displayedMessage state */}
+          {/* Speech bubble - using displayedMessage */}
           {displayedMessage && isVisible && !isSinking && (
             <div className={`speech-bubble ${position}`}>
               {displayedMessage}
@@ -171,7 +192,7 @@ const EnhancedMascotDisplay = ({
         </div>
       </div>
       
-      {/* Peeking mascot at bottom - now centered and 85% visible */}
+      {/* Peeking mascot at bottom - centered and 85% visible */}
       {isPeeking && (
         <div 
           className="peeking-mascot"
@@ -243,7 +264,7 @@ const EnhancedMascotDisplay = ({
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         
-        /* Peeking mascot styles - now centered and 85% visible */
+        /* Peeking mascot styles - centered and 85% visible */
         .peeking-mascot {
           position: fixed;
           bottom: 0;
@@ -324,9 +345,9 @@ const EnhancedMascotDisplay = ({
         
         @keyframes peekIn {
           0% { transform: translateX(-50%) translateY(100%); }
-          60% { transform: translateX(-50%) translateY(22%); } /* 85% visible (15% still hidden) */
-          70% { transform: translateX(-50%) translateY(28%); } /* Slight bounce with 80% visible */
-          100% { transform: translateX(-50%) translateY(22%); } /* Final position - 85% visible */
+          60% { transform: translateX(-50%) translateY(15%); } /* 85% visible (15% still hidden) */
+          70% { transform: translateX(-50%) translateY(20%); } /* Slight bounce with 80% visible */
+          100% { transform: translateX(-50%) translateY(15%); } /* Final position - 85% visible */
         }
         
         /* Media queries for responsive design */
