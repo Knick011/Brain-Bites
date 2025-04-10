@@ -9,21 +9,28 @@ const EnhancedMascotDisplay = ({
   onDismiss = null,
   message = null, // Optional speech bubble message
   autoHide = false, // Automatically hide after a duration
-  autoHideDuration = 5000 // Duration in ms before auto-hiding
+  autoHideDuration = 5000, // Duration in ms before auto-hiding
+  isCorrectAnswer = false // New prop to detect correct answers
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [mascotType, setMascotType] = useState(type);
   const [isWaving, setIsWaving] = useState(false);
   const [isSinking, setIsSinking] = useState(false);
   const [isPeeking, setIsPeeking] = useState(false);
+  const [peekingProgress, setPeekingProgress] = useState(0);
   const autoHideTimer = useRef(null);
   const sinkTimer = useRef(null);
+  const peekingAnimationRef = useRef(null);
   const entryDelay = 300;
   
   // Determine mascot type based on props and conditions
   useEffect(() => {
+    // For correct answers, always show 'happy' mascot
+    if (isCorrectAnswer) {
+      setMascotType('happy');
+    }
     // Check if returning user after 1+ days
-    if (lastVisit && type === 'happy') {
+    else if (lastVisit && type === 'happy') {
       const daysSinceLastVisit = Math.floor((new Date() - new Date(lastVisit)) / (1000 * 60 * 60 * 24));
       if (daysSinceLastVisit >= 1) {
         setMascotType('depressed');
@@ -36,13 +43,17 @@ const EnhancedMascotDisplay = ({
     
     // Reset states when type changes
     if (isSinking) setIsSinking(false);
-    if (isPeeking) setIsPeeking(false);
+    if (isPeeking) {
+      setPeekingProgress(0);
+      setIsPeeking(false);
+    }
     
     // Animate entrance after a short delay
     if (showMascot) {
       const timer = setTimeout(() => {
         setIsVisible(true);
         setIsSinking(false);
+        setPeekingProgress(0);
         setIsPeeking(false);
         
         // Add a little wave animation after appearing
@@ -56,10 +67,13 @@ const EnhancedMascotDisplay = ({
         sinkTimer.current = setTimeout(() => {
           setIsSinking(true);
           
-          // After sinking animation completes, show peeking mascot
+          // After sinking animation completes, start the peeking animation
           setTimeout(() => {
             setIsVisible(false);
             setIsPeeking(true);
+            
+            // Start the peeking animation (slowly rising up)
+            startPeekingAnimation();
           }, 500); // Matches the duration of the sinking animation
         }, 3000); // 3 seconds before sinking
         
@@ -71,6 +85,7 @@ const EnhancedMascotDisplay = ({
             setTimeout(() => {
               setIsVisible(false);
               setIsPeeking(true);
+              startPeekingAnimation();
               if (onDismiss) onDismiss();
             }, 500);
           }, autoHideDuration);
@@ -81,13 +96,47 @@ const EnhancedMascotDisplay = ({
         clearTimeout(timer);
         clearTimeout(sinkTimer.current);
         clearTimeout(autoHideTimer.current);
+        cancelPeekingAnimation();
       };
     } else {
       setIsVisible(false);
       // When explicitly hiding mascot, also hide peeking version
+      setPeekingProgress(0);
       setIsPeeking(false);
+      cancelPeekingAnimation();
     }
-  }, [type, showMascot, lastVisit, autoHide, autoHideDuration, onDismiss]);
+  }, [type, showMascot, lastVisit, autoHide, autoHideDuration, onDismiss, isCorrectAnswer]);
+
+  // Animation for peeking mascot
+  const startPeekingAnimation = () => {
+    cancelPeekingAnimation(); // Cancel any existing animation
+    
+    let startTime = null;
+    const duration = 2000; // 2 seconds for the full peeking animation
+    
+    const animatePeeking = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Ease-out function for smoother end of animation
+      const easeOutProgress = 1 - Math.pow(1 - progress, 2);
+      setPeekingProgress(easeOutProgress);
+      
+      if (progress < 1) {
+        peekingAnimationRef.current = requestAnimationFrame(animatePeeking);
+      }
+    };
+    
+    peekingAnimationRef.current = requestAnimationFrame(animatePeeking);
+  };
+  
+  const cancelPeekingAnimation = () => {
+    if (peekingAnimationRef.current) {
+      cancelAnimationFrame(peekingAnimationRef.current);
+      peekingAnimationRef.current = null;
+    }
+  };
 
   // Handle mascot dismissal
   const handleDismiss = () => {
@@ -96,6 +145,7 @@ const EnhancedMascotDisplay = ({
     setTimeout(() => {
       setIsVisible(false);
       setIsPeeking(true);
+      startPeekingAnimation();
       if (onDismiss) {
         onDismiss();
       }
@@ -104,7 +154,10 @@ const EnhancedMascotDisplay = ({
   
   // Handle click on peeking mascot
   const handlePeekClick = () => {
+    cancelPeekingAnimation();
+    setPeekingProgress(0);
     setIsPeeking(false);
+    
     setTimeout(() => {
       setIsVisible(true);
       setIsSinking(false);
@@ -116,6 +169,7 @@ const EnhancedMascotDisplay = ({
         setTimeout(() => {
           setIsVisible(false);
           setIsPeeking(true);
+          startPeekingAnimation();
         }, 500);
       }, 3000);
     }, 100);
@@ -149,11 +203,15 @@ const EnhancedMascotDisplay = ({
         </div>
       </div>
       
-      {/* Peeking mascot at bottom */}
+      {/* Peeking mascot at bottom - now centered */}
       {isPeeking && (
         <div 
-          className={`peeking-mascot ${position}`}
+          className="peeking-mascot"
           onClick={handlePeekClick}
+          style={{
+            // Dynamic transform based on peekingProgress
+            transform: `translateY(${100 - (peekingProgress * 30)}%)`
+          }}
         >
           <img 
             src="/images/below.png" 
@@ -221,31 +279,26 @@ const EnhancedMascotDisplay = ({
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         
-        /* Peeking mascot styles */
+        /* Peeking mascot styles - now centered */
         .peeking-mascot {
           position: fixed;
           bottom: 0;
+          left: 50%;
+          transform: translateX(-50%) translateY(100%); /* Start fully hidden */
           z-index: 49;
           cursor: pointer;
           transition: transform 0.3s ease;
+          will-change: transform;
         }
         
         .peeking-mascot:hover {
-          transform: translateY(-5px);
-        }
-        
-        .peeking-mascot.left {
-          left: 20px;
-        }
-        
-        .peeking-mascot.right {
-          right: 20px;
+          transform: translateX(-50%) translateY(calc(${100 - (peekingProgress * 30)}% - 10px)); /* Rise slightly on hover */
         }
         
         .peeking-image {
-          width: 80px;
+          width: 250px; /* Much larger peeking image */
           height: auto;
-          filter: drop-shadow(0 -2px 4px rgba(0, 0, 0, 0.2));
+          filter: drop-shadow(0 -2px 8px rgba(0, 0, 0, 0.3));
         }
         
         .speech-bubble {
@@ -312,7 +365,7 @@ const EnhancedMascotDisplay = ({
         /* Media queries for responsive design */
         @media (max-width: 768px) {
           .mascot-image {
-            width: 150px; /* Increased from 120px but still smaller for mobile */
+            width: 150px; /* Still large but reduced for mobile */
           }
           
           .mascot-stick {
@@ -327,16 +380,8 @@ const EnhancedMascotDisplay = ({
             right: 12px;
           }
           
-          .peeking-mascot.left {
-            left: 12px;
-          }
-          
-          .peeking-mascot.right {
-            right: 12px;
-          }
-          
           .peeking-image {
-            width: 60px;
+            width: 180px; /* Smaller on mobile but still large */
           }
           
           .speech-bubble {
