@@ -5921,7 +5921,8 @@ const questions = [
     correctAnswer: "A",
     explanation: "An introductory psychology course aims to provide an overview of the scientific study of behavior and mental processes."
   },
- {
+  
+  {
     id: 200151,
     question: "Who is often credited as the founder of psychoanalysis?",
     options: {
@@ -6483,7 +6484,7 @@ const questions = [
       D: "Subliminal threshold"
     },
     correctAnswer: "A",
-    explanation: "The absolute threshold is the minimum stimulation needed to detect a particular stimulus (such as light, sound, pressure,
+    explanation: "The absolute threshold is the minimum stimulation needed to detect a particular stimulus (such as light, sound, pressure, etc.) 50% of the time."
   }   
 ];
 
