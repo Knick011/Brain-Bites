@@ -14,7 +14,10 @@ const EnhancedMascotDisplay = ({
   const [isVisible, setIsVisible] = useState(false);
   const [mascotType, setMascotType] = useState(type);
   const [isWaving, setIsWaving] = useState(false);
+  const [isSinking, setIsSinking] = useState(false);
+  const [isPeeking, setIsPeeking] = useState(false);
   const autoHideTimer = useRef(null);
+  const sinkTimer = useRef(null);
   const entryDelay = 300;
   
   // Determine mascot type based on props and conditions
@@ -31,10 +34,16 @@ const EnhancedMascotDisplay = ({
       setMascotType(type);
     }
     
+    // Reset states when type changes
+    if (isSinking) setIsSinking(false);
+    if (isPeeking) setIsPeeking(false);
+    
     // Animate entrance after a short delay
     if (showMascot) {
       const timer = setTimeout(() => {
         setIsVisible(true);
+        setIsSinking(false);
+        setIsPeeking(false);
         
         // Add a little wave animation after appearing
         setTimeout(() => {
@@ -42,56 +51,117 @@ const EnhancedMascotDisplay = ({
           setTimeout(() => setIsWaving(false), 1000);
         }, 500);
         
-        // Set up auto-hide if enabled
-        if (autoHide) {
-          autoHideTimer.current = setTimeout(() => {
+        // Set up sink timer - mascot sinks after 3 seconds
+        clearTimeout(sinkTimer.current);
+        sinkTimer.current = setTimeout(() => {
+          setIsSinking(true);
+          
+          // After sinking animation completes, show peeking mascot
+          setTimeout(() => {
             setIsVisible(false);
-            if (onDismiss) setTimeout(() => onDismiss(), 500);
+            setIsPeeking(true);
+          }, 500); // Matches the duration of the sinking animation
+        }, 3000); // 3 seconds before sinking
+        
+        // Set up auto-hide if enabled (overrides sinking behavior)
+        if (autoHide) {
+          clearTimeout(autoHideTimer.current);
+          autoHideTimer.current = setTimeout(() => {
+            setIsSinking(true);
+            setTimeout(() => {
+              setIsVisible(false);
+              setIsPeeking(true);
+              if (onDismiss) onDismiss();
+            }, 500);
           }, autoHideDuration);
         }
       }, entryDelay);
       
       return () => {
         clearTimeout(timer);
-        if (autoHideTimer.current) clearTimeout(autoHideTimer.current);
+        clearTimeout(sinkTimer.current);
+        clearTimeout(autoHideTimer.current);
       };
     } else {
       setIsVisible(false);
+      // When explicitly hiding mascot, also hide peeking version
+      setIsPeeking(false);
     }
   }, [type, showMascot, lastVisit, autoHide, autoHideDuration, onDismiss]);
 
   // Handle mascot dismissal
   const handleDismiss = () => {
-    setIsVisible(false);
-    if (onDismiss) {
-      setTimeout(() => onDismiss(), 500);
-    }
+    setIsSinking(true);
+    
+    setTimeout(() => {
+      setIsVisible(false);
+      setIsPeeking(true);
+      if (onDismiss) {
+        onDismiss();
+      }
+    }, 500);
   };
   
-  // Don't render anything if not supposed to show
-  if (!showMascot && !isVisible) return null;
+  // Handle click on peeking mascot
+  const handlePeekClick = () => {
+    setIsPeeking(false);
+    setTimeout(() => {
+      setIsVisible(true);
+      setIsSinking(false);
+      
+      // Reset sinking timer
+      clearTimeout(sinkTimer.current);
+      sinkTimer.current = setTimeout(() => {
+        setIsSinking(true);
+        setTimeout(() => {
+          setIsVisible(false);
+          setIsPeeking(true);
+        }, 500);
+      }, 3000);
+    }, 100);
+  };
+  
+  // Don't render anything if not supposed to show and not peeking
+  if (!showMascot && !isVisible && !isPeeking) return null;
   
   return (
-    <div 
-      className={`mascot-container ${position} ${isVisible ? 'visible' : 'hidden'} ${isWaving ? 'waving' : ''}`}
-      onClick={handleDismiss}
-    >
-      <div className="mascot-wrapper">
-        <img 
-          src={`/images/${mascotType}.png`} 
-          alt={`${mascotType} mascot`} 
-          className="mascot-image"
-        />
-        <div className="mascot-stick"></div>
-        
-        {/* Optional speech bubble */}
-        {message && isVisible && (
-          <div className={`speech-bubble ${position}`}>
-            {message}
-            <div className="speech-bubble-arrow"></div>
-          </div>
-        )}
+    <>
+      {/* Main mascot */}
+      <div 
+        className={`mascot-container ${position} ${isVisible ? 'visible' : 'hidden'} ${isWaving ? 'waving' : ''} ${isSinking ? 'sinking' : ''}`}
+        onClick={handleDismiss}
+      >
+        <div className="mascot-wrapper">
+          <img 
+            src={`/images/${mascotType}.png`} 
+            alt={`${mascotType} mascot`} 
+            className="mascot-image"
+          />
+          <div className="mascot-stick"></div>
+          
+          {/* Optional speech bubble */}
+          {message && isVisible && !isSinking && (
+            <div className={`speech-bubble ${position}`}>
+              {message}
+              <div className="speech-bubble-arrow"></div>
+            </div>
+          )}
+        </div>
       </div>
+      
+      {/* Peeking mascot at bottom */}
+      {isPeeking && (
+        <div 
+          className={`peeking-mascot ${position}`}
+          onClick={handlePeekClick}
+        >
+          <img 
+            src="/images/below.png" 
+            alt="Peeking mascot" 
+            className="peeking-image"
+          />
+        </div>
+      )}
       
       {/* Add CSS for the animations */}
       <style jsx>{`
@@ -107,25 +177,28 @@ const EnhancedMascotDisplay = ({
         }
         
         .mascot-container.left {
-          left: 20px; /* Moved more to center from 16px */
-          transform: ${isVisible ? 'translateY(0) rotate(8deg)' : 'translateY(120%) rotate(8deg)'};
-          /* Changed angle from -8deg to 8deg to point toward center */
+          left: 20px;
+          transform: ${isVisible && !isSinking ? 'translateY(0) rotate(8deg)' : 'translateY(120%) rotate(8deg)'};
         }
         
         .mascot-container.right {
-          right: 20px; /* Moved more to center from 16px */
-          transform: ${isVisible ? 'translateY(0) rotate(-8deg)' : 'translateY(120%) rotate(-8deg)'};
-          /* Changed angle from 8deg to -8deg to point toward center */
+          right: 20px;
+          transform: ${isVisible && !isSinking ? 'translateY(0) rotate(-8deg)' : 'translateY(120%) rotate(-8deg)'};
+        }
+        
+        .mascot-container.sinking {
+          transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+          transform: translateY(120%) !important;
         }
         
         .mascot-wrapper {
           position: relative;
-          animation: bounce 3s ease-in-out infinite;
+          animation: ${isVisible && !isSinking ? 'bounce 3s ease-in-out infinite' : 'none'};
           transform-origin: bottom center;
         }
         
         .mascot-image {
-          width: 150px; /* Increased from 100px to make mascot bigger */
+          width: 200px; /* Made even larger from 150px */
           height: auto;
           filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
           transition: transform 0.3s ease;
@@ -141,22 +214,49 @@ const EnhancedMascotDisplay = ({
           bottom: -30px;
           left: 50%;
           transform: translateX(-50%);
-          width: 14px; /* Made stick thicker */
-          height: 60px; /* Made stick longer */
+          width: 16px; /* Made stick thicker */
+          height: 70px; /* Made stick longer */
           background-color: #bb8e3c;
           border-radius: 4px;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         
+        /* Peeking mascot styles */
+        .peeking-mascot {
+          position: fixed;
+          bottom: 0;
+          z-index: 49;
+          cursor: pointer;
+          transition: transform 0.3s ease;
+        }
+        
+        .peeking-mascot:hover {
+          transform: translateY(-5px);
+        }
+        
+        .peeking-mascot.left {
+          left: 20px;
+        }
+        
+        .peeking-mascot.right {
+          right: 20px;
+        }
+        
+        .peeking-image {
+          width: 80px;
+          height: auto;
+          filter: drop-shadow(0 -2px 4px rgba(0, 0, 0, 0.2));
+        }
+        
         .speech-bubble {
           position: absolute;
-          top: -80px; /* Adjusted for bigger mascot */
+          top: -80px;
           background-color: #FFF8E7; /* App background color */
           padding: 10px 14px;
           border-radius: 12px;
-          max-width: 240px; /* Increased from 200px */
+          max-width: 240px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          font-size: 16px; /* Increased from 14px */
+          font-size: 16px;
           font-family: 'Fredoka', sans-serif; /* Match app font */
           font-weight: 500;
           color: #333333; /* Match app text color */
@@ -212,11 +312,11 @@ const EnhancedMascotDisplay = ({
         /* Media queries for responsive design */
         @media (max-width: 768px) {
           .mascot-image {
-            width: 120px; /* Increased from 80px but still smaller for mobile */
+            width: 150px; /* Increased from 120px but still smaller for mobile */
           }
           
           .mascot-stick {
-            height: 50px;
+            height: 60px;
           }
           
           .mascot-container.left {
@@ -227,13 +327,25 @@ const EnhancedMascotDisplay = ({
             right: 12px;
           }
           
+          .peeking-mascot.left {
+            left: 12px;
+          }
+          
+          .peeking-mascot.right {
+            right: 12px;
+          }
+          
+          .peeking-image {
+            width: 60px;
+          }
+          
           .speech-bubble {
             max-width: 200px;
             font-size: 14px;
           }
         }
       `}</style>
-    </div>
+    </>
   );
 };
 
