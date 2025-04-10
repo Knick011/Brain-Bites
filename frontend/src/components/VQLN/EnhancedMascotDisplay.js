@@ -107,13 +107,15 @@ const EnhancedMascotDisplay = ({
         }
         
         .mascot-container.left {
-          left: 16px;
-          transform: ${isVisible ? 'translateY(0) rotate(-8deg)' : 'translateY(120%) rotate(-8deg)'};
+          left: 20px; /* Moved more to center from 16px */
+          transform: ${isVisible ? 'translateY(0) rotate(8deg)' : 'translateY(120%) rotate(8deg)'};
+          /* Changed angle from -8deg to 8deg to point toward center */
         }
         
         .mascot-container.right {
-          right: 16px;
-          transform: ${isVisible ? 'translateY(0) rotate(8deg)' : 'translateY(120%) rotate(8deg)'};
+          right: 20px; /* Moved more to center from 16px */
+          transform: ${isVisible ? 'translateY(0) rotate(-8deg)' : 'translateY(120%) rotate(-8deg)'};
+          /* Changed angle from 8deg to -8deg to point toward center */
         }
         
         .mascot-wrapper {
@@ -123,7 +125,7 @@ const EnhancedMascotDisplay = ({
         }
         
         .mascot-image {
-          width: 100px;
+          width: 150px; /* Increased from 100px to make mascot bigger */
           height: auto;
           filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
           transition: transform 0.3s ease;
@@ -139,8 +141,8 @@ const EnhancedMascotDisplay = ({
           bottom: -30px;
           left: 50%;
           transform: translateX(-50%);
-          width: 12px;
-          height: 50px;
+          width: 14px; /* Made stick thicker */
+          height: 60px; /* Made stick longer */
           background-color: #bb8e3c;
           border-radius: 4px;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -148,16 +150,20 @@ const EnhancedMascotDisplay = ({
         
         .speech-bubble {
           position: absolute;
-          top: -60px;
-          background-color: white;
-          padding: 8px 12px;
+          top: -80px; /* Adjusted for bigger mascot */
+          background-color: #FFF8E7; /* App background color */
+          padding: 10px 14px;
           border-radius: 12px;
-          max-width: 200px;
+          max-width: 240px; /* Increased from 200px */
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          font-size: 14px;
+          font-size: 16px; /* Increased from 14px */
+          font-family: 'Fredoka', sans-serif; /* Match app font */
+          font-weight: 500;
+          color: #333333; /* Match app text color */
           opacity: 0;
           animation: fadeIn 0.3s ease forwards 0.5s;
           z-index: 51;
+          border: 2px solid #FF9F1C; /* App primary orange */
         }
         
         .speech-bubble.left {
@@ -170,20 +176,21 @@ const EnhancedMascotDisplay = ({
         
         .speech-bubble-arrow {
           position: absolute;
-          bottom: -8px;
-          width: 16px;
-          height: 16px;
-          background-color: white;
+          bottom: -10px;
+          width: 18px;
+          height: 18px;
+          background-color: #FFF8E7; /* Match bubble background */
           transform: rotate(45deg);
-          box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1);
+          border-right: 2px solid #FF9F1C; /* Match bubble border */
+          border-bottom: 2px solid #FF9F1C; /* Match bubble border */
         }
         
         .speech-bubble.left .speech-bubble-arrow {
-          left: 20px;
+          left: 30px;
         }
         
         .speech-bubble.right .speech-bubble-arrow {
-          right: 20px;
+          right: 30px;
         }
         
         @keyframes bounce {
@@ -205,24 +212,24 @@ const EnhancedMascotDisplay = ({
         /* Media queries for responsive design */
         @media (max-width: 768px) {
           .mascot-image {
-            width: 80px;
+            width: 120px; /* Increased from 80px but still smaller for mobile */
           }
           
           .mascot-stick {
-            height: 40px;
+            height: 50px;
           }
           
           .mascot-container.left {
-            left: 8px;
+            left: 12px;
           }
           
           .mascot-container.right {
-            right: 8px;
+            right: 12px;
           }
           
           .speech-bubble {
-            max-width: 160px;
-            font-size: 12px;
+            max-width: 200px;
+            font-size: 14px;
           }
         }
       `}</style>
