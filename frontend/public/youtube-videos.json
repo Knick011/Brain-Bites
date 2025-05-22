@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": "6nUUGHhzyRM",
+      "url": "https://www.youtube.com/shorts/6nUUGHhzyRM",
+      "title": "I Learned Forbidden Magic Tricks",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2025-05-18T17:15:00Z",
+      "addedAt": "2025-05-22T01:54:43.745Z"
+    },
+    {
+      "id": "4aJxiRw1BYo",
+      "url": "https://www.youtube.com/shorts/4aJxiRw1BYo",
+      "title": "Do You Know These Gen Alpha Celebs?",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2025-05-12T19:15:00Z",
+      "addedAt": "2025-05-22T01:54:43.745Z"
+    },
+    {
       "id": "IZvRz2xKgDc",
       "url": "https://www.youtube.com/shorts/IZvRz2xKgDc",
       "title": "Celebs showed up to MSG 🤩",
@@ -8398,6 +8416,6 @@
       "addedAt": "2025-03-18T01:45:47.041Z"
     }
   ],
-  "lastUpdated": "2025-05-21T12:49:54.317Z",
-  "count": 933
+  "lastUpdated": "2025-05-22T01:54:57.954Z",
+  "count": 935
 }
