@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": "hGo1qW4XP4w",
+      "url": "https://www.youtube.com/shorts/hGo1qW4XP4w",
+      "title": "Youtube has a serious problem",
+      "channelTitle": "jacksepticeye",
+      "channelHandle": "Jacksepticeye",
+      "publishedAt": "2023-03-07T18:29:14Z",
+      "addedAt": "2025-06-04T12:50:29.747Z"
+    },
+    {
+      "id": "XAWS9axV4U4",
+      "url": "https://www.youtube.com/shorts/XAWS9axV4U4",
+      "title": "I’ve lost MILLIONS of subscribers",
+      "channelTitle": "jacksepticeye",
+      "channelHandle": "Jacksepticeye",
+      "publishedAt": "2025-02-08T22:35:44Z",
+      "addedAt": "2025-06-04T12:50:29.747Z"
+    },
+    {
       "id": "pgGrQjYcm5A",
       "url": "https://www.youtube.com/shorts/pgGrQjYcm5A",
       "title": "Explaining Pi With Pizza",
@@ -8981,26 +8999,8 @@
       "channelHandle": "Hyram",
       "publishedAt": "2023-03-02T16:00:13Z",
       "addedAt": "2025-03-18T01:45:07.694Z"
-    },
-    {
-      "id": "_N9e88jbEfM",
-      "url": "https://www.youtube.com/shorts/_N9e88jbEfM",
-      "title": "I thought my sister was possessed by the devil",
-      "channelTitle": "jacksepticeye",
-      "channelHandle": "Jacksepticeye",
-      "publishedAt": "2023-08-28T17:30:01Z",
-      "addedAt": "2025-03-18T01:45:08.940Z"
-    },
-    {
-      "id": "ttpQcZibCfY",
-      "url": "https://www.youtube.com/shorts/ttpQcZibCfY",
-      "title": "30 million subscribers!",
-      "channelTitle": "jacksepticeye",
-      "channelHandle": "Jacksepticeye",
-      "publishedAt": "2023-06-17T00:24:39Z",
-      "addedAt": "2025-03-18T01:45:08.940Z"
     }
   ],
-  "lastUpdated": "2025-06-04T01:57:40.453Z",
+  "lastUpdated": "2025-06-04T12:51:00.820Z",
   "count": 1000
 }
