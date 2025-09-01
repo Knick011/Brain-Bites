@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": "6fThL77AANU",
+      "url": "https://www.youtube.com/shorts/6fThL77AANU",
+      "title": "The Most Hated Country in the World",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2025-08-26T19:15:01Z",
+      "addedAt": "2025-09-01T02:03:30.698Z"
+    },
+    {
+      "id": "rx1MyZVL9Xs",
+      "url": "https://www.youtube.com/shorts/rx1MyZVL9Xs",
+      "title": "Coco Gauff is on to the next round of the USOpen 👏",
+      "channelTitle": "ESPN",
+      "channelHandle": "ESPN",
+      "publishedAt": "2025-08-27T02:33:04Z",
+      "addedAt": "2025-09-01T02:04:01.320Z"
+    },
+    {
       "id": "yLrt950l58s",
       "url": "https://www.youtube.com/shorts/yLrt950l58s",
       "title": "SHE&#39;S BACK 👑 Napheesa Collier drops 32 PTS vs. Fever in return from injury 💪 | WNBA on ESPN",
@@ -8981,26 +8999,8 @@
       "channelHandle": "Howridiculous",
       "publishedAt": "2022-10-31T11:04:35Z",
       "addedAt": "2025-06-24T12:50:50.744Z"
-    },
-    {
-      "id": "AfpGi63JZNQ",
-      "url": "https://www.youtube.com/shorts/AfpGi63JZNQ",
-      "title": "would you eat this? #shorts",
-      "channelTitle": "Zach Choi",
-      "channelHandle": "ZachChoi",
-      "publishedAt": "2023-03-01T02:30:08Z",
-      "addedAt": "2025-06-24T12:50:56.910Z"
-    },
-    {
-      "id": "srR4yK45aB8",
-      "url": "https://www.youtube.com/shorts/srR4yK45aB8",
-      "title": "Real People With Actual Superpowers",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-06-19T19:15:07Z",
-      "addedAt": "2025-06-24T12:51:00.760Z"
     }
   ],
-  "lastUpdated": "2025-08-31T12:42:19.167Z",
+  "lastUpdated": "2025-09-01T02:04:07.654Z",
   "count": 1000
 }
