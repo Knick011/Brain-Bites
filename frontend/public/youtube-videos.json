@@ -1,6 +1,33 @@
 {
   "videos": [
     {
+      "id": "5I4T9bm3sxw",
+      "url": "https://www.youtube.com/shorts/5I4T9bm3sxw",
+      "title": "Marques Brownlee breaks down NFL helmet tech!",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-09-06T00:10:25Z",
+      "addedAt": "2025-09-07T01:50:53.907Z"
+    },
+    {
+      "id": "yrpFdBx3MdY",
+      "url": "https://www.youtube.com/shorts/yrpFdBx3MdY",
+      "title": "Products That Started Off As Rip-Offs",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2025-09-06T19:15:03Z",
+      "addedAt": "2025-09-07T01:51:07.234Z"
+    },
+    {
+      "id": "dbTl9KpK9L4",
+      "url": "https://www.youtube.com/shorts/dbTl9KpK9L4",
+      "title": "Djokovic vs. Alcaraz Reaction: Is father time catching up to Novak? | 2025 US Open",
+      "channelTitle": "ESPN",
+      "channelHandle": "ESPN",
+      "publishedAt": "2025-09-05T22:11:59Z",
+      "addedAt": "2025-09-07T01:51:11.269Z"
+    },
+    {
       "id": "IDHIMIzpA-Q",
       "url": "https://www.youtube.com/shorts/IDHIMIzpA-Q",
       "title": "Nick Saban&#39;s message to Kalen DeBoer 🗣️",
@@ -8972,35 +8999,8 @@
       "channelHandle": "GordonRamsay",
       "publishedAt": "2025-01-31T16:00:31Z",
       "addedAt": "2025-06-28T01:54:27.270Z"
-    },
-    {
-      "id": "3Vvx0cQf718",
-      "url": "https://www.youtube.com/shorts/3Vvx0cQf718",
-      "title": "How to Poach and Flavour Salmon | Gordon Ramsay",
-      "channelTitle": "Gordon Ramsay",
-      "channelHandle": "GordonRamsay",
-      "publishedAt": "2014-12-11T18:00:17Z",
-      "addedAt": "2025-06-28T01:54:27.270Z"
-    },
-    {
-      "id": "qAfmfCArUgA",
-      "url": "https://www.youtube.com/shorts/qAfmfCArUgA",
-      "title": "How to Cook Perfect Duck Breast | Gordon Ramsay",
-      "channelTitle": "Gordon Ramsay",
-      "channelHandle": "GordonRamsay",
-      "publishedAt": "2014-04-17T16:00:01Z",
-      "addedAt": "2025-06-28T01:54:27.270Z"
-    },
-    {
-      "id": "tk0S7JNxnd8",
-      "url": "https://www.youtube.com/shorts/tk0S7JNxnd8",
-      "title": "HOW did he do that many?? 😳 #dudeperfect #shorts",
-      "channelTitle": "Dude Perfect",
-      "channelHandle": "DudePerfect",
-      "publishedAt": "2023-06-09T14:28:26Z",
-      "addedAt": "2025-06-28T01:54:30.097Z"
     }
   ],
-  "lastUpdated": "2025-09-06T12:40:05.073Z",
+  "lastUpdated": "2025-09-07T01:51:28.398Z",
   "count": 1000
 }
