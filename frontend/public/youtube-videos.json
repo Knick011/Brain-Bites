@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": "1Zfa8L3sKBM",
+      "url": "https://www.youtube.com/shorts/1Zfa8L3sKBM",
+      "title": "Words You’re Probably Mixing Up",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2025-09-09T19:15:00Z",
+      "addedAt": "2025-09-10T01:43:24.486Z"
+    },
+    {
+      "id": "V30e-Fv0b5E",
+      "url": "https://www.youtube.com/shorts/V30e-Fv0b5E",
+      "title": "J.J McCarthy &amp; The Vikings Take The Lead In The 4th 👀",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-09-09T03:03:29Z",
+      "addedAt": "2025-09-10T01:44:04.923Z"
+    },
+    {
       "id": "s9ZvtdHMwoU",
       "url": "https://www.youtube.com/shorts/s9ZvtdHMwoU",
       "title": "What Happens If You Mix Every Soda Together?",
@@ -8981,26 +8999,8 @@
       "channelHandle": "Sambucha",
       "publishedAt": "2025-06-28T17:15:00Z",
       "addedAt": "2025-06-30T02:03:53.712Z"
-    },
-    {
-      "id": "CfJbL_6xJLY",
-      "url": "https://www.youtube.com/shorts/CfJbL_6xJLY",
-      "title": "Do You Know These International Celebrities?",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-06-24T19:15:00Z",
-      "addedAt": "2025-06-30T02:03:53.712Z"
-    },
-    {
-      "id": "7gfypLbljJ0",
-      "url": "https://www.youtube.com/shorts/7gfypLbljJ0",
-      "title": "would you eat this? #shorts",
-      "channelTitle": "Zach Choi",
-      "channelHandle": "ZachChoi",
-      "publishedAt": "2023-12-04T04:14:14Z",
-      "addedAt": "2025-06-30T02:03:58.978Z"
     }
   ],
-  "lastUpdated": "2025-09-09T12:50:30.443Z",
+  "lastUpdated": "2025-09-10T01:44:14.039Z",
   "count": 1000
 }
