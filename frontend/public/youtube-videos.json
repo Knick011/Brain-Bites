@@ -1,6 +1,42 @@
 {
   "videos": [
     {
+      "id": "6aFGBxpOh2w",
+      "url": "https://www.youtube.com/shorts/6aFGBxpOh2w",
+      "title": "Pat McAfee brought the energy for Miami 🗣️",
+      "channelTitle": "ESPN",
+      "channelHandle": "ESPN",
+      "publishedAt": "2025-09-20T13:45:47Z",
+      "addedAt": "2025-09-21T12:40:57.407Z"
+    },
+    {
+      "id": "sadcLwewhsk",
+      "url": "https://www.youtube.com/shorts/sadcLwewhsk",
+      "title": "Bo Nix&#39;s best plays from 3-TD game vs. Colts | Week 2",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-09-14T23:55:02Z",
+      "addedAt": "2025-09-21T12:41:02.553Z"
+    },
+    {
+      "id": "SrI5Hj1Xp_k",
+      "url": "https://www.youtube.com/shorts/SrI5Hj1Xp_k",
+      "title": "Russ is cooking! Wilson pinpoints Robinson with late-game TD",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-09-14T20:00:38Z",
+      "addedAt": "2025-09-21T12:41:02.553Z"
+    },
+    {
+      "id": "59i_4nCyCaM",
+      "url": "https://www.youtube.com/shorts/59i_4nCyCaM",
+      "title": "CHRISTMAS Transformation with Lensa 🎄 and super easy dance challenge",
+      "channelTitle": "5-Minute Crafts",
+      "channelHandle": "5MinuteCrafts",
+      "publishedAt": "2022-12-20T09:30:54Z",
+      "addedAt": "2025-09-21T12:41:03.778Z"
+    },
+    {
       "id": "gCz1IMwJWVc",
       "url": "https://www.youtube.com/shorts/gCz1IMwJWVc",
       "title": "Who Is The Worst Actor Ever?",
@@ -8963,44 +8999,8 @@
       "channelHandle": "speedroute",
       "publishedAt": "2023-06-01T23:31:22Z",
       "addedAt": "2025-07-07T02:05:00.015Z"
-    },
-    {
-      "id": "8Xzbtmroies",
-      "url": "https://www.youtube.com/shorts/8Xzbtmroies",
-      "title": "The Most SATISFYING Gameplay I Have Ever Made | Geometry Dash",
-      "channelTitle": "Speedroute",
-      "channelHandle": "speedroute",
-      "publishedAt": "2023-06-15T23:43:59Z",
-      "addedAt": "2025-07-07T02:05:00.016Z"
-    },
-    {
-      "id": "3x07kEoBNQI",
-      "url": "https://www.youtube.com/shorts/3x07kEoBNQI",
-      "title": "Poltergeist 100% (Insane Wave Demon) | Geometry Dash",
-      "channelTitle": "Speedroute",
-      "channelHandle": "speedroute",
-      "publishedAt": "2023-05-27T19:15:28Z",
-      "addedAt": "2025-07-07T02:05:00.016Z"
-    },
-    {
-      "id": "Fb1fU8KqGKk",
-      "url": "https://www.youtube.com/shorts/Fb1fU8KqGKk",
-      "title": "Average Geometry Dash Mashup | Geometry Dash",
-      "channelTitle": "Speedroute",
-      "channelHandle": "speedroute",
-      "publishedAt": "2023-03-21T04:40:32Z",
-      "addedAt": "2025-07-07T02:05:00.016Z"
-    },
-    {
-      "id": "lp7MwipKWgU",
-      "url": "https://www.youtube.com/shorts/lp7MwipKWgU",
-      "title": "Worst Challenge Verified (God Awful Challenge) | Geometry Dash",
-      "channelTitle": "Speedroute",
-      "channelHandle": "speedroute",
-      "publishedAt": "2023-03-17T04:49:27Z",
-      "addedAt": "2025-07-07T02:05:00.016Z"
     }
   ],
-  "lastUpdated": "2025-09-21T01:54:20.464Z",
+  "lastUpdated": "2025-09-21T12:41:43.973Z",
   "count": 1000
 }
