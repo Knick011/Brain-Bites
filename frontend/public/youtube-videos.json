@@ -1,6 +1,33 @@
 {
   "videos": [
     {
+      "id": "luHmEndl0fE",
+      "url": "https://www.youtube.com/shorts/luHmEndl0fE",
+      "title": "clutch hands 🙌",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-09-26T03:36:49Z",
+      "addedAt": "2025-09-27T01:41:12.684Z"
+    },
+    {
+      "id": "EpehRz6bwig",
+      "url": "https://www.youtube.com/shorts/EpehRz6bwig",
+      "title": "Dog Follows Me Into The Bathroom",
+      "channelTitle": "Tucker Budzyn",
+      "channelHandle": "TuckerBudzyn",
+      "publishedAt": "2018-12-22T23:17:33Z",
+      "addedAt": "2025-09-27T01:41:24.231Z"
+    },
+    {
+      "id": "Zq6jC_1BSg0",
+      "url": "https://www.youtube.com/shorts/Zq6jC_1BSg0",
+      "title": "Unsolved Mysteries We Can’t Explain",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2025-09-26T19:15:03Z",
+      "addedAt": "2025-09-27T01:41:34.339Z"
+    },
+    {
       "id": "wb2_B6N9mB4",
       "url": "https://www.youtube.com/shorts/wb2_B6N9mB4",
       "title": "King Henry does his thing! 28-yard TD already in Baltimore",
@@ -8972,35 +8999,8 @@
       "channelHandle": "alanchikinchow ",
       "publishedAt": "2023-08-26T12:00:21Z",
       "addedAt": "2025-07-08T12:51:03.192Z"
-    },
-    {
-      "id": "rfzcQDPxot4",
-      "url": "https://www.youtube.com/shorts/rfzcQDPxot4",
-      "title": "Would You Press The Button?",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-07-01T19:15:03Z",
-      "addedAt": "2025-07-08T12:51:05.668Z"
-    },
-    {
-      "id": "pW9kVnzVIY8",
-      "url": "https://www.youtube.com/shorts/pW9kVnzVIY8",
-      "title": "Can You Cook A Burger Faster Than The Drive-Thru?",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-07-03T17:15:03Z",
-      "addedAt": "2025-07-08T12:51:05.668Z"
-    },
-    {
-      "id": "AX6Sj96MyIk",
-      "url": "https://www.youtube.com/shorts/AX6Sj96MyIk",
-      "title": "HOW?! 😳 (via @orianebertone/TT)",
-      "channelTitle": "ESPN",
-      "channelHandle": "ESPN",
-      "publishedAt": "2025-07-04T01:48:15Z",
-      "addedAt": "2025-07-08T12:51:11.923Z"
     }
   ],
-  "lastUpdated": "2025-09-26T12:48:01.948Z",
+  "lastUpdated": "2025-09-27T01:41:55.775Z",
   "count": 1000
 }
