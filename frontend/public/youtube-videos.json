@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "id": "q_WFds2l4uk",
+      "url": "https://www.youtube.com/shorts/q_WFds2l4uk",
+      "title": "Kirk and Peter are a real treat 🦴 (via @kirkherbstreit/X)",
+      "channelTitle": "ESPN",
+      "channelHandle": "ESPN",
+      "publishedAt": "2025-10-03T02:15:03Z",
+      "addedAt": "2025-10-03T12:45:00.231Z"
+    },
+    {
       "id": "fCyEWIsmUBM",
       "url": "https://www.youtube.com/shorts/fCyEWIsmUBM",
       "title": "THE CUBS STRIKE FIRST IN GAME 3 VS. THE PADRES 🔥",
@@ -8990,17 +8999,8 @@
       "channelHandle": "cheekyboyos",
       "publishedAt": "2025-02-20T23:00:02Z",
       "addedAt": "2025-07-11T02:03:38.411Z"
-    },
-    {
-      "id": "WvRPlxHc05I",
-      "url": "https://www.youtube.com/shorts/WvRPlxHc05I",
-      "title": "89: James Cook (RB, Bills) | Top 100 Players of 2025",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-07-10T20:00:32Z",
-      "addedAt": "2025-07-11T02:03:49.094Z"
     }
   ],
-  "lastUpdated": "2025-10-03T01:44:11.345Z",
+  "lastUpdated": "2025-10-03T12:45:34.207Z",
   "count": 1000
 }
