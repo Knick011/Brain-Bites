@@ -1,6 +1,33 @@
 {
   "videos": [
     {
+      "id": "HsLvlho4cOI",
+      "url": "https://www.youtube.com/shorts/HsLvlho4cOI",
+      "title": "The BEST Cheesy Potato Bites",
+      "channelTitle": "Joshua Weissman",
+      "channelHandle": "JoshuaWeissman",
+      "publishedAt": "2024-10-12T19:00:08Z",
+      "addedAt": "2025-10-07T12:48:50.150Z"
+    },
+    {
+      "id": "w7Y4rqDyCzs",
+      "url": "https://www.youtube.com/shorts/w7Y4rqDyCzs",
+      "title": "OUR BASKETBALL EXPLODED!!!💥🏀",
+      "channelTitle": "Cheeky Boyos",
+      "channelHandle": "cheekyboyos",
+      "publishedAt": "2025-02-13T00:00:49Z",
+      "addedAt": "2025-10-07T12:48:51.565Z"
+    },
+    {
+      "id": "Z-QGF4dYZiU",
+      "url": "https://www.youtube.com/shorts/Z-QGF4dYZiU",
+      "title": "Myles Smith rocked his performance in Dublin 🇮🇪",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-09-29T21:30:06Z",
+      "addedAt": "2025-10-07T12:49:10.035Z"
+    },
+    {
       "id": "aNIEA4zuFeg",
       "url": "https://www.youtube.com/shorts/aNIEA4zuFeg",
       "title": "PROFESSIONAL CHEF COOKS MEAL OFF ROADING 👨‍🍳",
@@ -8972,35 +8999,8 @@
       "channelHandle": "ESPN",
       "publishedAt": "2025-07-09T16:18:13Z",
       "addedAt": "2025-07-15T02:07:44.012Z"
-    },
-    {
-      "id": "e5Df-w9PfDQ",
-      "url": "https://www.youtube.com/shorts/e5Df-w9PfDQ",
-      "title": "A catcher magic trick 😱 (via @Yankees/TT)",
-      "channelTitle": "ESPN",
-      "channelHandle": "ESPN",
-      "publishedAt": "2025-07-10T00:35:24Z",
-      "addedAt": "2025-07-15T02:07:44.012Z"
-    },
-    {
-      "id": "JgkpBXtaDf4",
-      "url": "https://www.youtube.com/shorts/JgkpBXtaDf4",
-      "title": "Try Not to Laugh Challenge 539 🤣 #funny ⁠#shorts #viral",
-      "channelTitle": "Jeffrey X",
-      "channelHandle": "Jefferyxreacts",
-      "publishedAt": "2024-07-08T15:27:58Z",
-      "addedAt": "2025-07-15T02:07:51.937Z"
-    },
-    {
-      "id": "DjC3h9aWtEI",
-      "url": "https://www.youtube.com/shorts/DjC3h9aWtEI",
-      "title": "Quinnen Williams stays getting double teamed. (&quot;It&#39;s ok though&quot;) 😅😅",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-07-11T16:30:09Z",
-      "addedAt": "2025-07-15T02:07:57.238Z"
     }
   ],
-  "lastUpdated": "2025-10-07T01:45:08.872Z",
+  "lastUpdated": "2025-10-07T12:49:27.711Z",
   "count": 1000
 }
