@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "id": "xNeKUFB8o8k",
+      "url": "https://www.youtube.com/shorts/xNeKUFB8o8k",
+      "title": "Niners strike first on impressive first drive vs. Rams",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-10-03T00:29:56Z",
+      "addedAt": "2025-10-09T12:49:27.336Z"
+    },
+    {
       "id": "-EdZzleL_zM",
       "url": "https://www.youtube.com/shorts/-EdZzleL_zM",
       "title": "The Phoenix Mercury have arrived for Game 1 of the WNBA Finals 😤",
@@ -8990,17 +8999,8 @@
       "channelHandle": "ZachChoi",
       "publishedAt": "2024-07-14T01:30:15Z",
       "addedAt": "2025-07-16T02:04:46.935Z"
-    },
-    {
-      "id": "XDBFWvKxGKQ",
-      "url": "https://www.youtube.com/shorts/XDBFWvKxGKQ",
-      "title": "Kyrie Irving&#39;s reaction 🔥",
-      "channelTitle": "ESPN",
-      "channelHandle": "ESPN",
-      "publishedAt": "2025-07-11T00:33:46Z",
-      "addedAt": "2025-07-16T02:05:05.680Z"
     }
   ],
-  "lastUpdated": "2025-10-09T01:46:10.217Z",
+  "lastUpdated": "2025-10-09T12:49:42.318Z",
   "count": 1000
 }
