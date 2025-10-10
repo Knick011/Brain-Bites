@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "id": "FLIAyxmjrTg",
+      "url": "https://www.youtube.com/shorts/FLIAyxmjrTg",
+      "title": "Christian McCaffrey&#39;s best plays from 139-yard game vs. Rams | Week 5",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-10-03T04:05:25Z",
+      "addedAt": "2025-10-10T12:47:52.978Z"
+    },
+    {
       "id": "rl83ZnE2BZM",
       "url": "https://www.youtube.com/shorts/rl83ZnE2BZM",
       "title": "Magic Maye! Drake somehow completes pass under insane pressure",
@@ -8990,17 +8999,8 @@
       "channelHandle": "Sambucha",
       "publishedAt": "2025-07-13T19:25:00Z",
       "addedAt": "2025-07-17T02:05:23.178Z"
-    },
-    {
-      "id": "cJrTesr52T4",
-      "url": "https://www.youtube.com/shorts/cJrTesr52T4",
-      "title": "Craziest Death Penalties In History",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-07-14T19:15:03Z",
-      "addedAt": "2025-07-17T02:05:23.178Z"
     }
   ],
-  "lastUpdated": "2025-10-10T01:46:41.233Z",
+  "lastUpdated": "2025-10-10T12:48:02.908Z",
   "count": 1000
 }
