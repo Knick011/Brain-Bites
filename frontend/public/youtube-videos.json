@@ -1,6 +1,60 @@
 {
   "videos": [
     {
+      "id": "sVsrRrfm37c",
+      "url": "https://www.youtube.com/shorts/sVsrRrfm37c",
+      "title": "PSA: Drink Water",
+      "channelTitle": "Ryan Trahan",
+      "channelHandle": "RyanTrahan",
+      "publishedAt": "2015-01-10T01:01:26Z",
+      "addedAt": "2025-10-17T01:46:40.876Z"
+    },
+    {
+      "id": "3jGzoc6OtFQ",
+      "url": "https://www.youtube.com/shorts/3jGzoc6OtFQ",
+      "title": "Send this to your crush without context",
+      "channelTitle": "Ryan Trahan",
+      "channelHandle": "RyanTrahan",
+      "publishedAt": "2018-03-23T23:00:19Z",
+      "addedAt": "2025-10-17T01:46:40.876Z"
+    },
+    {
+      "id": "NUX5nFjEwTU",
+      "url": "https://www.youtube.com/shorts/NUX5nFjEwTU",
+      "title": "A Day in Eagle Lake",
+      "channelTitle": "Ryan Trahan",
+      "channelHandle": "RyanTrahan",
+      "publishedAt": "2015-04-08T22:59:49Z",
+      "addedAt": "2025-10-17T01:46:40.876Z"
+    },
+    {
+      "id": "cXR5_HeFhEY",
+      "url": "https://www.youtube.com/shorts/cXR5_HeFhEY",
+      "title": "800m time trial - Oct. 21, 2016",
+      "channelTitle": "Ryan Trahan",
+      "channelHandle": "RyanTrahan",
+      "publishedAt": "2016-10-22T03:33:27Z",
+      "addedAt": "2025-10-17T01:46:40.876Z"
+    },
+    {
+      "id": "QZqEXZrZjsE",
+      "url": "https://www.youtube.com/shorts/QZqEXZrZjsE",
+      "title": "3200m workout - 4 days out from state",
+      "channelTitle": "Ryan Trahan",
+      "channelHandle": "RyanTrahan",
+      "publishedAt": "2017-05-09T21:00:49Z",
+      "addedAt": "2025-10-17T01:46:40.876Z"
+    },
+    {
+      "id": "xOBlOrLDemg",
+      "url": "https://www.youtube.com/shorts/xOBlOrLDemg",
+      "title": "Most Common Favorites",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2025-10-11T19:15:02Z",
+      "addedAt": "2025-10-17T01:46:55.933Z"
+    },
+    {
       "id": "4zfsCA0rPMo",
       "url": "https://www.youtube.com/shorts/4zfsCA0rPMo",
       "title": "PAT CALLED INDIANA UPSETTING OREGON 🔥",
@@ -8945,62 +8999,8 @@
       "channelHandle": "NFL",
       "publishedAt": "2025-07-19T19:00:05Z",
       "addedAt": "2025-07-25T02:05:23.732Z"
-    },
-    {
-      "id": "bLKs58wymzg",
-      "url": "https://www.youtube.com/shorts/bLKs58wymzg",
-      "title": "Hard Knocks: Training Camp With the Buffalo Bills | Official Trailer",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-07-24T18:00:29Z",
-      "addedAt": "2025-07-25T02:05:23.732Z"
-    },
-    {
-      "id": "4ApGcA70R4o",
-      "url": "https://www.youtube.com/shorts/4ApGcA70R4o",
-      "title": "Hard Knocks: Training Camp with the Buffalo Bills | Official Trailer",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-07-24T18:00:04Z",
-      "addedAt": "2025-07-25T02:05:23.732Z"
-    },
-    {
-      "id": "NJ8x1AcSQpU",
-      "url": "https://www.youtube.com/shorts/NJ8x1AcSQpU",
-      "title": "Speedrunning YT Shorts #199.9999 (Nintendo moment)",
-      "channelTitle": "Joe Caine",
-      "channelHandle": "joecain",
-      "publishedAt": "2025-02-17T18:00:31Z",
-      "addedAt": "2025-07-25T02:05:40.707Z"
-    },
-    {
-      "id": "OVxHxnCkm8Q",
-      "url": "https://www.youtube.com/shorts/OVxHxnCkm8Q",
-      "title": "How Much Is One Human Life Worth?",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-07-23T17:15:01Z",
-      "addedAt": "2025-07-25T02:05:41.989Z"
-    },
-    {
-      "id": "fyDkcbUEwiM",
-      "url": "https://www.youtube.com/shorts/fyDkcbUEwiM",
-      "title": "Shrimp Po Boys Are Underrated | The Golden Balance",
-      "channelTitle": "The Golden Balance",
-      "channelHandle": "GoldenBalance",
-      "publishedAt": "2022-07-28T15:00:26Z",
-      "addedAt": "2025-07-24T12:53:36.317Z"
-    },
-    {
-      "id": "XteBcFeDCxY",
-      "url": "https://www.youtube.com/shorts/XteBcFeDCxY",
-      "title": "AUTHENTIC CHICKEN BIRYANI (EID SPECIAL)",
-      "channelTitle": "The Golden Balance",
-      "channelHandle": "GoldenBalance",
-      "publishedAt": "2023-06-28T15:00:31Z",
-      "addedAt": "2025-07-24T12:53:36.317Z"
     }
   ],
-  "lastUpdated": "2025-10-16T12:51:06.910Z",
+  "lastUpdated": "2025-10-17T01:47:28.508Z",
   "count": 1000
 }
