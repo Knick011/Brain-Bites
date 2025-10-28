@@ -1,6 +1,51 @@
 {
   "videos": [
     {
+      "id": "c9tTCrhSMXw",
+      "url": "https://www.youtube.com/shorts/c9tTCrhSMXw",
+      "title": "Dude Perfect Exposed 🫣",
+      "channelTitle": "Dude Perfect",
+      "channelHandle": "DudePerfect",
+      "publishedAt": "2025-06-16T21:58:36Z",
+      "addedAt": "2025-10-28T12:49:32.909Z"
+    },
+    {
+      "id": "8zSC0M1ucf4",
+      "url": "https://www.youtube.com/shorts/8zSC0M1ucf4",
+      "title": "We are Italians EPIC COLLAB",
+      "channelTitle": "Lionfield",
+      "channelHandle": "lionfield",
+      "publishedAt": "2024-01-13T19:02:00Z",
+      "addedAt": "2025-10-28T12:49:41.750Z"
+    },
+    {
+      "id": "Q11i4mqfDSY",
+      "url": "https://www.youtube.com/shorts/Q11i4mqfDSY",
+      "title": "There are TOO MANY SLICES OF PIZZA",
+      "channelTitle": "Lionfield",
+      "channelHandle": "lionfield",
+      "publishedAt": "2025-04-25T16:35:02Z",
+      "addedAt": "2025-10-28T12:49:41.750Z"
+    },
+    {
+      "id": "KvLFEJGwyfw",
+      "url": "https://www.youtube.com/shorts/KvLFEJGwyfw",
+      "title": "What Does -5+3 Equal? 📚 shorts»",
+      "channelTitle": "5-Minute Crafts",
+      "channelHandle": "5MinuteCrafts",
+      "publishedAt": "2023-03-08T13:00:22Z",
+      "addedAt": "2025-10-28T12:49:48.024Z"
+    },
+    {
+      "id": "FQ8vSkHZL3Y",
+      "url": "https://www.youtube.com/shorts/FQ8vSkHZL3Y",
+      "title": "Two-Headed Monster Brewing in Dallas",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-10-23T00:00:12Z",
+      "addedAt": "2025-10-28T12:50:08.017Z"
+    },
+    {
       "id": "3c_dj9EfbjU",
       "url": "https://www.youtube.com/shorts/3c_dj9EfbjU",
       "title": "27 November 2024",
@@ -8954,53 +8999,8 @@
       "channelHandle": "lionfield",
       "publishedAt": "2025-05-15T15:00:10Z",
       "addedAt": "2025-08-12T01:57:46.497Z"
-    },
-    {
-      "id": "jpWobsI361c",
-      "url": "https://www.youtube.com/shorts/jpWobsI361c",
-      "title": "I Called Random Numbers Until I Found A “Michael”",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-08-05T17:15:04Z",
-      "addedAt": "2025-08-11T12:54:18.902Z"
-    },
-    {
-      "id": "p8LhcKbckP8",
-      "url": "https://www.youtube.com/shorts/p8LhcKbckP8",
-      "title": "Can You Bring A Cow In An Uber?",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-08-06T17:15:04Z",
-      "addedAt": "2025-08-11T12:54:18.902Z"
-    },
-    {
-      "id": "B_CtRkEGS74",
-      "url": "https://www.youtube.com/shorts/B_CtRkEGS74",
-      "title": "Seahawks BLOCK the Raiders&#39; Field Goal to tie the game",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-08-08T05:27:12Z",
-      "addedAt": "2025-08-11T12:54:35.328Z"
-    },
-    {
-      "id": "wPCOrpcd5hc",
-      "url": "https://www.youtube.com/shorts/wPCOrpcd5hc",
-      "title": "Mike Singletary&#39;s BEEF with Running Backs",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-08-05T22:43:38Z",
-      "addedAt": "2025-08-11T12:54:35.328Z"
-    },
-    {
-      "id": "IFFx0C6AyDo",
-      "url": "https://www.youtube.com/shorts/IFFx0C6AyDo",
-      "title": "just three guys appreciating epic plays 🔥",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-08-05T16:00:26Z",
-      "addedAt": "2025-08-11T12:54:35.328Z"
     }
   ],
-  "lastUpdated": "2025-10-28T01:49:34.452Z",
+  "lastUpdated": "2025-10-28T12:50:20.144Z",
   "count": 1000
 }
