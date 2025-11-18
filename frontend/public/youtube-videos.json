@@ -1,6 +1,231 @@
 {
   "videos": [
     {
+      "id": "0AM0sOuxyUY",
+      "url": "https://www.youtube.com/shorts/0AM0sOuxyUY",
+      "title": "Movies That Changed Scenes After Release",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2025-11-12T20:15:00Z",
+      "addedAt": "2025-11-18T01:53:37.757Z"
+    },
+    {
+      "id": "TE2omM_NoXU",
+      "url": "https://www.youtube.com/shorts/TE2omM_NoXU",
+      "title": "Fillet of Beef Wellington | Gordon Ramsay",
+      "channelTitle": "Gordon Ramsay",
+      "channelHandle": "GordonRamsay",
+      "publishedAt": "2015-06-17T23:00:00Z",
+      "addedAt": "2025-11-18T01:53:40.230Z"
+    },
+    {
+      "id": "sdlapShLMRg",
+      "url": "https://www.youtube.com/shorts/sdlapShLMRg",
+      "title": "not him picking up the grass 😭",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-11-11T05:34:31Z",
+      "addedAt": "2025-11-18T01:53:45.164Z"
+    },
+    {
+      "id": "uTb0Ft76_rM",
+      "url": "https://www.youtube.com/shorts/uTb0Ft76_rM",
+      "title": "THE BEST NFL WEEK 9 PREGAME FITS 😮‍💨🔥",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-11-04T21:01:10Z",
+      "addedAt": "2025-11-18T01:53:45.164Z"
+    },
+    {
+      "id": "wSiZXkvUE1A",
+      "url": "https://www.youtube.com/shorts/wSiZXkvUE1A",
+      "title": "WE BOUGHT THE FAKE PS5 @ WALMART 💀",
+      "channelTitle": "Cheeky Boyos",
+      "channelHandle": "cheekyboyos",
+      "publishedAt": "2025-02-14T00:00:53Z",
+      "addedAt": "2025-11-18T01:53:52.367Z"
+    },
+    {
+      "id": "IVQ1bPX1m9U",
+      "url": "https://www.youtube.com/shorts/IVQ1bPX1m9U",
+      "title": "MARK ATE THE BASKETBALL 🤯🏀",
+      "channelTitle": "Dude Perfect",
+      "channelHandle": "DudePerfect",
+      "publishedAt": "2023-09-23T01:47:02Z",
+      "addedAt": "2025-11-18T01:53:53.588Z"
+    },
+    {
+      "id": "rcTR3InhIC4",
+      "url": "https://www.youtube.com/shorts/rcTR3InhIC4",
+      "title": "cats getting better loaf 🍞",
+      "channelTitle": "The Meow Show",
+      "channelHandle": "cats",
+      "publishedAt": "2025-01-07T14:46:34Z",
+      "addedAt": "2025-11-18T01:53:57.242Z"
+    },
+    {
+      "id": "BqbNbB28pWA",
+      "url": "https://www.youtube.com/shorts/BqbNbB28pWA",
+      "title": "This moment 🥹❤️ (via @texasstatevball/X)",
+      "channelTitle": "ESPN",
+      "channelHandle": "ESPN",
+      "publishedAt": "2025-11-08T17:53:04Z",
+      "addedAt": "2025-11-18T01:53:58.453Z"
+    },
+    {
+      "id": "v4wAflHrT1Y",
+      "url": "https://www.youtube.com/shorts/v4wAflHrT1Y",
+      "title": "What an experience 🤩",
+      "channelTitle": "ESPN",
+      "channelHandle": "ESPN",
+      "publishedAt": "2025-11-12T14:34:47Z",
+      "addedAt": "2025-11-18T01:53:58.453Z"
+    },
+    {
+      "id": "QbPtSKbJG6Y",
+      "url": "https://www.youtube.com/shorts/QbPtSKbJG6Y",
+      "title": "I traded $0.01 for a house",
+      "channelTitle": "Ryan Trahan",
+      "channelHandle": "RyanTrahan",
+      "publishedAt": "2022-01-21T01:50:28Z",
+      "addedAt": "2025-11-18T01:54:11.802Z"
+    },
+    {
+      "id": "O3YVBJ2n5xg",
+      "url": "https://www.youtube.com/shorts/O3YVBJ2n5xg",
+      "title": "I Ate The World’s Most Poisonous Fish",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2023-08-08T17:30:01Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "Gx6VeIIbWwM",
+      "url": "https://www.youtube.com/shorts/Gx6VeIIbWwM",
+      "title": "Spot The Hidden People For $10,000",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2023-09-28T17:00:01Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "zxuICI0kL3s",
+      "url": "https://www.youtube.com/shorts/zxuICI0kL3s",
+      "title": "Don’t Turn Around, Win $10k",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2025-07-31T16:00:01Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "ZVt9ZJfWV1c",
+      "url": "https://www.youtube.com/shorts/ZVt9ZJfWV1c",
+      "title": "Feeding A Dog $1 vs $10,000 Steak",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2023-12-14T18:00:00Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "NTZhwAldqwg",
+      "url": "https://www.youtube.com/shorts/NTZhwAldqwg",
+      "title": "Metal Pipe Vs School Bus",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2023-08-22T17:00:00Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "k194wHZHjB0",
+      "url": "https://www.youtube.com/shorts/k194wHZHjB0",
+      "title": "Most Expensive Hand Model Holds Feastables",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2024-02-24T18:00:09Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "bvlFjrcpD6s",
+      "url": "https://www.youtube.com/shorts/bvlFjrcpD6s",
+      "title": "I NEED 1 MORE 𝗦𝗨𝗕𝗦𝗖𝗥𝗜𝗕𝗘𝗥",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2023-10-05T17:00:01Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "ykRq_rp7NhM",
+      "url": "https://www.youtube.com/shorts/ykRq_rp7NhM",
+      "title": "I Got Naruto to Subscribe to Me",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2023-05-20T20:00:00Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "I9mw5UlDyPI",
+      "url": "https://www.youtube.com/shorts/I9mw5UlDyPI",
+      "title": "This Game Is Wild...",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2024-11-12T17:00:00Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "4yx9ZJDfyKk",
+      "url": "https://www.youtube.com/shorts/4yx9ZJDfyKk",
+      "title": "Baseball Tic Tac Toe vs MLB Pro",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2025-03-27T16:00:00Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "NPYPXWJBTWM",
+      "url": "https://www.youtube.com/shorts/NPYPXWJBTWM",
+      "title": "$10,000 Girl Scout Cookies",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2023-03-11T17:00:47Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "7qY-qalCI2Y",
+      "url": "https://www.youtube.com/shorts/7qY-qalCI2Y",
+      "title": "Grab The Rolex, Keep It!",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2025-05-21T15:59:50Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "3cWm9B_0_kI",
+      "url": "https://www.youtube.com/shorts/3cWm9B_0_kI",
+      "title": "How Many People To Stop Ronaldo?",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2024-12-27T19:00:00Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "ZNt_GoOBHq8",
+      "url": "https://www.youtube.com/shorts/ZNt_GoOBHq8",
+      "title": "Human vs Jet Engine",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2024-10-17T19:00:00Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
+      "id": "Tbn4cYCaZCk",
+      "url": "https://www.youtube.com/shorts/Tbn4cYCaZCk",
+      "title": "Drift This Car, Win $10,000",
+      "channelTitle": "MrBeast",
+      "channelHandle": "MrBeast",
+      "publishedAt": "2025-04-16T17:00:15Z",
+      "addedAt": "2025-11-18T01:54:20.362Z"
+    },
+    {
       "id": "5bml8-FLuBs",
       "url": "https://www.youtube.com/shorts/5bml8-FLuBs",
       "title": "I Ordered The #6 From Every Drive Thru",
@@ -8774,233 +8999,8 @@
       "channelHandle": "ESPN",
       "publishedAt": "2025-09-20T23:17:33Z",
       "addedAt": "2025-09-26T01:45:58.121Z"
-    },
-    {
-      "id": "Onnza_CAglU",
-      "url": "https://www.youtube.com/shorts/Onnza_CAglU",
-      "title": "MVP DOMINANCE 👑 A&#39;ja Wilson leads Aces to Game 2 win vs. Fever to tie the series 💪 | WNBA on ESPN",
-      "channelTitle": "ESPN",
-      "channelHandle": "ESPN",
-      "publishedAt": "2025-09-24T03:48:50Z",
-      "addedAt": "2025-09-25T01:45:58.670Z"
-    },
-    {
-      "id": "iWxL1OKopkU",
-      "url": "https://www.youtube.com/shorts/iWxL1OKopkU",
-      "title": "Amon-Ra St. Brown makes the touchdown grab to tie it for Detroit 💪 | NFL on ESPN",
-      "channelTitle": "ESPN",
-      "channelHandle": "ESPN",
-      "publishedAt": "2025-09-23T02:18:53Z",
-      "addedAt": "2025-09-24T12:47:17.024Z"
-    },
-    {
-      "id": "bBmp7BNdRtU",
-      "url": "https://www.youtube.com/shorts/bBmp7BNdRtU",
-      "title": "Who Owns The Most Land In The World?",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-09-23T19:15:04Z",
-      "addedAt": "2025-09-24T12:47:22.110Z"
-    },
-    {
-      "id": "2IZksE1w4hc",
-      "url": "https://www.youtube.com/shorts/2IZksE1w4hc",
-      "title": "What Snoop Dogg&#39;s LUNGS Look Like 😨🫁",
-      "channelTitle": "Music Media",
-      "channelHandle": "MusicMedia",
-      "publishedAt": "2025-04-25T20:06:56Z",
-      "addedAt": "2025-09-24T12:47:23.397Z"
-    },
-    {
-      "id": "Oud_pkW0m0I",
-      "url": "https://www.youtube.com/shorts/Oud_pkW0m0I",
-      "title": "Hardest Click in Geometry Dash",
-      "channelTitle": "Speedroute",
-      "channelHandle": "speedroute",
-      "publishedAt": "2023-09-09T13:00:18Z",
-      "addedAt": "2025-09-24T12:47:51.683Z"
-    },
-    {
-      "id": "MWwlZLtO9rA",
-      "url": "https://www.youtube.com/shorts/MWwlZLtO9rA",
-      "title": "Caitlin Clark was HYPED 😂",
-      "channelTitle": "ESPN",
-      "channelHandle": "ESPN",
-      "publishedAt": "2025-09-21T21:13:41Z",
-      "addedAt": "2025-09-24T01:45:20.378Z"
-    },
-    {
-      "id": "U2vfuHnjp1A",
-      "url": "https://www.youtube.com/shorts/U2vfuHnjp1A",
-      "title": "Hot start for Arch 🔥",
-      "channelTitle": "ESPN",
-      "channelHandle": "ESPN",
-      "publishedAt": "2025-09-21T00:57:24Z",
-      "addedAt": "2025-09-24T01:45:20.378Z"
-    },
-    {
-      "id": "VmDecs5-OYo",
-      "url": "https://www.youtube.com/shorts/VmDecs5-OYo",
-      "title": "Try Not to Laugh Challenge 1323 🤣 #funny ⁠#shorts #viral",
-      "channelTitle": "Jeffrey X",
-      "channelHandle": "Jefferyxreacts",
-      "publishedAt": "2025-08-05T14:02:58Z",
-      "addedAt": "2025-09-24T01:45:52.254Z"
-    },
-    {
-      "id": "6fsg9F55OxI",
-      "url": "https://www.youtube.com/shorts/6fsg9F55OxI",
-      "title": "What just happened!?! Jets take the lead with blocked FG turned TD",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-09-21T20:23:34Z",
-      "addedAt": "2025-09-23T01:43:47.810Z"
-    },
-    {
-      "id": "iHj5aTXEyVo",
-      "url": "https://www.youtube.com/shorts/iHj5aTXEyVo",
-      "title": "What Happens To Your Body After You Die?",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-09-22T17:15:04Z",
-      "addedAt": "2025-09-23T01:43:49.168Z"
-    },
-    {
-      "id": "Ks0WZbDzuMw",
-      "url": "https://www.youtube.com/shorts/Ks0WZbDzuMw",
-      "title": "Crazy History Facts That Are Somehow Real",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-09-22T19:15:01Z",
-      "addedAt": "2025-09-23T01:43:49.168Z"
-    },
-    {
-      "id": "FOLynxT0EFM",
-      "url": "https://www.youtube.com/shorts/FOLynxT0EFM",
-      "title": "The ending got intense 😮‍💨 (via @redbullusa/TT)",
-      "channelTitle": "ESPN",
-      "channelHandle": "ESPN",
-      "publishedAt": "2025-09-22T14:01:15Z",
-      "addedAt": "2025-09-23T01:44:00.835Z"
-    },
-    {
-      "id": "hQ08BJ28sMM",
-      "url": "https://www.youtube.com/shorts/hQ08BJ28sMM",
-      "title": "Minnesota Lynx big 3 react to Game 1 win over the Mercury after combining for 62 PTS | WNBA on ESPN",
-      "channelTitle": "ESPN",
-      "channelHandle": "ESPN",
-      "publishedAt": "2025-09-21T22:57:46Z",
-      "addedAt": "2025-09-22T12:48:45.981Z"
-    },
-    {
-      "id": "vWNGZ9qsASA",
-      "url": "https://www.youtube.com/shorts/vWNGZ9qsASA",
-      "title": "solid celly too 😭",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-09-21T18:55:10Z",
-      "addedAt": "2025-09-22T12:48:47.240Z"
-    },
-    {
-      "id": "9nRy7v1K6PM",
-      "url": "https://www.youtube.com/shorts/9nRy7v1K6PM",
-      "title": "What Is The Most Boring Job In The World?",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-09-21T19:15:00Z",
-      "addedAt": "2025-09-22T01:53:38.713Z"
-    },
-    {
-      "id": "-05aWTRYL2k",
-      "url": "https://www.youtube.com/shorts/-05aWTRYL2k",
-      "title": "Kenny Moore Pick 6 on the 3rd play of the game",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-09-21T17:13:33Z",
-      "addedAt": "2025-09-22T01:53:41.222Z"
-    },
-    {
-      "id": "qxrh_VWZ6Ek",
-      "url": "https://www.youtube.com/shorts/qxrh_VWZ6Ek",
-      "title": "Jeremy McNichols breaks every tackle for the 60-yard touchdown",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-09-21T18:25:58Z",
-      "addedAt": "2025-09-22T01:53:41.222Z"
-    },
-    {
-      "id": "YA9TSxmm_xc",
-      "url": "https://www.youtube.com/shorts/YA9TSxmm_xc",
-      "title": "Bryce Young all-out sprints for Panthers&#39; TD",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-09-21T17:26:10Z",
-      "addedAt": "2025-09-22T01:53:41.222Z"
-    },
-    {
-      "id": "dIs1dM6E68Q",
-      "url": "https://www.youtube.com/shorts/dIs1dM6E68Q",
-      "title": "TikTok CEO Vs Us senate #tiktok #ceo #ranking #usa",
-      "channelTitle": "Irenic",
-      "channelHandle": "irenic",
-      "publishedAt": "2025-01-18T00:11:06Z",
-      "addedAt": "2025-09-22T01:54:06.002Z"
-    },
-    {
-      "id": "6aFGBxpOh2w",
-      "url": "https://www.youtube.com/shorts/6aFGBxpOh2w",
-      "title": "Pat McAfee brought the energy for Miami 🗣️",
-      "channelTitle": "ESPN",
-      "channelHandle": "ESPN",
-      "publishedAt": "2025-09-20T13:45:47Z",
-      "addedAt": "2025-09-21T12:40:57.407Z"
-    },
-    {
-      "id": "sadcLwewhsk",
-      "url": "https://www.youtube.com/shorts/sadcLwewhsk",
-      "title": "Bo Nix&#39;s best plays from 3-TD game vs. Colts | Week 2",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-09-14T23:55:02Z",
-      "addedAt": "2025-09-21T12:41:02.553Z"
-    },
-    {
-      "id": "SrI5Hj1Xp_k",
-      "url": "https://www.youtube.com/shorts/SrI5Hj1Xp_k",
-      "title": "Russ is cooking! Wilson pinpoints Robinson with late-game TD",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-09-14T20:00:38Z",
-      "addedAt": "2025-09-21T12:41:02.553Z"
-    },
-    {
-      "id": "59i_4nCyCaM",
-      "url": "https://www.youtube.com/shorts/59i_4nCyCaM",
-      "title": "CHRISTMAS Transformation with Lensa 🎄 and super easy dance challenge",
-      "channelTitle": "5-Minute Crafts",
-      "channelHandle": "5MinuteCrafts",
-      "publishedAt": "2022-12-20T09:30:54Z",
-      "addedAt": "2025-09-21T12:41:03.778Z"
-    },
-    {
-      "id": "gCz1IMwJWVc",
-      "url": "https://www.youtube.com/shorts/gCz1IMwJWVc",
-      "title": "Who Is The Worst Actor Ever?",
-      "channelTitle": "Sambucha",
-      "channelHandle": "Sambucha",
-      "publishedAt": "2025-09-20T17:15:04Z",
-      "addedAt": "2025-09-21T01:53:41.247Z"
-    },
-    {
-      "id": "7qoAk0yb674",
-      "url": "https://www.youtube.com/shorts/7qoAk0yb674",
-      "title": "different types of speed in detroit 😂🔥",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-09-19T19:00:07Z",
-      "addedAt": "2025-09-21T01:53:56.426Z"
     }
   ],
-  "lastUpdated": "2025-11-17T12:51:35.456Z",
+  "lastUpdated": "2025-11-18T01:54:23.857Z",
   "count": 1000
 }
