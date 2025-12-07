@@ -1,6 +1,33 @@
 {
   "videos": [
     {
+      "id": "U2hCJaUU9zs",
+      "url": "https://www.youtube.com/shorts/U2hCJaUU9zs",
+      "title": "100 Years Of America",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2025-12-04T20:15:03Z",
+      "addedAt": "2025-12-07T02:07:01.555Z"
+    },
+    {
+      "id": "l4Tp0NCvRyc",
+      "url": "https://www.youtube.com/shorts/l4Tp0NCvRyc",
+      "title": "Jameson Williams&#39; best plays from 144-yard game vs. Packers",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-11-27T21:43:20Z",
+      "addedAt": "2025-12-07T02:07:04.096Z"
+    },
+    {
+      "id": "1R1gb0oY2b8",
+      "url": "https://www.youtube.com/shorts/1R1gb0oY2b8",
+      "title": "🚨 LAKERS GAME WINNER 🚨 LeBron finds Rui Hachimura for a 3 at the buzzer 🎯 | NBA on ESPN",
+      "channelTitle": "ESPN",
+      "channelHandle": "ESPN",
+      "publishedAt": "2025-12-05T03:04:09Z",
+      "addedAt": "2025-12-07T02:07:22.814Z"
+    },
+    {
       "id": "ok8wdwj_G1g",
       "url": "https://www.youtube.com/shorts/ok8wdwj_G1g",
       "title": "Funniest Pranks😭 #muñañyo #ranking #tiktok #prank",
@@ -8972,35 +8999,8 @@
       "channelHandle": "MrBeast",
       "publishedAt": "2023-10-05T17:00:01Z",
       "addedAt": "2025-11-18T01:54:20.362Z"
-    },
-    {
-      "id": "ykRq_rp7NhM",
-      "url": "https://www.youtube.com/shorts/ykRq_rp7NhM",
-      "title": "I Got Naruto to Subscribe to Me",
-      "channelTitle": "MrBeast",
-      "channelHandle": "MrBeast",
-      "publishedAt": "2023-05-20T20:00:00Z",
-      "addedAt": "2025-11-18T01:54:20.362Z"
-    },
-    {
-      "id": "I9mw5UlDyPI",
-      "url": "https://www.youtube.com/shorts/I9mw5UlDyPI",
-      "title": "This Game Is Wild...",
-      "channelTitle": "MrBeast",
-      "channelHandle": "MrBeast",
-      "publishedAt": "2024-11-12T17:00:00Z",
-      "addedAt": "2025-11-18T01:54:20.362Z"
-    },
-    {
-      "id": "4yx9ZJDfyKk",
-      "url": "https://www.youtube.com/shorts/4yx9ZJDfyKk",
-      "title": "Baseball Tic Tac Toe vs MLB Pro",
-      "channelTitle": "MrBeast",
-      "channelHandle": "MrBeast",
-      "publishedAt": "2025-03-27T16:00:00Z",
-      "addedAt": "2025-11-18T01:54:20.362Z"
     }
   ],
-  "lastUpdated": "2025-12-06T12:47:34.458Z",
+  "lastUpdated": "2025-12-07T02:07:25.063Z",
   "count": 1000
 }
