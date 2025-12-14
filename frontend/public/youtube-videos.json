@@ -1,6 +1,42 @@
 {
   "videos": [
     {
+      "id": "1QXLR4fJXnc",
+      "url": "https://www.youtube.com/shorts/1QXLR4fJXnc",
+      "title": "I Called Numbers From A 60 Year Old Phone Book",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2025-12-07T20:15:00Z",
+      "addedAt": "2025-12-14T12:48:17.609Z"
+    },
+    {
+      "id": "3dlXhUqZ-Wk",
+      "url": "https://www.youtube.com/shorts/3dlXhUqZ-Wk",
+      "title": "I Ordered Celebrity Fast Food Meals",
+      "channelTitle": "Sambucha",
+      "channelHandle": "Sambucha",
+      "publishedAt": "2025-12-07T18:15:00Z",
+      "addedAt": "2025-12-14T12:48:17.609Z"
+    },
+    {
+      "id": "_ImJNdS-HuE",
+      "url": "https://www.youtube.com/shorts/_ImJNdS-HuE",
+      "title": "w ref 👏",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-12-09T02:39:53Z",
+      "addedAt": "2025-12-14T12:48:22.247Z"
+    },
+    {
+      "id": "WP5BLOeiuP4",
+      "url": "https://www.youtube.com/shorts/WP5BLOeiuP4",
+      "title": "Justin Herbert couldn’t believe what just happened 😮",
+      "channelTitle": "NFL",
+      "channelHandle": "NFL",
+      "publishedAt": "2025-12-09T05:46:51Z",
+      "addedAt": "2025-12-14T12:48:22.247Z"
+    },
+    {
       "id": "19NmWqv4Alk",
       "url": "https://www.youtube.com/shorts/19NmWqv4Alk",
       "title": "How Many School Buses Can We Stack?",
@@ -8963,44 +8999,8 @@
       "channelHandle": "Kurzgesagt",
       "publishedAt": "2023-07-20T14:00:03Z",
       "addedAt": "2025-11-21T12:49:21.671Z"
-    },
-    {
-      "id": "J8imlz6Lki8",
-      "url": "https://www.youtube.com/shorts/J8imlz6Lki8",
-      "title": "Something Travels Faster than Light",
-      "channelTitle": "Kurzgesagt – In a Nutshell",
-      "channelHandle": "Kurzgesagt",
-      "publishedAt": "2024-06-06T14:00:19Z",
-      "addedAt": "2025-11-21T12:49:21.671Z"
-    },
-    {
-      "id": "o7aXV_PV4ss",
-      "url": "https://www.youtube.com/shorts/o7aXV_PV4ss",
-      "title": "Dozens of Nukes Are Missing. Why? HOW?",
-      "channelTitle": "Kurzgesagt – In a Nutshell",
-      "channelHandle": "Kurzgesagt",
-      "publishedAt": "2025-05-29T14:01:14Z",
-      "addedAt": "2025-11-21T12:49:21.671Z"
-    },
-    {
-      "id": "RFjbDn20t5Y",
-      "url": "https://www.youtube.com/shorts/RFjbDn20t5Y",
-      "title": "97-yard TD! Ray Davis returns kickoff in electric score",
-      "channelTitle": "NFL",
-      "channelHandle": "NFL",
-      "publishedAt": "2025-11-21T02:46:13Z",
-      "addedAt": "2025-11-21T12:49:27.848Z"
-    },
-    {
-      "id": "0qn87KT277c",
-      "url": "https://www.youtube.com/shorts/0qn87KT277c",
-      "title": "Cameron Boozer HIGHLIGHTS 🎥 35 PTS &amp; 12 REB in Duke&#39;s 4th win of the season | ESPN CBB",
-      "channelTitle": "ESPN",
-      "channelHandle": "ESPN",
-      "publishedAt": "2025-11-15T02:21:29Z",
-      "addedAt": "2025-11-21T12:49:46.538Z"
     }
   ],
-  "lastUpdated": "2025-12-14T02:08:10.112Z",
+  "lastUpdated": "2025-12-14T12:48:59.914Z",
   "count": 1000
 }
